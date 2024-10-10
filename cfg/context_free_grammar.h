@@ -15,6 +15,9 @@
     * Quoted strings which represent the "terminal"
     * Lowercase letters that are  "nonterminal"
 */
+#if ENABLE_TREE_BUILD
+   Set<astTree<int, String, ExprVariant>> cTree;
+#endif
 namespace ContextFreeGrammar {
     //template<class Derived>
     class Expr /*: public Visitor<Derived>*/ {

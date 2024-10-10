@@ -303,6 +303,3 @@ String EcoSystem::parenthesize(String name, Expr* expr) {
     return builder.toString();*/
     return "\0";
 }
-#if ENABLE_TREE_BUILD
-   Set<astTree<int, String, ExprVariant>> cTree;
-#endif
