@@ -1,0 +1,10 @@
+break debugSingleCharacterTokens()
+disable $bpnum
+break Scanner::ScanTokens()
+break isAtEnd()
+disable $bpnum
+break isAlpha
+disable $bpnum
+break isAlphaNumeric(char)
+disable $bpnum
+break addToken(TokenType, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
