@@ -37,7 +37,7 @@ g++ -w -g -std=c++17 -fconcepts $INCLUDE -c ../parser/parser.cc -o parser.o
 echo "Creating debugging object files and executables for ast"
 g++ -g -std=c++17 -fconcepts $INCLUDE -c ../ast/abstraction_tree_syntax.cc -o abstraction_tree_syntax.o 
 g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 $INCLUDE  -c ../debugging/debug_ast.cc -o debug_abstraction_tree_syntax.o 
-g++ -g -std=c++17 -fconcepts parser.o context_free_grammar.o scanner.o abstraction_tree_syntax.o languages.o token.o logging.o debug_abstraction_tree_syntax.o -o exec_debug_abstraction_tree_syntax
+g++ -g -std=c++17 -fconcepts parser.o context_free_grammar.o scanner.o abstraction_tree_syntax.o token.o logging.o debug_abstraction_tree_syntax.o -o exec_debug_abstraction_tree_syntax
 #g++ -g -std=c++17 -fconcepts $INCLUDE -c ../tests/test_ast.cc -o test_abstraction_tree_syntax.o 
 #g++ -g -std=c++17 -fconcepts -D RADNOM_EXTENSIONS=0 scanner.o test_abstraction_tree_syntax.o abstraction_tree_syntax.o languages.o token.o logging.o -o test_abstraction_tree_syntax $LDFLAGS
 
