@@ -139,7 +139,7 @@ Expr* parser::expression() { return equality(); }
  * --------------------------------------------------------------------------
 */
 Expr* parser::program() {
-    while (match(!TokenType::END_OF_FILE)) return declarations(); 
+    while (!match(TokenType::END_OF_FILE)) return declarations(); 
     return nullptr;
 }
 /** --------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include <atomic>
 #include <mutex>
 #include <cstdarg>
+#include <thread>
 #include <addon.h>
 /** ----------------------------------------------
  * 
@@ -29,9 +30,6 @@
  *          That header specifically has maps that will also be used throughout the codebase.
  *          The maps will most likely be used with the custom execptions classes ie catcher and runtimeerror
  */
-
-
-
 
 /** ------------------------------------------------------------------------
  * @brief Used to control the programs behavior based on the user choice of language
@@ -92,7 +90,6 @@ namespace ContextFreeGrammar {
     class Literal;
     class Statement;
     class Variable;
-    class Identifer;
     class Methods;
     class Arguments;
     class EcoSystem;

@@ -288,62 +288,12 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
-    class Identifer: public Expr, public Visitor<Identifer>, public logging<Identifer>, public runtimeerror<Identifer>, public catcher<Identifer> {
-        public:
-            friend class runtimeerror<Identifer>; // Use to output TokenType and message
-            friend class catcher<Identifer>; // Use to output a message
-            friend class Visitor<Identifer>;
-            Identifer(const Token&& oP) noexcept;
-            ~Identifer() noexcept = default;
-            inline String accept(Expr* visitor) override { return visit(this); };
-            inline String visit(Expr* expr) override { return parenthesize("identifer", expr); };
-        protected:
-            inline static logTable<Map<String, Vector<String>>> logs_;
-            /** --------------------------------------
-             * @brief A method that is overloaded by this class 
-             * 
-             * @details It is a method that is defined here which gets called by the definition method inside catcher 
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output the error message
-             * 
-             * @return a string literal. Usually will be ub. Something that you do not want to get
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const char* msg = catcher<Identifer>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(TokenType&& type = runtimeerror<Identifer>::getType(), const char* msg = runtimeerror<Identifer>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
-
-    };
     class Variable: public Expr, public Visitor<Variable>, public logging<Variable>, public runtimeerror<Variable>, public catcher<Variable> {
         public:
             friend class runtimeerror<Variable>; // Use to output TokenType and message
             friend class catcher<Variable>; // Use to output a message
             friend class Visitor<Variable>;
-            Variable(const Token&& oP) noexcept;
+            Variable(const Token&& oP);
             ~Variable() noexcept = default;
             inline String accept(Expr* visitor) override { return visit(this); };
             inline String visit(Expr* expr) override {
@@ -397,7 +347,7 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Statement>; // Use to output TokenType and message
             friend class catcher<Statement>; // Use to output a message
             friend class Visitor<Statement>;
-            Statement(Expr* initalizer, const Token&& oP) noexcept;
+            Statement(Expr* initalizer, const Token&& oP);
             ~Statement() noexcept = default;
             inline String accept(Expr* visitor) override { return visitor->visit(this); };
             inline String visit(Expr* expr) override {
@@ -417,7 +367,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(const char* msg = catcher<Literal>::getMsg()) throw() { return msg;};
+            inline static const char* what(const char* msg = catcher<Statement>::getMsg()) throw() { return msg;};
             /** --------------------------------------
              * @brief A method that is overloaded here from this class 
              * 
@@ -431,7 +381,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Literal>::getType(), const char* msg = runtimeerror<Literal>::getMsg()) throw() {
+            inline static const char* what(TokenType&& type = runtimeerror<Statement>::getType(), const char* msg = runtimeerror<Statement>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -503,7 +453,7 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Arguments>; // Use to output TokenType and message
             friend class catcher<Arguments>; // Use to output a message
             friend class Visitor<Arguments>;
-            explicit Arguments(Expr* left, const Token& op_, Expr* right) noexcept;
+            explicit Arguments(Expr* left, const Token& op_, Expr* right);
             ~Arguments() noexcept = default;
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;

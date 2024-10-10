@@ -20,7 +20,7 @@ enum TokenType {
     FALSE, TRUE, THIS, SUPER, RETURN, VAR,
     STATIC, FINAL, CATCH, CONST, TRY, EXCEPT,
     // Primitive Types
-    FALSE, INT, FLOAT, CHAR, VOID, BOOL, NIL,
+    INT, FLOAT, CHAR, VOID, BOOL, NIL,
     // Complex Types
     AUTO, LIST, QUERY, MAP, POINTER, REF,
     // Control flow

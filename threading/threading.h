@@ -99,6 +99,6 @@ class ThreadTracker : public std::thread {
          */
         inline void removeThread() {
             std::lock_guard<std::mutex> lock(thread_mutex);
-            active_threads.erase(std::remove(active_threads.begin(), active_threads.end(), get_id()), active_threads.end());
+            //active_threads.erase(std::remove(active_threads.begin(), active_threads.end(), get_id()), active_threads.end());
         };
 };

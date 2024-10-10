@@ -12,7 +12,8 @@ namespace Parser {
                     message = std::move(msg);
                 }
                 catch(...) {
-                    
+                    std::cout << "Logs have been updated!" << std::endl;
+
                 }
             };
             ~parseError() = default;

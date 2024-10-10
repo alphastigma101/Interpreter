@@ -76,30 +76,12 @@ Literal::Literal(const Token&& oP) {
 /** -----------------------------
  * @brief ...
  * 
- * @param oP
- * 
- * 
-*/
-Identifer::Identifer(const Token&& oP) {
-    try { 
-        this->op = std::move(oP); 
-        auto id = compressedAstTree(idx + 1, String("Identifer"), this);
-        cTree.insert(std::move(id));
-    }
-    catch(...) {
-        catcher<Literal> cl("Undefined behavior occurred in Class Identifer!");
-        throw cl;
-    }
-}
-/** -----------------------------
- * @brief ...
- * 
  * @param Expr* Looks ahead to the left and gets whatever is on the left side of the = sign
  * @param oP
  * 
  * 
 */
-Variable::Variable(const Token&& oP) noexcept {
+Variable::Variable(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
         auto var = compressedAstTree(idx + 1, String("Variable"), this);
@@ -119,7 +101,7 @@ Variable::Variable(const Token&& oP) noexcept {
  * 
  * -------------------------------
 */
-Statement::Statement(Expr* initalizer, const Token&& oP) noexcept {
+Statement::Statement(Expr* initalizer, const Token&& oP) {
     try { 
         this->op = std::move(oP); 
         auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
@@ -140,7 +122,15 @@ Statement::Statement(Expr* initalizer, const Token&& oP) noexcept {
  * ----------------------------------------------------------------
 */
 Methods::Methods(Expr* meth, const Token& op_) {
-
+    try { 
+        this->op = std::move(op_); 
+        auto literal = compressedAstTree(idx + 1, String("Methods"), this);
+        cTree.insert(std::move(literal));
+    }
+    catch(...) {
+        catcher<Methods> cl("Undefined behavior occurred in Class Methods!");
+        throw cl;
+    }
 
 }
 /** ---------------------------------------------------------------
@@ -157,11 +147,11 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         this->left = std::move(left);
         this->right = std::move(right);
         this->op = std::move(op_); 
-        auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
+        auto stmt = compressedAstTree(idx + 1, String("Arguments"), this);
         cTree.insert(std::move(stmt));
     }
     catch(...) {
-        catcher<Statement> cl("Undefined behavior occurred in Class Statement!");
+        catcher<Arguments> cl("Undefined behavior occurred in Class Arguments!");
         throw cl;
     }
 }
