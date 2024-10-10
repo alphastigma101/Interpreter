@@ -299,9 +299,7 @@ namespace ContextFreeGrammar {
             Variable(const Token&& oP);
             ~Variable() noexcept = default;
             inline String accept(Expr* visitor) override { return visit(this); };
-            inline String visit(Expr* expr) override {
-               return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
-            };
+            inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
         protected:
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
