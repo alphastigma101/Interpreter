@@ -2,12 +2,8 @@
 #ifndef _DECLARATIONS_H_
 #define _DECLARATIONS_H_
 #include <any>
-#include <cstdint>
-#include <optional>
 #include <variant>
-#include <complex>
 #include <set>
-#include <chrono>
 #include <tuple>
 #include <memory>
 #include <unordered_map>
@@ -15,32 +11,8 @@
 #include <iostream>
 #include <atomic>
 #include <mutex>
-#include <cstdarg>
 #include <thread>
 #include <addon.h>
-/** ----------------------------------------------
- * 
- * @brief This header file declares all the types that will be used throughout this codebase 
- * 
- * @details The reason why it exists are:
- *          1. To keep the codebase nice and organized by re-using c++ templates 
- *          2. Forward declarations are very useful as I am using namespaces
- *          3. If you see a type that is not a built in, it is most certainly declared here
- * @details The enum_types.h is included at the very bottom of this header file.
- *          That header specifically has maps that will also be used throughout the codebase.
- *          The maps will most likely be used with the custom execptions classes ie catcher and runtimeerror
- */
-
-/** ------------------------------------------------------------------------
- * @brief Used to control the programs behavior based on the user choice of language
- *
- * @details setI and setC are declared in declarations.h and defined in definitions.h.
- *
- * -------------------------------------------------------------------------
-*/
-static int setI(const int val...);
-static int setC(const int val...); 
-extern int settings;
 /** --------------------------------------------------------------------------
  * @brief All this alias templates are needed to avoid 
  *        using namespace std repetiviely which will make the code look more cleaner.

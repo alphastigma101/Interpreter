@@ -28,10 +28,8 @@ template<class Type>
 class Visitor {
     public:
     template<typename... Args>
-    inline String visit(Args&&... args) {  return static_cast<Type*>(this)->visit(std::forward<Args>(args)...); }
+    inline String visit(Args&&... args) {  return static_cast<Type*>(this)->visit(std::forward<Args>(args)...); };
     template<typename... Args>
-    inline String accept(Args&&... args) {  return static_cast<Type*>(this)->accept(std::forward<Args>(args)...);  }
-    template<typename... Args>
-    inline String parenthesize(Args... args) { return static_cast<Type*>(this)->parenthesize(std::forward<Args>(args)...); };
+    inline String accept(Args&&... args) {  return static_cast<Type*>(this)->accept(std::forward<Args>(args)...);  };
 };
 #endif 

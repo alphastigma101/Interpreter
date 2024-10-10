@@ -19,7 +19,7 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     this->right = std::move(right_);
     this->op = std::move(op_);
     auto binary = compressedAstTree(idx + 1, String("Binary"), this);
-    cTree.insert(std::move(binary));
+    //cTree.insert(std::move(binary));
 }
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
@@ -38,7 +38,7 @@ Unary::Unary(Expr* right_, const Token& op_)  {
    this->right = std::move(right_);
    this->op = std::move(op_);
    auto unary = compressedAstTree(idx + 1, String("Unary"), this);
-   cTree.insert(std::move(unary));
+   //cTree.insert(std::move(unary));
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the expression_ and moves the resources into it 
@@ -52,7 +52,7 @@ Unary::Unary(Expr* right_, const Token& op_)  {
 Grouping::Grouping(Expr* expression) {
     this->expression = std::move(expression);
     auto grouping = compressedAstTree(idx + 1, String("Grouping"), this);
-    cTree.insert(std::move(grouping));
+    //cTree.insert(std::move(grouping));
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the op and constructs a node that gets pushed to a vector
@@ -66,7 +66,7 @@ Literal::Literal(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
         auto literal = compressedAstTree(idx + 1, String("Literal"), this);
-        cTree.insert(std::move(literal));
+        //cTree.insert(std::move(literal));
     }
     catch(...) {
         catcher<Literal> cl("Undefined behavior occurred in Class Literal!");
@@ -85,7 +85,7 @@ Variable::Variable(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
         auto var = compressedAstTree(idx + 1, String("Variable"), this);
-        cTree.insert(std::move(var));
+        //cTree.insert(std::move(var));
     }
     catch(...) {
         catcher<Variable> cl("Undefined behavior occurred in Class Variable!");
@@ -105,7 +105,7 @@ Statement::Statement(Expr* initalizer, const Token&& oP) {
     try { 
         this->op = std::move(oP); 
         auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
-        cTree.insert(std::move(stmt));
+        //cTree.insert(std::move(stmt));
     }
     catch(...) {
         catcher<Statement> cl("Undefined behavior occurred in Class Statement!");
@@ -125,7 +125,7 @@ Methods::Methods(Expr* meth, const Token& op_) {
     try { 
         this->op = std::move(op_); 
         auto literal = compressedAstTree(idx + 1, String("Methods"), this);
-        cTree.insert(std::move(literal));
+        //cTree.insert(std::move(literal));
     }
     catch(...) {
         catcher<Methods> cl("Undefined behavior occurred in Class Methods!");
@@ -148,7 +148,7 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         this->right = std::move(right);
         this->op = std::move(op_); 
         auto stmt = compressedAstTree(idx + 1, String("Arguments"), this);
-        cTree.insert(std::move(stmt));
+        //cTree.insert(std::move(stmt));
     }
     catch(...) {
         catcher<Arguments> cl("Undefined behavior occurred in Class Arguments!");

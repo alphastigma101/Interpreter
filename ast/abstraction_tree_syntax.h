@@ -32,13 +32,6 @@ namespace AbstractionTreeSyntax {
             inline static logTable<Map<String, Vector<String>>> logs_;
             Set<astTree<int, String, ExprVariant>> compactedTreeNodes;
             static String ext;
-            Visitor<Binary> visitBinary;
-            Visitor<Unary> visitUnary;
-            Visitor<Grouping> visitGrouping;
-            Visitor<Literal> visitLiteral;
-            Visitor<Methods> visitMethods;
-            Visitor<Arguments> visitArguments;
-            Visitor<EcoSystem> visitEcoSystem;
             inline static std::string nameOfFile = std::move(file_name);
            
     };

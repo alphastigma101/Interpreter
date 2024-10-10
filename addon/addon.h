@@ -40,26 +40,5 @@
 #ifndef ENABLE_LOGGING_TEST
     #define ENABLE_LOGGING_TEST 0
 #endif
-/** --------------------------------------------------------------------------
- * @brief This feature will allow the user to disable the interpreter or enable it at compile time 
- *
- * @details Either the compiler flag or interpreter flag must be enabled, not both
- * @details By default the compiler flag is disabled and the interpreter flag is enabled
- * @details Depending on the language the user chooses, the compiler flag or the interpreter flag will be overwritten 
- * @details Use grep -R 'RANDOM_EXTENSIONS' ../ or ./ to find where it is used
- * ---------------------------------------------------------------------------
-*/
-#ifndef ENABLE_INTERPRETER
-    #define ENABLE_INTERPRETER(...) setI(1 __VA_OPT__(,) __VA_ARGS__)
-#endif
-/** ------------------------------------------------------------------------
- * @brief This feature will allow the user to choose to enable the compiler or disable it at compile time 
- *
- * @details Either the interpreter needs to be enabled or the compiler, not both at the same time
- * @details Use grep -R 'ENABLE_COMPILER' ../ or ./ to find where it is used
-*/
-#ifndef ENABLE_COMPILER
-    #define ENABLE_COMPILER(...) setC(0 __VA_OPT__(,) __VA_ARGS__)
-#endif
 
 #endif  // End of addon.h 

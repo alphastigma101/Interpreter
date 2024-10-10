@@ -10,7 +10,7 @@
  * @details interface.h includes the definition header which that header includes declarations.h 
  *          interface.h is a package basically and should only be needed if the class that is being declared/defined needs those methods 
  * 
- */
+*/
 class Token: public MemberConv<Token>, catcher<Token>  {
     public:
         /**

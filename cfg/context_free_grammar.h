@@ -64,7 +64,7 @@ namespace ContextFreeGrammar {
         protected:
             int idx = 0;
     };
-    class Binary: public Expr, public Visitor<Binary>, public logging<Binary>, public runtimeerror<Binary>, public catcher<Binary> {
+    class Binary: public Expr, public logging<Binary>, public runtimeerror<Binary>, public catcher<Binary> {
         /** --------------------------------------------------------------------
              * @brief A class that represents a binary abstraction syntax tree
              * 
@@ -82,9 +82,7 @@ namespace ContextFreeGrammar {
         public:
             friend class runtimeerror<Binary>; // Use to output TokenType and message
             friend class catcher<Binary>; // Use to output a message
-            friend class Visitor<Binary>;
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
-            Binary(Binary&&) = default;
             ~Binary() noexcept = default;
             String accept(Expr* visitor) override { return visit(this); };
             inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
@@ -129,14 +127,13 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* left, Expr* right);
     };
-    class Unary: public Expr, public Visitor<Unary>, public logging<Unary>, public runtimeerror<Unary>, public catcher<Unary> {
+    class Unary: public Expr, public logging<Unary>, public runtimeerror<Unary>, public catcher<Unary> {
         public:
             friend class runtimeerror<Unary>; // Use to output TokenType and message
             friend class catcher<Unary>; // Use to output a message
-            friend class Visitor<Unary>;
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
-            String accept(Expr* visitor) override { return visitor->visit(this); };
+            inline String accept(Expr* visitor) override { return visit(this); };
         private:
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -178,11 +175,10 @@ namespace ContextFreeGrammar {
             String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->right); };
     };
-    class Grouping: public Expr, public Visitor<Grouping>, public logging<Grouping>, public runtimeerror<Grouping>, public catcher<Grouping> {
+    class Grouping: public Expr, public logging<Grouping>, public runtimeerror<Grouping>, public catcher<Grouping> {
         public:
             friend class runtimeerror<Grouping>; // Use to output TokenType and message
             friend class catcher<Grouping>; // Use to output a message
-            friend class Visitor<Grouping>;
             /** ----------------------------------------------------------------------------------------------------------
              * @brief constructor for creating the memory addresses that will later on be accessed by a vector 
              *
@@ -194,7 +190,6 @@ namespace ContextFreeGrammar {
             */
             explicit Grouping(Expr* expression);
             ~Grouping() noexcept = default;
-            inline String visit(Expr* expr) override {return parenthesize("group", expr->expression);};
             inline String accept(Expr* visitor) override { return visit(this); };
         private:
            inline static logTable<Map<String, Vector<String>>> logs_;
@@ -235,16 +230,17 @@ namespace ContextFreeGrammar {
                     std::cout << "Error! conversion has failed!" << std::endl;
                 }
             };
+            inline String visit(Expr* expr) override {return parenthesize("group", expr->expression);};
             String parenthesize(String name, Expr* expr);
     };
-    class Literal: public Expr, public Visitor<Literal>, public logging<Literal>, public runtimeerror<Literal>, public catcher<Literal> {
+    class Literal: public Expr, public logging<Literal>, public runtimeerror<Literal>, public catcher<Literal> {
         public:
             friend class runtimeerror<Literal>; // Use to output TokenType and message
             friend class catcher<Literal>; // Use to output a message
             friend class Visitor<Literal>;
             explicit Literal(const Token&& oP);
             ~Literal() noexcept = default;
-            inline String accept(Expr* visitor) override { return visitor->visit(this); };
+            inline String accept(Expr* visitor) override { return visit(this); };
             inline String visit(Expr* expr) override {
                 if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
                 return " " + expr->op.getLiteral();
@@ -291,7 +287,7 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
-    class Variable: public Expr, public Visitor<Variable>, public logging<Variable>, public runtimeerror<Variable>, public catcher<Variable> {
+    class Variable: public Expr, public logging<Variable>, public runtimeerror<Variable>, public catcher<Variable> {
         public:
             friend class runtimeerror<Variable>; // Use to output TokenType and message
             friend class catcher<Variable>; // Use to output a message
@@ -343,7 +339,7 @@ namespace ContextFreeGrammar {
         private:
             //
     };
-    class Statement: public Expr, public Visitor<Statement>, public logging<Statement>, public runtimeerror<Statement>, public catcher<Statement> {
+    class Statement: public Expr, public logging<Statement>, public runtimeerror<Statement>, public catcher<Statement> {
         public:
             friend class runtimeerror<Statement>; // Use to output TokenType and message
             friend class catcher<Statement>; // Use to output a message
@@ -397,7 +393,7 @@ namespace ContextFreeGrammar {
         private:
             //
     };
-    class Methods: public Expr, public Visitor<Methods>, public logging<Methods>, public runtimeerror<Methods>, public catcher<Methods> {
+    class Methods: public Expr, public logging<Methods>, public runtimeerror<Methods>, public catcher<Methods> {
         public:
             friend class runtimeerror<Methods>; // Use to output TokenType and message
             friend class catcher<Methods>; // Use to output a message
@@ -449,7 +445,7 @@ namespace ContextFreeGrammar {
             inline String visit(Expr* expr) override {return parenthesize(expr->op.getLexeme(), expr);};
             inline String accept(Expr* visitor) override {return visit(this); };
     };
-    class Arguments: public Expr, public Visitor<Arguments>, public logging<Arguments>, public runtimeerror<Arguments>, public catcher<Arguments> {
+    class Arguments: public Expr, public logging<Arguments>, public runtimeerror<Arguments>, public catcher<Arguments> {
         public:
             friend class runtimeerror<Arguments>; // Use to output TokenType and message
             friend class catcher<Arguments>; // Use to output a message
@@ -501,7 +497,7 @@ namespace ContextFreeGrammar {
         protected:
             Arguments() = default;
     };
-    class EcoSystem: public Expr, public Visitor<EcoSystem>, public logging<EcoSystem>, public runtimeerror<EcoSystem>, public catcher<EcoSystem> {
+    class EcoSystem: public Expr, public logging<EcoSystem>, public runtimeerror<EcoSystem>, public catcher<EcoSystem> {
         public:
             friend class runtimeerror<EcoSystem>; // Use to output TokenType and message
             friend class catcher<EcoSystem>; // Use to output a message
