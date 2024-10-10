@@ -1,0 +1,64 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Folders to exclude
+logs/
+debugging/logs/
+debugging/*.o
+debugging/Ast.txt
+debugging/exec_debug_tokens
+debugging/exec_debug_scanner
+debugging/test_tokens
+debugging/test_scanner
+debugging/.gdb_history
+debugging/db_scanner.txt
+debugging/db_ast.txt
+debugging/db_parser.txt
+# Executables to exclude
+exec_*
+# Object files to exclude
+interpreter/*.o
+logging/*.o
+parser/*.o
+tokens/*.o
+scanner/*.o
+compiler/*.o
+database/*.o
+languages/*.o
+ast/*.o
+cfg/*.o
+collector/*.o
+vm/*.o
+Ast.txt
+
+
