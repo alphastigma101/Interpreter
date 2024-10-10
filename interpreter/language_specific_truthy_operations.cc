@@ -1,13 +1,11 @@
 #include <language_specific_truthy_operations.h>
 #include <languages_types.h>
 #include <context_free_grammar.h>
-/* ---------------------------------------------------------------------------------------------------------
- * isTruthy Description:
-    Is a method that will return an concrete type if the language the user specifies supports truthy/falsy
-    Depending on the language, truthy can be an int, string, bool or NULL
- * Arguments:
-    * Type: Is a generic type that must have a concrete type during run time
- * Returns:
+/** ---------------------------------------------------------------------------------------------------------
+ * @brief Is a method that will return an concrete type if the language the user specifies supports truthy/falsy
+          Depending on the language, truthy can be an int, string, bool or NULL
+ * @param Type: Is a generic type that must have a concrete type during run time
+ * @return
     True if the object was successfully casted into a c++ supported type
     Otherwise, return false
  * ---------------------------------------------------------------------------------------------------------

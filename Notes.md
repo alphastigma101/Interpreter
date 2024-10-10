@@ -5,12 +5,8 @@
 2. [Pragmas](#pragmas)
     - [Sources](#sources)
 
-### Getting Started:
-* You have two options you can do:
-    - 1. You can run tatical nuke by issuing `make` inside the root directoryeither view the syntax of tatical nuke `Code-Analysis` to view everything about tatical nuke.
-         
-    - 2. Choose a language you want to learn, and launch a virtual machine with the tools to help you get started. 
-         You can also generate the code for a specific language and use that as a `boilder-plate`
+### Objected-Orientated And Functional Languages
+* That’s what the paradigm name literally says—an object-oriented language wants you to orient your code along the rows of types. A functional language instead encourages you to lump each column’s worth of code together into a function.
 ### Product Construction
 * The goal is split the product's code so that it has a interpreter and a compiler. There is also a Virtual Machine, that will download a language a user wants to learn and sets everything up in a virtual machine
 

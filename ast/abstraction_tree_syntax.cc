@@ -85,7 +85,6 @@ String ast::buildTree() {
             if (std::holds_alternative<Expr*>(pairVal.second)) {
                 auto& conv = std::get<Expr*>(pairVal.second);
                 if (auto stmt = dynamic_cast<Statement*>(conv))
-                    //outputDir_ += visitUnary.accept(unary);
                     outputDir_ += conv->accept(stmt);
             }
         }
@@ -93,8 +92,7 @@ String ast::buildTree() {
             if (std::holds_alternative<Expr*>(pairVal.second)) {
                 auto& conv = std::get<Expr*>(pairVal.second);
                 if (auto ecosystem = dynamic_cast<EcoSystem*>(conv))
-                    //outputDir_ += visitEcoSystem.accept(*ecosystem);
-                    outputDir_ += conv->accept(ecosystem);
+                    outputDir_ += conv->accept(ecosystem, true);
             }
         }
     }

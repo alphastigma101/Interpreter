@@ -56,10 +56,10 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Expr* expression = nullptr;
-            virtual String accept(Expr* visitor) = 0;
+            virtual String accept(Expr* visitor, bool tree = true) = 0;
             // TODO: Uncomment after you get your ast printer fully working
             //inline String accept(Expr* visitor) { return static_cast<Derived*>(this)->visit(*static_cast<Derived*>(this)); };
-            virtual String visit(Expr* visitor) = 0;
+            virtual String visit(Expr* visitor, bool tree = true) = 0;
             //inline String visit(Expr* visitor) { return static_cast<Derived*>(this)->parenthesize(*static_cast<Derived*>(this)); };
         protected:
             int idx = 0;
@@ -84,8 +84,13 @@ namespace ContextFreeGrammar {
             friend class catcher<Binary>; // Use to output a message
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
-            String accept(Expr* visitor) override { return visit(this); };
-            inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
+            String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline String visit(Expr* expr, bool tree = true) override { 
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
+                else
+                    return accept(this, tree);
+            };
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
@@ -133,7 +138,7 @@ namespace ContextFreeGrammar {
             friend class catcher<Unary>; // Use to output a message
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
-            inline String accept(Expr* visitor) override { return visit(this); };
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -173,7 +178,12 @@ namespace ContextFreeGrammar {
                 }
             };
             String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->right); };
+            inline String visit(Expr* expr, bool tree = true) override { 
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr->right); 
+                else
+                    return accept(this, tree);
+            };
     };
     class Grouping: public Expr, public logging<Grouping>, public runtimeerror<Grouping>, public catcher<Grouping> {
         public:
@@ -190,7 +200,7 @@ namespace ContextFreeGrammar {
             */
             explicit Grouping(Expr* expression);
             ~Grouping() noexcept = default;
-            inline String accept(Expr* visitor) override { return visit(this); };
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, true); };
         private:
            inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
@@ -230,7 +240,12 @@ namespace ContextFreeGrammar {
                     std::cout << "Error! conversion has failed!" << std::endl;
                 }
             };
-            inline String visit(Expr* expr) override {return parenthesize("group", expr->expression);};
+            inline String visit(Expr* expr, bool tree = true) override {
+                if (tree == true)
+                    return parenthesize("group", expr->expression);
+                else
+                    return accept(this, tree);
+            };
             String parenthesize(String name, Expr* expr);
     };
     class Literal: public Expr, public logging<Literal>, public runtimeerror<Literal>, public catcher<Literal> {
@@ -240,10 +255,14 @@ namespace ContextFreeGrammar {
             friend class Visitor<Literal>;
             explicit Literal(const Token&& oP);
             ~Literal() noexcept = default;
-            inline String accept(Expr* visitor) override { return visit(this); };
-            inline String visit(Expr* expr) override {
-                if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
-                return " " + expr->op.getLiteral();
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline String visit(Expr* expr, bool tree = true) override {
+                if (tree == true) {
+                    if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
+                    return " " + expr->op.getLiteral();
+                }
+                else
+                    return accept(this, tree);
             };
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;
@@ -294,8 +313,13 @@ namespace ContextFreeGrammar {
             friend class Visitor<Variable>;
             Variable(const Token&& oP);
             ~Variable() noexcept = default;
-            inline String accept(Expr* visitor) override { return visit(this); };
-            inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline String visit(Expr* expr, bool tree = true) override { 
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr->left, expr->right); 
+                else
+                    return accept(this, tree);
+            };
         protected:
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
@@ -346,10 +370,14 @@ namespace ContextFreeGrammar {
             friend class Visitor<Statement>;
             Statement(Expr* initalizer, const Token&& oP);
             ~Statement() noexcept = default;
-            inline String accept(Expr* visitor) override { return visitor->visit(this); };
-            inline String visit(Expr* expr) override {
-                if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
-                return " " + expr->op.getLiteral();
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline String visit(Expr* expr, bool tree = true) override {
+                if (tree == true) {
+                    if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
+                    return " " + expr->op.getLiteral();
+                }
+                else
+                    return accept(this, tree);
             };
         protected:
             inline static logTable<Map<String, Vector<String>>> logs_;
@@ -397,9 +425,9 @@ namespace ContextFreeGrammar {
         public:
             friend class runtimeerror<Methods>; // Use to output TokenType and message
             friend class catcher<Methods>; // Use to output a message
-            friend class Visitor<Methods>;
             explicit Methods(Expr* meth, const Token& op_);
             ~Methods() noexcept = default;
+            inline String accept(Expr* visitor, bool tree = true) override {return visit(this, tree); };
         protected:
             Methods() = default;
         private:
@@ -442,8 +470,12 @@ namespace ContextFreeGrammar {
                 }
             };
             static String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr) override {return parenthesize(expr->op.getLexeme(), expr);};
-            inline String accept(Expr* visitor) override {return visit(this); };
+            inline String visit(Expr* expr, bool tree = true) override {
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr);
+                else
+                    return accept(this, tree);
+            };
     };
     class Arguments: public Expr, public logging<Arguments>, public runtimeerror<Arguments>, public catcher<Arguments> {
         public:
@@ -452,6 +484,9 @@ namespace ContextFreeGrammar {
             friend class Visitor<Arguments>;
             explicit Arguments(Expr* left, const Token& op_, Expr* right);
             ~Arguments() noexcept = default;
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+        //protected:
+            //Arguments() noexcept = default;
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
@@ -492,8 +527,13 @@ namespace ContextFreeGrammar {
                 }
             };
             static String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr) override {return parenthesize(expr->op.getLexeme(), expr); };
-            inline String accept(Expr* visitor) override {return visit(this); };
+            inline String visit(Expr* expr, bool tree = true) override {
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr); 
+                else
+                    return accept(this, tree);
+            };
+           
         protected:
             Arguments() = default;
     };
@@ -504,6 +544,7 @@ namespace ContextFreeGrammar {
             friend class Visitor<EcoSystem>;
             explicit EcoSystem(Expr* ecoSystem, const Token& op_);
             ~EcoSystem() noexcept = default;
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
@@ -544,8 +585,12 @@ namespace ContextFreeGrammar {
                 }
             };
             static String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr) override { return parenthesize(expr->op.getLexeme(), expr);};
-            inline String accept(Expr* visitor) override { return visit(this); };
+            inline String visit(Expr* expr, bool tree = true) override { 
+                if (tree == true) 
+                    return parenthesize(expr->op.getLexeme(), expr);
+                else
+                    return accept(this, tree);
+            };
         protected:
             EcoSystem() = default;
     };

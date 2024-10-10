@@ -1,29 +1,16 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h> 
-/* ----------------------------------------------------------------------
- * This is how the headers are formatted:
- * expression     → literal
-               | unary
-               | binary
-               | grouping ;
- * So that means binary will have to include the grouping header file 
-*/
-
 namespace Interpreter {
     class interpreter: public unaryOperations, public binaryOperations, public truthyOperations, public runtimeerror<interpreter>, public catcher<interpreter> {
-        // A class object that visits Binary, Unary, Grouping, or Literal.
         public:
             friend class catcher<interpreter>; // Useful for one error 
             friend class runtimeerror<interpreter>; // Useful for displaying the token type and a string literal
-
             /** -----------------------------------------------
-             * 
              * @brief A constructor that handles the traversing of the ast
-             * 
              * ------------------------------------------------
-             */
-            explicit interpreter(Vector<treeStructure>&& expr, const LanguageTokenTypes lang);
+            */
+            explicit interpreter(Set<astTree<int, String, ExprVariant>>& expr);
             ~interpreter() noexcept = default;
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate
@@ -36,12 +23,11 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static std::any visitLiteralExpr(auto& expr) {
-                auto literal = std::get_if<ContextFreeGrammar::Literal>(&expr); 
-                return literal->getValue(); 
+            inline static String visitLiteralExpr(auto& expr) {
+                return expr->get; 
             };
-            static std::any visitUnaryExpr(auto& expr);
-            static std::any visitBinaryExpr(auto& expr);
+            static Any visitUnaryExpr(auto& expr);
+            static Any visitBinaryExpr(auto& expr);
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate
              * 
@@ -54,19 +40,11 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static std::any visitGroupingExpr(auto& expr) {  return evaluate(expr); };
-            inline static char* toString(std::any& left, std::any& right) {
-                return NULL;
-            };
-            static void setExpr(const std::any& visitor);
+            inline static String visitGroupingExpr(auto& expr) { return evaluate(expr); };
         private:
-            inline static LanguageTokenTypes currentLanguage;
-            inline static logTable<std::map<std::string, std::vector<std::string>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_ = new logTable<Map<String, Vector<String>>>();
         protected:
-            // temp is a representation of the class node ie Binary, Unary, Grouping, and literal
-            // Cast temp the correct abstract type 
-            // expr is a global variable: ExprTypes<Binary, Unary, Grouping, Literal>
-            static String evaluate(ExprVariant& temp);
+            static String evaluate(auto conv);
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 

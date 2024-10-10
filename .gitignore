@@ -30,7 +30,7 @@
 *.exe
 *.out
 *.app
-
+Notes.md
 # Folders to exclude
 logs/
 debugging/logs/

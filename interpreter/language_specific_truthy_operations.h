@@ -8,8 +8,8 @@ namespace TruthyOperations {
             truthyOperations() = default;
             ~truthyOperations() noexcept = default;
         private:
-            static bool isTruthy(ExprVariant& object, LanguageTokenTypes& lang);
-            logTable<std::map<std::string, std::vector<std::string>>> logs_;
+            static bool isTruthy(ExprVariant& object);
+            logTable<Map<String, Vector<String>>> logs_;
         protected:
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
