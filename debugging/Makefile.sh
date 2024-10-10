@@ -13,15 +13,6 @@ g++ -g -w -std=c++17 -fconcepts -DRADNOM_EXTENSIONS=0 $INCLUDE  -c ../logging/lo
 #echo "Linking the test object files together for the logger"
 #g++ -g -std=c++17 test_logging.o logging.o -o test_logging $LDFLAGS
 
-
-#echo "Creating debugging object files and executables"
-g++ -g -std=c++17 -fconcepts $INCLUDE -c ../languages/languages.cc -o languages.o
-#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST -DENABLE_GENERATION=1 $INCLUDE -c debug_languages.cc -o debug_languages.o
-#g++ -g -std=c++17 debug_languages.o languages.o logging.o -o exec_debug_languages
-#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_GENERATION=1 -DENABLE_LOGGING_TEST $INCLUDE -c ../tests/test_languages.cc -o test_languages.o
-#g++ -g -std=c++17 test_languages.o languages.o logging.o -o test_languages $LDFLAGS
-
-
 #echo "Creating debugging object files and executables for token"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../tokens/token.cc -o token.o
 #g++ -g -std=c++17 -DENABLE_LOGGING_TEST -c debug_tokens.cc -o debug_tokens.o

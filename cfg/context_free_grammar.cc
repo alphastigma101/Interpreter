@@ -99,10 +99,8 @@ Identifer::Identifer(const Token&& oP) {
  * 
  * 
 */
-Variable::Variable(Expr* left_, const Token&& oP, Expr* right_) noexcept {
+Variable::Variable(const Token&& oP) noexcept {
     try { 
-        this->left = std::move(left_);
-        this->right = std::move(right_);
         this->op = std::move(oP); 
         auto var = compressedAstTree(idx + 1, String("Variable"), this);
         cTree.insert(std::move(var));
@@ -154,8 +152,18 @@ Methods::Methods(Expr* meth, const Token& op_) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-Arguments::Arguments(Expr* arg, const Token& op_) {
-
+Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
+    try { 
+        this->left = std::move(left);
+        this->right = std::move(right);
+        this->op = std::move(op_); 
+        auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
+        cTree.insert(std::move(stmt));
+    }
+    catch(...) {
+        catcher<Statement> cl("Undefined behavior occurred in Class Statement!");
+        throw cl;
+    }
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -240,11 +248,6 @@ String Variable::parenthesize(String name, Expr* left, Expr* right) {
     if (right) {
         result += " " + right->accept(this);
     }
-    return result + ")";
-}
-String Identifer::parenthesize(String name, Expr* expr) {
-    String result = "(" + name + " ";
-    if (expr) result += expr->accept(this);
     return result + ")";
 }
 /** ---------------------------------------------------------------

@@ -164,7 +164,7 @@ Expr* parser::declarations() {
     try {
       if (match(TokenType::VAR, TokenType::INT, TokenType::AUTO, TokenType::BOOL, TokenType::CHAR, TokenType::FLOAT)) return identifier();
       return statement();
-    } catch (ParseError<parser>& e) {
+    } catch (parseError<parser>& e) {
         std::cout << "Logs have been updated!" << std::endl;
         synchronize();
         return nullptr;
@@ -192,7 +192,7 @@ Expr* parser::identifier() {
       initializer = expression();
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    return new Statement(initializer, name);
+    return new Statement(std::move(initializer), std::move(name));
 }
 /** ---------------------------------------------------------------------------
  * @brief A rule that will call to the left and to the right to parse. 
@@ -218,7 +218,7 @@ Expr* parser::methods() {
     if(match(TokenType::DOT)) {
         const Token op = previous();
         auto expr = methods();
-        right = new Methods(std::move(expr)), std::move(op));
+        auto right = new Methods(std::move(expr), std::move(op));
         consume(TokenType::SEMICOLON, "Expected ';' after indentifer!");
     }
     return expression();
@@ -230,9 +230,9 @@ Expr* parser::methods() {
 */
 Expr* parser::ecosystem() {
     auto expr = ecosystem();
-    while(TokenType::IMPORT) {
+    //while(TokenType::IMPORT) {
 
-    }
+    //}
 
     return expr;
 }
@@ -251,7 +251,7 @@ Expr* parser::parse() {
     }
     catch (parseError<parser>& e) { 
         std::cout << e.error() << std::endl;
-        return NULL; 
+        return nullptr; 
     }
 }
 

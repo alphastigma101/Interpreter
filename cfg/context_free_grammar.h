@@ -343,7 +343,7 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Variable>; // Use to output TokenType and message
             friend class catcher<Variable>; // Use to output a message
             friend class Visitor<Variable>;
-            Variable(Expr* left_,const Token&& oP_, Expr* right_) noexcept;
+            Variable(const Token&& oP) noexcept;
             ~Variable() noexcept = default;
             inline String accept(Expr* visitor) override { return visit(this); };
             inline String visit(Expr* expr) override {
@@ -446,7 +446,6 @@ namespace ContextFreeGrammar {
         private:
             //
     };
-    
     class Methods: public Expr, public Visitor<Methods>, public logging<Methods>, public runtimeerror<Methods>, public catcher<Methods> {
         public:
             friend class runtimeerror<Methods>; // Use to output TokenType and message
@@ -504,7 +503,7 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Arguments>; // Use to output TokenType and message
             friend class catcher<Arguments>; // Use to output a message
             friend class Visitor<Arguments>;
-            explicit Arguments(Expr* arg, const Token& op_);
+            explicit Arguments(Expr* left, const Token& op_, Expr* right) noexcept;
             ~Arguments() noexcept = default;
         private:
             inline static logTable<Map<String, Vector<String>>> logs_;
