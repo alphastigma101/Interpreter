@@ -64,7 +64,7 @@ namespace ContextFreeGrammar {
         protected:
             int idx = 0;
     };
-    class Binary: public Expr, public logging<Binary>, public runtimeerror<Binary>, public catcher<Binary> {
+    class Binary: public Expr, public logging<Binary>, protected runtimeerror<Binary>, public catcher<Binary> {
         /** --------------------------------------------------------------------
              * @brief A class that represents a binary abstraction syntax tree
              * 
@@ -80,19 +80,27 @@ namespace ContextFreeGrammar {
              *          Would print out this: (* (- 123) (group 45.67)) Note: Parathesis are always included 
          */
         public:
-            friend class runtimeerror<Binary>; // Use to output TokenType and message
             friend class catcher<Binary>; // Use to output a message
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
             inline String visit(Expr* expr, bool tree = true) override { 
+                String result;
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
-                else
-                    return accept(this, tree);
+                else {
+                    /*if (expr->left) {
+                        result += " " + left->accept(this, tree);
+                    }
+                    if (expr->right) {
+                        result += " " + right->accept(this, tree);
+                    }*/
+                }
+                return result;
             };
         private:
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -118,7 +126,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Binary>::getType(), const char* msg = runtimeerror<Binary>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Binary>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -132,7 +140,7 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* left, Expr* right);
     };
-    class Unary: public Expr, public logging<Unary>, public runtimeerror<Unary>, public catcher<Unary> {
+    class Unary: public Expr, public logging<Unary>, protected runtimeerror<Unary>, public catcher<Unary> {
         public:
             friend class runtimeerror<Unary>; // Use to output TokenType and message
             friend class catcher<Unary>; // Use to output a message
@@ -140,6 +148,7 @@ namespace ContextFreeGrammar {
             ~Unary() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -165,7 +174,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Unary>::getType(), const char* msg = runtimeerror<Unary>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Unary>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -185,9 +194,8 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
     };
-    class Grouping: public Expr, public logging<Grouping>, public runtimeerror<Grouping>, public catcher<Grouping> {
+    class Grouping: public Expr, public logging<Grouping>, protected runtimeerror<Grouping>, public catcher<Grouping> {
         public:
-            friend class runtimeerror<Grouping>; // Use to output TokenType and message
             friend class catcher<Grouping>; // Use to output a message
             /** ----------------------------------------------------------------------------------------------------------
              * @brief constructor for creating the memory addresses that will later on be accessed by a vector 
@@ -202,7 +210,8 @@ namespace ContextFreeGrammar {
             ~Grouping() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, true); };
         private:
-           inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -228,7 +237,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Grouping>::getType(), const char* msg = runtimeerror<Grouping>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Grouping>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -248,9 +257,8 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* expr);
     };
-    class Literal: public Expr, public logging<Literal>, public runtimeerror<Literal>, public catcher<Literal> {
+    class Literal: public Expr, public logging<Literal>, protected runtimeerror<Literal>, public catcher<Literal> {
         public:
-            friend class runtimeerror<Literal>; // Use to output TokenType and message
             friend class catcher<Literal>; // Use to output a message
             friend class Visitor<Literal>;
             explicit Literal(const Token&& oP);
@@ -265,7 +273,8 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
         private:
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -291,7 +300,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Literal>::getType(), const char* msg = runtimeerror<Literal>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Literal>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -306,7 +315,7 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
-    class Variable: public Expr, public logging<Variable>, public runtimeerror<Variable>, public catcher<Variable> {
+    class Variable: public Expr, public logging<Variable>, protected runtimeerror<Variable>, public catcher<Variable> {
         public:
             friend class runtimeerror<Variable>; // Use to output TokenType and message
             friend class catcher<Variable>; // Use to output a message
@@ -321,6 +330,7 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
         protected:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -347,7 +357,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Variable>::getType(), const char* msg = runtimeerror<Variable>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Variable>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -363,7 +373,7 @@ namespace ContextFreeGrammar {
         private:
             //
     };
-    class Statement: public Expr, public logging<Statement>, public runtimeerror<Statement>, public catcher<Statement> {
+    class Statement: public Expr, public logging<Statement>, protected runtimeerror<Statement>, public catcher<Statement> {
         public:
             friend class runtimeerror<Statement>; // Use to output TokenType and message
             friend class catcher<Statement>; // Use to output a message
@@ -380,6 +390,7 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
         protected:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -406,7 +417,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Statement>::getType(), const char* msg = runtimeerror<Statement>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Statement>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -421,7 +432,7 @@ namespace ContextFreeGrammar {
         private:
             //
     };
-    class Methods: public Expr, public logging<Methods>, public runtimeerror<Methods>, public catcher<Methods> {
+    class Methods: public Expr, public logging<Methods>, protected runtimeerror<Methods>, public catcher<Methods> {
         public:
             friend class runtimeerror<Methods>; // Use to output TokenType and message
             friend class catcher<Methods>; // Use to output a message
@@ -431,6 +442,7 @@ namespace ContextFreeGrammar {
         protected:
             Methods() = default;
         private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -457,7 +469,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Methods>::getType(), const char* msg = runtimeerror<Methods>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Methods>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -477,7 +489,7 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
     };
-    class Arguments: public Expr, public logging<Arguments>, public runtimeerror<Arguments>, public catcher<Arguments> {
+    class Arguments: public Expr, public logging<Arguments>, protected runtimeerror<Arguments>, public catcher<Arguments> {
         public:
             friend class runtimeerror<Arguments>; // Use to output TokenType and message
             friend class catcher<Arguments>; // Use to output a message
@@ -488,6 +500,7 @@ namespace ContextFreeGrammar {
         //protected:
             //Arguments() noexcept = default;
         private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -514,7 +527,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<Arguments>::getType(), const char* msg = runtimeerror<Arguments>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Arguments>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -537,7 +550,7 @@ namespace ContextFreeGrammar {
         protected:
             Arguments() = default;
     };
-    class EcoSystem: public Expr, public logging<EcoSystem>, public runtimeerror<EcoSystem>, public catcher<EcoSystem> {
+    class EcoSystem: public Expr, public logging<EcoSystem>, protected runtimeerror<EcoSystem>, public catcher<EcoSystem> {
         public:
             friend class runtimeerror<EcoSystem>; // Use to output TokenType and message
             friend class catcher<EcoSystem>; // Use to output a message
@@ -546,6 +559,7 @@ namespace ContextFreeGrammar {
             ~EcoSystem() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -572,7 +586,7 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<EcoSystem>::getType(), const char* msg = runtimeerror<EcoSystem>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<EcoSystem>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {

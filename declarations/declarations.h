@@ -9,6 +9,11 @@
 #include <unordered_map>
 #include <map>
 #include <iostream>
+#include <type_traits>
+#include <typeindex>
+#include <typeinfo>
+#include <functional>
+#include <iomanip>
 #include <atomic>
 #include <mutex>
 #include <thread>
@@ -128,7 +133,10 @@ extern Set<astTree<int, String, ExprVariant>> cTree;
 //template<typename X, typename Y, typename Z>
 //using Vertex = std::tuple<
 
-
+namespace Logging {
+    template<typename Derived>
+    class logging;
+};
 /** ---------------------------------------------------------------------------
  * @brief static logger. It is used by every single concrete class that is avialable
  *

@@ -13,7 +13,7 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
                     if (auto binary = dynamic_cast<Binary*>(conv))
-                        value += evaluate(binary);
+                        value += std::any_cast<String>(visitBinaryExpr(binary));
                 }
             }
             if (pairVal.first == "Statement") {
@@ -34,9 +34,9 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
     } 
     catch (catcher<interpreter>& e) {
         std::cout << "Logs have been updated!" << std::endl;
-        logging<interpreter> logs(logs_, e.what());
-        logs.update();
-        logs.rotate();
+        //logging<interpreter> logs(logs_, e.what());
+        //logs.update();
+        //logs.rotate();
     }                              
 }
 /** ------------------------------------------------
@@ -59,25 +59,17 @@ String interpreter::evaluate(auto conv) {
  * @return A Unary abstraction tree syntax node in the form of a string 
  * ---------------------------------------------------------------------------
 */
-std::any interpreter::visitUnaryExpr(auto& expr) {
-    auto unaryR = std::get_if<Unary>(&expr);
-    auto right = evaluate(*unaryR->getRight());
-    switch (unaryR->getToken().getType()) {
+std::any interpreter::visitUnaryExpr(Expr& expr) {
+    Any right = evaluate(expr.right);
+    switch (expr.op.getType()) {
         case TokenType::BANG:
-            return !isTruthy(*unaryR->getRight(), currentLanguage);
-        case TokenType::MINUS:
-            switch(currentLanguage) {
-                case LanguageTokenTypes::Python:
-                    return dynamicLanguages::uPython(currentLanguage, *unaryR->getRight());
-               
-                default:
-                    throw runtimeerror<interpreter>(unaryR->getToken().getType(), "Operand must be a number.");           
-            }
-        default:
-            throw runtimeerror<interpreter>(unaryR->getToken().getType(), "Operand must be a number.");
+            return !isTruthy(right);
+        case MINUS:
+            checkNumberOperand(expr.op, right);
+            return -std::any_cast<double>(right);
     }
     // Unreachable.
-    return NULL;
+    return nullptr;
 }
 /** ---------------------------------------------------------------------------
  * @brief visits the Binary abstraction syntax tree 
@@ -88,20 +80,81 @@ std::any interpreter::visitUnaryExpr(auto& expr) {
  * 
  * ---------------------------------------------------------------------------
 */
-std::any interpreter::visitBinaryExpr(auto& expr) {
-    auto binaryL = std::get_if<Binary>(&expr);
-    auto left = evaluate(*binaryL->getLeft());
-    auto binaryR = std::get_if<Binary>(&expr);
-    auto right = evaluate(*binaryR->getRight());
-    switch (currentLanguage) {
-        case LanguageTokenTypes::Python:
-            if (arithmeticOperations(currentLanguage, expr, *binaryL->getLeft(), *binaryL->getRight()).has_value()) {
-
-            }
-            break;
-        default:
-            throw catcher<interpreter>("Operand must be a number.");           
+Any interpreter::visitBinaryExpr(auto& expr) {
+    Any left = evaluate(expr->left);
+    Any right = evaluate(expr->right); 
+    switch (expr.op.getType()) {
+        case TokenType::GREATER:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left > (double)right;
+        case TokenType::GREATER_EQUAL:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left >= (double)right;
+        case TokenType::LESS:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left < (double)right;
+        case TokenType::LESS_EQUAL:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left <= (double)right;
+        case TokenType::MINUS:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left - (double)right;
+        case PLUS:
+        if (instanceof<double>(left) && instanceof<double>(right)) {
+          return (double)left + (double)right;
+        } 
+        if (instanceof<String>(left) && instanceof<String>(right)) {
+          return (String)left + (String)right;
+        }
+        throw new runtimeerror<interpreter>(expr.op.getType(), "Operands must be two numbers or two strings.");
+        break;
+        case TokenType::SLASH:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left / (double)right;
+        case TokenType::STAR:
+            checkNumberOperands(expr->op, left, right);
+            return (double)left * (double)right;
+        case TokenType::BANG_EQUAL: return !isEqual(left, right);
+        case TokenType::EQUAL_EQUAL: return isEqual(left, right);
     }
     // Unreachable.
-    return NULL;
+    return nullptr;
+}
+
+String interpreter::stringify(Any object) {
+    if (!object.has_value()) return "nil";
+    if (instanceof<double>(object)) {
+        double value = std::any_cast<double>(object);
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(15) << value;
+        String text = oss.str();
+        
+        // Remove trailing zeros
+        while (text.find('.') != String::npos && (text.back() == '0' || text.back() == '.')) {
+            text.pop_back();
+            if (text.back() == '.') {
+                text.pop_back();
+                break;
+            }
+        }
+        return text;
+    }
+    if (instanceof<bool>(object)) {
+        return std::any_cast<bool>(object) ? "true" : "false";
+    }
+    if (instanceof<String>(object)) {
+        return std::any_cast<String>(object);
+    }
+    if (instanceof<int>(object)) {
+        return std::to_string(std::any_cast<int>(object));
+    }
+    
+    // Add more type checks as needed here!
+    
+    // Try to convert object to string if there was no match
+    try {
+        return std::any_cast<String>(object);
+    } catch (const std::bad_any_cast&) {
+        return "<?>";  // Unknown type
+    }
 }

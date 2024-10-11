@@ -1,6 +1,17 @@
 #include <language_specific_binary_operations.h>
-#include <languages_types.h>
-#include <context_free_grammar.h>
+/** -----------------
+ * @brief This is a map that returns the paired types
+ * 
+ * @details If you need to add more to the map, use the 'register_any_visitor' method
+ *          It is only avialable in in this classes defined method fields 
+ * ------------------
+*/
+std::unordered_map<std::type_index, std::function<void(std::any const&)>> binaryOperations::any_visitor {
+    to_any_visitor<int>([](int x) { return x; }),
+    to_any_visitor<unsigned>([](unsigned x) { return x; }),
+    to_any_visitor<float>([](float x) { return x; }),
+    to_any_visitor<double>([](double x) { return x; })
+};
 /** ----------------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that calls in isNumeric, the helper function
  * 
@@ -12,9 +23,9 @@
  * @return True if a and b are equal. Otherwise, return false 
  * ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
-void binaryOperations::checkNumberOperands(ExprVariant& expr, ExprVariant& left, ExprVariant& right) {
-    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(std::get<Binary>(right).getToken().getLexeme()) == true)) return;
-    throw new runtimeerror(std::get<Binary>(expr).getToken().getType(), "Operands must be numbers.");
+void binaryOperations::checkNumberOperands(Token& op, Any& left, Any& right) {
+    if (instanceof<double>(left) && instanceof<double>(right)) return;
+    throw new runtimeerror<binaryOperations>(op.getType(), "Operands must be numbers.");
 }
 /** -----------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if one object equals the other
@@ -28,139 +39,56 @@ void binaryOperations::checkNumberOperands(ExprVariant& expr, ExprVariant& left,
  * 
  * -----------------------------------------------------------------------------------------------------------------------------------------------
 */
-bool binaryOperations::isEqual(ExprVariant& a, ExprVariant& b) {
-    if (std::any_cast<int>(std::get<Binary>(a).getToken().getLexeme()) == std::any_cast<int>(std::get<Binary>(b).getToken().getLexeme())) return true;
+bool binaryOperations::isEqual(Any& a, Any& b) {
+    if (a.has_value() && b.has_value()) return true;
+    if (!a.has_value()) return false;
+    return bothEqual(a,b);
+}
+
+bool binaryOperations::bothEqual(const Any a, const Any b) {
+    if (instanceof<int>(a) && instanceof<int>(b)) {
+        int temp_a = std::any_cast<int>(a);
+        int temp_b = std::any_cast<int>(b);
+        if (temp_a == temp_b) return true;
+        else return false;
+    }
+    if (instanceof<double>(a) && instanceof<double>(b)) {
+        double temp_a = std::any_cast<double>(a);
+        double temp_b = std::any_cast<double>(b);
+        if (temp_a == temp_b) return true;
+        else return false;
+    }
+    if (instanceof<float>(a) && instanceof<float>(b)) {
+        float temp_a = std::any_cast<float>(a);
+        float temp_b = std::any_cast<float>(b);
+        if (temp_a == temp_b) return true;
+        else return false;
+    }
     return false;
 }
-/** -----------------------------------------------------------------------------------------------------------------------------------------------
- * @brief Is a method that checks to see if there is arithmetic operations
+/** --------------------------------------------------------------
+ * @brief Returns a pair 
  * 
- * @param cl Is another enum type which represents what the user has chosen
- * @param expr: Is a fancy pointer that points to the object that is passed to at run time. 
- *           If not careful with this, it could lead to segfault
- * @param left: Is a fancy pointer that points to the object that is passed to at run time.
- *           If not careful with this, it could lead to segfault.
- * @param right Is a fancy pointer that points to the object that is passed to at run time.
- *           If not careful with this, it could lead to segfault.
+ * @param F It is a generic type such that is deduced at compile time. 
+ *          A pair will be constructed if type is not void 
+ * @param T If the objcet that was passed at run time is not found, it will create a new pair 
  * 
- * @return True if a and b are equal. Otherwise, return false 
+ * @details .first is the typeid of the object while .second is a callable object.
  * 
- * -----------------------------------------------------------------------------------------------------------------------------------------------
+ * @return Returns a constructed pair with the targeted, otherwise it will return void
+ * ----------------------------------------------------------------
 */
-std::any binaryOperations::arithmeticOperations(LanguageTokenTypes& cl, ExprVariant& expr, ExprVariant& left, ExprVariant& right) {
-    auto binary = std::get_if<Binary>(&expr);
-    if (binary) {
-        switch (binary->getToken().getType()) {
-            case TokenType::PLUS:
-                try {
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(right) == true)) {
-                        // TODO: Need to find out the type and cast it into that type 
-                        // toNumeric converts the type for me but it is right now a any 
-                        // Find out a way to return the actual type
-                        int res =  std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme()));
-                        res +=  std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                        return res;
-                    }
-                    if ((isString(std::get<Binary>(left).getToken().getLexeme()) == true) && (isString(right) == true)) { 
-                        String res = std::get<Binary>(left).getToken().getLexeme() + std::get<Binary>(right).getToken().getLexeme();
-                        return res; 
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::MINUS:
-                try {
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(right) == true)) { 
-                        // TODO: Need to find out the type and cast it into that type 
-                        int res =  std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme()));
-                        res -=  std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                        return res;
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::SLASH:
-                try {
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(right) == true)) { 
-                        // TODO: Need to find out the type and cast it into that type 
-                        int res =  std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme()));
-                        res /=  std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                        return res;
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                }
-                break;
-            case TokenType::STAR:
-                try { 
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(right) == true)) { 
-                        // TODO: Need to find out the type and cast it into that type 
-                        int res =  std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme()));
-                        res *=  std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                        return res;
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::GREATER:
-                try {
-                    checkNumberOperands(expr, left, right);
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(std::get<Binary>(right).getToken().getLexeme()) == true)) { 
-                        return std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme())) > std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::GREATER_EQUAL:
-                try {
-                    checkNumberOperands(expr, left, right);
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(std::get<Binary>(right).getToken().getLexeme()) == true)) { 
-                        return std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme())) >= std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                    }
-                } catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-            case TokenType::LESS:
-                try {
-                    checkNumberOperands(expr, left, right);
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(std::get<Binary>(right).getToken().getLexeme()) == true)) { 
-                        return std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme())) < std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                    }
-                } catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::LESS_EQUAL:
-                try {
-                    checkNumberOperands(expr, left, right);
-                    if ((isNumeric(std::get<Binary>(left).getToken().getLexeme()) == true) && (isNumeric(std::get<Binary>(right).getToken().getLexeme()) == true)) { 
-                        return std::any_cast<int>(toNumeric(std::get<Binary>(left).getToken().getLexeme())) <= std::any_cast<int>(toNumeric(std::get<Binary>(right).getToken().getLexeme()));
-                    }
-                }
-                catch(runtimeerror<binaryOperations>& e) {
-                    //std::cout << e.what() << std::endl;
-                    return NULL;
-                }
-                break;
-            case TokenType::BANG_EQUAL: return !isEqual(left, right);
-            case TokenType::EQUAL_EQUAL: return isEqual(left, right);
-            default: return NULL;
+template<class T, class F>
+std::pair<const std::type_index, std::function<void(std::any const&)>> binaryOperations::to_any_visitor(F const& f) {
+    return
+    {
+        std::type_index(typeid(T)),
+        [g = f](std::any const& a)
+        {
+            if constexpr (std::is_void_v<T>)
+                g();
+            else
+                g(std::any_cast<T const&>(a));
         }
-    }
-    return NULL;
+    };
 }

@@ -16,7 +16,7 @@ void runTest(const std::string& input) {
     
     // Parse tokens
     parser p(tokens);
-    auto result = p.parse();
+    /*auto result = p.parse();
     
     // Print result or error
     if (result) {
@@ -24,7 +24,7 @@ void runTest(const std::string& input) {
         // You might want to add a method to print the AST here
     } else {
         std::cout << "Parsing failed." << std::endl;
-    }
+    }*/
     
     std::cout << "------------------------" << std::endl;
 }

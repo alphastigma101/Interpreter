@@ -2,15 +2,13 @@
 #define _LANGUAGE_SPECIFIC_TRUTHY_OPERATIONS_H_
 #include <language_specific_unary_operations.h>
 namespace TruthyOperations {
-    class truthyOperations: public runtimeerror<truthyOperations> {
+    class truthyOperations: public unaryOperations {
         public:
-            friend class ::Interpreter::interpreter;
+            friend class runtimeerror<truthyOperations>;
             truthyOperations() = default;
             ~truthyOperations() noexcept = default;
         private:
-            static bool isTruthy(ExprVariant& object);
-            logTable<Map<String, Vector<String>>> logs_;
-        protected:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -36,7 +34,7 @@ namespace TruthyOperations {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<truthyOperations>::getType(), const char* msg = runtimeerror<truthyOperations>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<truthyOperations>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -48,6 +46,21 @@ namespace TruthyOperations {
                     std::cout << "Error! conversion has failed!" << std::endl;
                 }
             };
+            logTable<Map<String, Vector<String>>> logs_{};
+            template<class T, class F>
+            static std::pair<const std::type_index, std::function<void(std::any const&)>> to_any_visitor(F const& f); 
+            static std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_visitor;
+            template<class T, class F>
+            inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
+            inline static bool is_registered(const Any& a) {
+                if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
+                    return true;
+                else
+                    throw new runtimeerror<truthyOperations>(getType(), "This object was not properly registered!");
+                return false;
+            };
+        protected:
+            static bool isTruthy(Any& object);
     };
 };
 using namespace TruthyOperations;

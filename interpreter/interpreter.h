@@ -1,11 +1,12 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
-#include <language_specific_truthy_operations.h> 
+#include <language_specific_truthy_operations.h>
+#include <logging.h>
 namespace Interpreter {
-    class interpreter: public unaryOperations, public binaryOperations, public truthyOperations, public runtimeerror<interpreter>, public catcher<interpreter> {
+    class interpreter: protected truthyOperations, public logging<interpreter> {
         public:
-            friend class catcher<interpreter>; // Useful for one error 
-            friend class runtimeerror<interpreter>; // Useful for displaying the token type and a string literal
+            friend class catcher<interpreter>; // Useful for one error
+            friend class runtimeerror<interpreter>; 
             /** -----------------------------------------------
              * @brief A constructor that handles the traversing of the ast
              * ------------------------------------------------
@@ -23,10 +24,10 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static String visitLiteralExpr(auto& expr) {
-                return expr->get; 
+            inline static Any visitLiteralExpr(auto expr) {
+                return expr->getLexeme(); 
             };
-            static Any visitUnaryExpr(auto& expr);
+            static Any visitUnaryExpr(ContextFreeGrammar::Expr& expr);
             static Any visitBinaryExpr(auto& expr);
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate
@@ -42,9 +43,20 @@ namespace Interpreter {
             */
             inline static String visitGroupingExpr(auto& expr) { return evaluate(expr); };
         private:
-            inline static logTable<Map<String, Vector<String>>> logs_ = new logTable<Map<String, Vector<String>>>();
+            inline static logTable<Map<String, Vector<String>>> logs_{};
+            template<typename T>
+            inline static bool instanceof(const Any& object) {
+                try {
+                    (void)std::any_cast<T>(object);
+                    return true;
+                } catch (const std::bad_any_cast&) {
+                    return false;
+                }
+            };
         protected:
             static String evaluate(auto conv);
+            static String stringify(Any object);
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -56,7 +68,7 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(const char* msg = runtimeerror<interpreter>::getMsg()) throw() { return msg; };
+            inline static const char* what(const char* msg = catcher<interpreter>::getMsg()) throw() { return msg; };
             /** --------------------------------------
              * @brief A method that is overloaded here from this class 
              * 
@@ -70,7 +82,7 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<interpreter>::getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {

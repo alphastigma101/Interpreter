@@ -6,25 +6,36 @@ namespace RunTimeError {
     class runtimeerror {
         public:
             // Constructor with token and message
-            explicit runtimeerror(const Type& type, const char* message) {
+            template<typename Sig>
+            explicit runtimeerror(const Sig& type, const char* message) {
                 message_ = message;
-                type_ = std::move(type);
+                setType(type);
             };
+
             // Default constructor
-            explicit runtimeerror() { /*message_ = 'Unspecified runtime error'*/; };
+            explicit runtimeerror() { message_ = "Unspecified runtime error"; };
 
             inline static const char* getMsg() { return message_; };
-            // Default deconstructor
+
+            // Default destructor
             ~runtimeerror() = default;
 
             // Get the error message
-            inline const char* what(Type&& type = getType(), const char* msg = getMsg()) throw() { return static_cast<Type*>(this)->what(type, msg); };
-            
+            template<typename Sig>
+            inline const char* what(const Sig& type, const char* msg) {
+                return static_cast<Type*>(this)->what(type, msg);
+            };
+        
+            template<typename Sig>
+            inline void setType(const Sig& value) { type_ = const_cast<void*>(static_cast<const void*>(&value)); };
+
             // Get the token associated with the error
-            inline static const TokenType getType() { return type_; };
-        private:
-            inline static TokenType type_;
-            inline static const char* message_;
+            template<typename Sig>
+            inline const Sig& getType() { return *static_cast<Sig*>(this)->getType(); };
+
+        protected:
+            inline static void* type_ = nullptr;
+            inline static const char* message_{};
     };
 };
 using namespace RunTimeError;

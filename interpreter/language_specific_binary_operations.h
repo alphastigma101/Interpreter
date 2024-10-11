@@ -1,22 +1,20 @@
 #ifndef _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
 #define _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
-#include <logging.h> // includes declarations.h 
-#include <catch.h> // To output the message of an unexcpected crash
+#include <token.h> // includes declarations.h 
+#include <run_time_error.h>
+#include <language_core.h> // Include tatical nuke language
 namespace BinaryOperations {
-    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, public runtimeerror<binaryOperations> {
+    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
         public:
-            friend class ::Interpreter::interpreter;
             friend class runtimeerror<binaryOperations>;
             friend class catcher<binaryOperations>;
             // Default constructor
             binaryOperations() = default;
             ~binaryOperations() noexcept {};
-            static std::any arithmeticOperations(LanguageTokenTypes& cl, ExprVariant& expr, ExprVariant& left, ExprVariant& right);
-            static bool isEqual(ExprVariant& a, ExprVariant& b);
+            //static Any arithmeticOperations(Expr& expr);
+            static bool isEqual(Any& a, Any& b);
         private:
-            static void checkNumberOperands(ExprVariant& expr, ExprVariant& left, ExprVariant& right);
-            logTable<Map<String, Vector<String>>> logs_;
-        protected:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
            /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -42,7 +40,7 @@ namespace BinaryOperations {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(TokenType&& type = runtimeerror<binaryOperations>::getType(), const char* msg = runtimeerror<binaryOperations>::getMsg()) throw() {
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<binaryOperations>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -111,6 +109,34 @@ namespace BinaryOperations {
                 }
                 return NULL;
             };
+            static bool bothEqual(const Any a, const Any b);
+            logTable<Map<String, Vector<String>>> logs_{};
+            template<class T, class F>
+            static std::pair<const std::type_index, std::function<void(std::any const&)>> to_any_visitor(F const& f); 
+            static std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_visitor;
+            template<class T, class F>
+            inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
+            inline static bool is_registered(const Any& a) {
+                // cend() points one past the element. Menaing it is checking the bounds of the map
+                if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
+                    return true;
+                else
+                    throw new runtimeerror<binaryOperations>(getType(), "This object was not properly registered!");
+                return false;
+            };
+            template<typename T>
+            inline static bool instanceof(const Any& object) {
+                try {
+                    (void)std::any_cast<T>(object);
+                    return true;
+                } catch (const std::bad_any_cast&) {
+                    return false;
+                }
+            };
+        protected:
+            static void checkNumberOperands(Token& op, Any& left, Any& right);
+         
+    
     };
 };
 using namespace BinaryOperations;

@@ -1,6 +1,8 @@
 #include <language_specific_truthy_operations.h>
-#include <languages_types.h>
-#include <context_free_grammar.h>
+std::unordered_map<std::type_index, std::function<void(std::any const&)>> truthyOperations::any_visitor {
+    to_any_visitor<void>([] { return; }),
+    to_any_visitor<bool>([](bool s) { return s; })
+};
 /** ---------------------------------------------------------------------------------------------------------
  * @brief Is a method that will return an concrete type if the language the user specifies supports truthy/falsy
           Depending on the language, truthy can be an int, string, bool or NULL
@@ -10,126 +12,34 @@
     Otherwise, return false
  * ---------------------------------------------------------------------------------------------------------
 */
-bool truthyOperations::isTruthy(ExprVariant& object, LanguageTokenTypes& lang) {
-    String temp = std::get<Unary>(object).getToken().getLexeme();
-    switch(lang) {
-        case LanguageTokenTypes::Python:
-            if (std::any_cast<LanguageTypes::Python::None>(temp) != nullptr) return false;
-            else if (auto b = std::any_cast<LanguageTypes::Python::Bool>(temp)) return b;
-            else if (auto i = std::any_cast<LanguageTypes::Python::Int>(temp)) return i != 0;
-            else if (auto f = std::any_cast<LanguageTypes::Python::Float>(temp)) return f != 0.0;
-            //else if (auto s = std::any_cast<LanguageTypes::Python::String>(temp)) return !s->empty();
-            //else if (auto l = std::any_cast<LanguageTypes::Python::List>(temp)) return !l->empty();
-            //else if (auto d = std::any_cast<LanguageTypes::Python::Dict>(temp)) return !d->empty();
-            return true;
-        /*case LanguageTokenTypes::JavaScript:
-            if (std::any_cast<LanguageTypes::JavaScript::Null>(object.getValue()) != nullptr) return false;
-            else if (std::any_cast<LanguageTypes::JavaScript::Undefined>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<LanguageTypes::JavaScript::Bool>(object.getValue())) return *b;
-            else if (auto n = std::any_cast<LanguageTypes::JavaScript::Float>(object.getValue())) return *n != 0 && !std::isnan(*n);
-            else if (auto s = std::any_cast<LanguageTypes::JavaScript::String>(object.getValue())) return !s->empty();
-            return true;
-        case LanguageTokenTypes::Ruby:
-            if (std::any_cast<LanguageTypes::Ruby::Nil>(&object) != nullptr) return false;
-            else if (auto b = std::any_cast<LanguageTypes::Ruby::TrueClass>(object.getValue())) return true;
-            else if (auto b = std::any_cast<LanguageTypes::Ruby::FalseClass>(object.getValue())) return false;
-            return true;
-        case LanguageTokenTypes::C:
-        case LanguageTokenTypes::CPP:
-            if (auto b = std::any_cast<LanguageTypes::CPP::Bool>(object.getValue())) return *b;
-            else if (auto i = std::any_cast<LanguageTypes::CPP::Int>(object.getValue())) return *i != 0;
-            else if (auto d = std::any_cast<LanguageTypes::CPP::Double>(object.getValue())) return *d != 0.0;
-            else if (auto p = std::any_cast<LanguageTypes::CPP::Nullptr>(object.getValue())) return false;
-            return true;
-        case LanguageTokenTypes::Java:
-            if (std::any_cast<LanguageTypes::Java::Null>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<LanguageTypes::Java::Bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::Go:
-            if (auto b = std::any_cast<LanguageTypes::Go::Bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::Kotlin:
-        case LanguageTokenTypes::Swift:
-        case LanguageTokenTypes::Rust:
-        case LanguageTokenTypes::CSharp:
-        case LanguageTokenTypes::FSharp:
-        case LanguageTokenTypes::ObjectiveC:
-        case LanguageTokenTypes::Scala:
-        case LanguageTokenTypes::TypeScript:
-        case LanguageTokenTypes::Dart:
-            if (std::any_cast<std::nullptr_t>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::PHP:
-            if (std::any_cast<nullptr_t>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            else if (auto i = std::any_cast<int>(object.getValue())) return *i != 0;
-            else if (auto f = std::any_cast<float>(object.getValue())) return *f != 0.0f;
-            else if (auto s = std::any_cast<std::string>(object.getValue())) return !s->empty();
-            return true;
-        case LanguageTokenTypes::Perl:
-        case LanguageTokenTypes::R:
-        case LanguageTokenTypes::Lua:
-        case LanguageTokenTypes::MATLAB:
-        case LanguageTokenTypes::VBA:
-        case LanguageTokenTypes::Groovy:
-        case LanguageTokenTypes::Julia:
-        case LanguageTokenTypes::PowerShell:
-        case LanguageTokenTypes::VisualBasic:
-            if (std::any_cast<nullptr_t>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            else if (auto n = std::any_cast<double>(object.getValue())) return *n != 0.0;
-            else if (auto s = std::any_cast<std::string>(object.getValue())) return !s->empty();
-            return true;
-        case LanguageTokenTypes::Haskell:
-        case LanguageTokenTypes::Erlang:
-        case LanguageTokenTypes::Clojure:
-        case LanguageTokenTypes::StandardML:
-        case LanguageTokenTypes::Elm:
-            if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::VHDLVerilog:
-        case LanguageTokenTypes::Fortran:
-        case LanguageTokenTypes::COBOL:
-        case LanguageTokenTypes::Pascal:
-        case LanguageTokenTypes::Ada:
-        case LanguageTokenTypes::Eiffel:
-            if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::AWK:
-        case LanguageTokenTypes::TCL:
-            if (auto s = std::any_cast<std::string>(object.getValue())) return !s->empty() && *s != "0";
-            else if (auto n = std::any_cast<double>(object.getValue())) return *n != 0.0;
-            return true;
-        case LanguageTokenTypes::Shell:
-            if (auto s = std::any_cast<std::string>(object.getValue())) return !s->empty();
-            else if (auto n = std::any_cast<int>(object.getValue())) return *n != 0;
-            return true;
-        case LanguageTokenTypes::LISPScheme:
-        case LanguageTokenTypes::Racket:
-            if (std::any_cast<nullptr_t>(object.getValue()) != nullptr) return false;
-            return true;
-        case LanguageTokenTypes::Prolog:
-            if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::SmallTalk:
-            if (std::any_cast<nullptr_t>(object.getValue()) != nullptr) return false;
-            if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            return true;
-        case LanguageTokenTypes::HTMLCSS:
-        case LanguageTokenTypes::SQL:
-        case LanguageTokenTypes::LabVIEW:
-            return NULL;
-        case LanguageTokenTypes::Dlang:
-            if (std::any_cast<nullptr_t>(object.getValue()) != nullptr) return false;
-            else if (auto b = std::any_cast<bool>(object.getValue())) return *b;
-            else if (auto i = std::any_cast<int>(object.getValue())) return *i != 0;
-            else if (auto f = std::any_cast<float>(object.getValue())) return *f != 0.0f;
-            else if (auto s = std::any_cast<std::string>(object.getValue())) return !s->empty();
-            return true;
-        */
-        default:
-            //TODO: Implement Custom language here
-            return NULL;
-    }
+bool truthyOperations::isTruthy(Any& object) {
+    if (!object.has_value()) return false;
+    if (is_registered(object)) return std::any_cast<bool>(object);
+    return true;
+}
+/** --------------------------------------------------------------
+ * @brief Returns a pair 
+ * 
+ * @param F It is a generic type such that is deduced at compile time. 
+ *          A pair will be constructed if type is not void 
+ * @param T If the objcet that was passed at run time is not found, it will create a new pair 
+ * 
+ * @details .first is the typeid of the object while .second is a callable object.
+ * 
+ * @return Returns a constructed pair with the targeted, otherwise it will return void
+ * ----------------------------------------------------------------
+*/
+template<class T, class F>
+std::pair<const std::type_index, std::function<void(std::any const&)>> truthyOperations::to_any_visitor(F const& f) {
+    return
+    {
+        std::type_index(typeid(T)),
+        [g = f](std::any const& a)
+        {
+            if constexpr (std::is_void_v<T>)
+                g();
+            else
+                g(std::any_cast<T const&>(a));
+        }
+    };
 }
