@@ -270,7 +270,7 @@ namespace ContextFreeGrammar {
                     return " " + expr->op.getLiteral();
                 }
                 else
-                    return accept(this, tree);
+                    return expr->op.getLexeme();
             };
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };

@@ -48,6 +48,9 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
 String interpreter::evaluate(auto conv) {
     if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
     else if (auto stmt = dynamic_cast<Statement*>(conv)) return conv->accept(stmt, false);
+    else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
+    else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
+    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false); 
     else { throw catcher<interpreter>("Unexpected type in evaluate function"); }
     return nullptr;
 }
@@ -83,37 +86,37 @@ std::any interpreter::visitUnaryExpr(Expr& expr) {
 Any interpreter::visitBinaryExpr(auto& expr) {
     Any left = evaluate(expr->left);
     Any right = evaluate(expr->right); 
-    switch (expr.op.getType()) {
+    switch (expr->op.getType()) {
         case TokenType::GREATER:
             checkNumberOperands(expr->op, left, right);
-            return (double)left > (double)right;
+            return std::any_cast<double>(left) > std::any_cast<double>(right);
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return (double)left >= (double)right;
+            return std::any_cast<double>(left) >= std::any_cast<double>(right);
         case TokenType::LESS:
             checkNumberOperands(expr->op, left, right);
-            return (double)left < (double)right;
+            return std::any_cast<double>(left) < std::any_cast<double>(right);
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return (double)left <= (double)right;
+            return std::any_cast<double>(left) <= std::any_cast<double>(right);
         case TokenType::MINUS:
             checkNumberOperands(expr->op, left, right);
-            return (double)left - (double)right;
+            return std::any_cast<double>(left) - std::any_cast<double>(right);
         case PLUS:
         if (instanceof<double>(left) && instanceof<double>(right)) {
-          return (double)left + (double)right;
+          return std::any_cast<double>(left) + std::any_cast<double>(right);
         } 
         if (instanceof<String>(left) && instanceof<String>(right)) {
-          return (String)left + (String)right;
+          return std::any_cast<String>(left) + std::any_cast<String>(right);
         }
-        throw new runtimeerror<interpreter>(expr.op.getType(), "Operands must be two numbers or two strings.");
+        throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
         break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
-            return (double)left / (double)right;
+            return std::any_cast<double>(left) / std::any_cast<double>(right);
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
-            return (double)left * (double)right;
+            return std::any_cast<double>(left) * std::any_cast<double>(right);
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
     }
