@@ -6,7 +6,8 @@ class NonMemberConv {
     // An abstract class used for converting object types that are not a member object of the class 
     public:
         ~NonMemberConv() noexcept = default;
-        inline std::any toNumeric(Any& value) { return static_cast<Type*>(this)->toNumeric(value); };
+        template<typename T>
+        inline T toNumeric(Any& value) { return static_cast<Type*>(this)->toNumeric(value); };
         inline char* toString(Any& left, Any& right) { return static_cast<Type*>(this)->toString(left, right); };
 };
 template<class Type>

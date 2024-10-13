@@ -3,6 +3,7 @@
 #include <token.h> // includes declarations.h 
 #include <run_time_error.h>
 #include <language_core.h> // Include tatical nuke language
+#include <stdexcept>
 namespace BinaryOperations {
     class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
         public:
@@ -53,62 +54,6 @@ namespace BinaryOperations {
                 }
             };
             inline static bool isString(const std::any value) { return value.type() == typeid(std::string);};
-            /** ---------------------------------------------------------------
-             * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)
-             * 
-             * @param Type: Is a generic type that must have a concrete type during run time
-             *
-             * @return True if the object at runtime is type: int, int64_t, float, double, etc.
-                       Otherwise, return false
-             * ----------------------------------------------------------------
-            */
-            inline static bool isNumeric(const std::any value) {
-                // TODO: Need to add more supported types here. refer to languages_types.h
-                try {
-                    auto temp = std::any_cast<int>(value);
-                    return value.type() == typeid(int);
-                }
-                catch(...) {}
-                try {
-                    auto temp = std::any_cast<int64_t>(value);
-                    return value.type() == typeid(int64_t);
-                }
-                catch(...) {}
-                try {
-                    auto temp = std::any_cast<float>(value);
-                    return value.type() == typeid(float);
-                }
-                catch(...) {}
-                try {
-                    auto temp = std::any_cast<double>(value);
-                    return value.type() == typeid(double);
-                }
-                catch(...) {}
-                return false;
-            };
-            /** -------------------------------------------------------------
-             * @brief convert an any object into a numeric representation 
-             *
-             * @param value is a any object type that provides type safe checking
-             * --------------------------------------------------------------
-            */
-            inline static std::any toNumeric(std::any&& value) {
-                try {
-                    // explicit casting syntax is keywords<objec type>(user defined object)
-                    if (value.type() == typeid(int)) return std::any_cast<int>(value);
-                    else if (value.type() == typeid(int64_t)) return std::any_cast<int64_t>(value);
-                    else if (value.type() == typeid(float)) return std::any_cast<float>(value);
-                    else if (value.type() == typeid(double)) return std::any_cast<double>(value);
-                    else {
-                        catcher<binaryOperations> cbo("Error when converting object into a representable type in c++!");
-                        throw cbo;
-                    }
-                }
-                catch(catcher<binaryOperations>& e) {
-                    std::cout << e.what() << std::endl;
-                }
-                return NULL;
-            };
             static bool bothEqual(const Any a, const Any b);
             logTable<Map<String, Vector<String>>> logs_{};
             template<class T, class F>
@@ -127,14 +72,56 @@ namespace BinaryOperations {
             template<typename T>
             inline static bool instanceof(const Any& object) {
                 try {
-                    (void)std::any_cast<T>(object);
+                    if (isNumeric(object)) return true;
                     return true;
-                } catch (const std::bad_any_cast&) {
+                } catch (...) {
                     return false;
                 }
             };
         protected:
             static void checkNumberOperands(Token& op, Any& left, Any& right);
+            /** -------------------------------------------------------------
+             * @brief convert an any object into a numeric representation 
+             *
+             * @param value is a any object type that provides type safe checking
+             * --------------------------------------------------------------
+            */
+            template<typename T>
+            inline static T toNumeric(Any& value) {
+                try {
+                    String temp = std::any_cast<String>(value);
+                    // Check the type T and attempt to convert the string to that type
+                    if constexpr (std::is_same<T, int>::value) return std::stoi(temp);
+                    else if constexpr (std::is_same<T, double>::value) return std::stod(temp);
+                    else if constexpr (std::is_same<T, float>::value) return std::stof(temp); 
+                    throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");
+                } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
+                throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");
+            };
+            /** ---------------------------------------------------------------
+             * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)
+             * 
+             * @param Type: Is a generic type that must have a concrete type during run time
+             *
+             * @return True if the object at runtime is type: int, int64_t, float, double, etc.
+                       Otherwise, return false
+             * ----------------------------------------------------------------
+            */
+            inline static bool isNumeric(const std::any value) {
+                try {
+                    std::string temp = std::any_cast<std::string>(value);
+                    std::size_t pos;  
+                    std::stoi(temp, &pos);
+                    if (pos == temp.length()) return true;  
+                    std::stod(temp, &pos);
+                    if (pos == temp.length()) return true;
+                    std::stof(temp, &pos);
+                    if (pos == temp.length()) return true;
+                    return false;
+                } catch (const std::bad_any_cast&) {
+                    return false;
+                }
+            };
          
     
     };

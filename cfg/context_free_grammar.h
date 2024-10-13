@@ -89,12 +89,12 @@ namespace ContextFreeGrammar {
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
-                    /*if (expr->left) {
-                        result += " " + left->accept(this, tree);
+                    if (expr->left) {
+                        result += left->accept(this, tree);
                     }
                     if (expr->right) {
-                        result += " " + right->accept(this, tree);
-                    }*/
+                        result += right->accept(this, tree);
+                    }
                 }
                 return result;
             };
@@ -208,7 +208,7 @@ namespace ContextFreeGrammar {
             */
             explicit Grouping(Expr* expression);
             ~Grouping() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, true); };
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -252,8 +252,10 @@ namespace ContextFreeGrammar {
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true)
                     return parenthesize("group", expr->expression);
-                else
-                    return accept(this, tree);
+                else {
+                    String result;
+                    return expr->expression->accept(this, false);
+                }
             };
             String parenthesize(String name, Expr* expr);
     };

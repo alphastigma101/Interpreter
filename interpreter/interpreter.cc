@@ -6,6 +6,7 @@
 */
 interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
     String value;
+    // Make a set so that it stores what it parse
     try {
         for (auto& it : expr) {
             auto& [intVal, pairVal] = it;
@@ -13,7 +14,7 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
                     if (auto binary = dynamic_cast<Binary*>(conv))
-                        value += std::any_cast<String>(visitBinaryExpr(binary));
+                        value = std::any_cast<String>(visitBinaryExpr(binary));
                 }
             }
             if (pairVal.first == "Statement") {
@@ -62,7 +63,7 @@ String interpreter::evaluate(auto conv) {
  * @return A Unary abstraction tree syntax node in the form of a string 
  * ---------------------------------------------------------------------------
 */
-std::any interpreter::visitUnaryExpr(Expr& expr) {
+Any interpreter::visitUnaryExpr(Expr& expr) {
     Any right = evaluate(expr.right);
     switch (expr.op.getType()) {
         case TokenType::BANG:
@@ -89,34 +90,31 @@ Any interpreter::visitBinaryExpr(auto& expr) {
     switch (expr->op.getType()) {
         case TokenType::GREATER:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) > std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) > toNumeric<double>(right));
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) >= std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) >= toNumeric<double>(right));
         case TokenType::LESS:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) < std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) < toNumeric<double>(right));
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) <= std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) <= toNumeric<double>(right));
         case TokenType::MINUS:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) - std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) - toNumeric<double>(right));
         case PLUS:
-        if (instanceof<double>(left) && instanceof<double>(right)) {
-          return std::any_cast<double>(left) + std::any_cast<double>(right);
-        } 
-        if (instanceof<String>(left) && instanceof<String>(right)) {
-          return std::any_cast<String>(left) + std::any_cast<String>(right);
-        }
-        throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
-        break;
+            if (instanceof<int>(left) && instanceof<int>(right)) return std::to_string(toNumeric<int>(left) + toNumeric<int>(right));
+            if (instanceof<double>(left) && instanceof<double>(right)) return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
+            if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
+            throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
+            break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) / std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) / toNumeric<double>(right));
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) * std::any_cast<double>(right);
+            return std::to_string(toNumeric<double>(left) * toNumeric<double>(right));
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
     }

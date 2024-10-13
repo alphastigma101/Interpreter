@@ -47,9 +47,9 @@ namespace Interpreter {
             template<typename T>
             inline static bool instanceof(const Any& object) {
                 try {
-                    (void)std::any_cast<T>(object);
+                    if (isNumeric(object)) return true;
                     return true;
-                } catch (const std::bad_any_cast&) {
+                } catch (...) {
                     return false;
                 }
             };
