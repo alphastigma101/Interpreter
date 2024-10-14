@@ -1,6 +1,10 @@
 #pragma once
 #ifndef _ADDON_H_
 #define _ADDON_H_
+
+#ifndef ENABLE_EVALUATED_EXPRESSIONS
+    #define ENABLE_EVALUATED_EXPRESSIONS 0
+#endif
 /** ------------------------------------------------------------------------------------------------------------
  * @brief Builds the bits that will prevent undefined reference to cTree 
  */

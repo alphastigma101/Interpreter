@@ -90,10 +90,12 @@ namespace ContextFreeGrammar {
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
                     if (expr->left) {
+                        // This I am having 
                         result += left->accept(this, tree);
                     }
                     if (expr->right) {
                         result += right->accept(this, tree);
+
                     }
                 }
                 return result;
@@ -253,7 +255,6 @@ namespace ContextFreeGrammar {
                 if (tree == true)
                     return parenthesize("group", expr->expression);
                 else {
-                    String result;
                     return expr->expression->accept(this, false);
                 }
             };

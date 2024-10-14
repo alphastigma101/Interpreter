@@ -72,7 +72,7 @@ g++ -g -std=c++17 -fconcepts $INCLUDE -c ../interpreter/language_specific_binary
 
 
 echo "Creating debugging object files and executables for interpreter"
-g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../interpreter/interpreter.cc -o interpreter.o 
+g++ -g -std=c++17 -fconcepts  $INCLUDE -DENABLE_EVALUATED_EXPRESSIONS=1 -c ../interpreter/interpreter.cc -o interpreter.o 
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1  -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
 g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o abstraction_tree_syntax.o interpreter.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o logging.o debug_interpreter.o -o exec_debug_interpreter
 #g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o

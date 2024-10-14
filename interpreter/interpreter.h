@@ -2,6 +2,10 @@
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
 #include <logging.h>
+#if ENABLE_EVALUATED_EXPRESSIONS
+    Vector<String> evaluatedExpressions;
+    int evalExprSize;
+#endif 
 namespace Interpreter {
     class interpreter: protected truthyOperations, public logging<interpreter> {
         public:
@@ -12,6 +16,7 @@ namespace Interpreter {
              * ------------------------------------------------
             */
             explicit interpreter(Set<astTree<int, String, ExprVariant>>& expr);
+            
             ~interpreter() noexcept = default;
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate

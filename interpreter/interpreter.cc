@@ -5,30 +5,30 @@
  * 
 */
 interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
-    String value;
-    // Make a set so that it stores what it parse
     try {
         for (auto& it : expr) {
             auto& [intVal, pairVal] = it;
             if (pairVal.first == "Binary") {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
-                    if (auto binary = dynamic_cast<Binary*>(conv))
-                        value = std::any_cast<String>(visitBinaryExpr(binary));
+                    if (auto binary = dynamic_cast<Binary*>(conv)) {
+                        evaluatedExpressions.push_back(std::move(std::any_cast<String>(visitBinaryExpr(binary))));
+                    }
+                        
                 }
             }
             if (pairVal.first == "Statement") {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
-                    if (auto stmt = dynamic_cast<Statement*>(conv))
-                        value += evaluate(stmt);
+                    //if (auto stmt = dynamic_cast<Statement*>(conv))
+                       //value.insert(std::any_cast<String>(visitStmtExpr(stmt)));
                 }
             }
             if (pairVal.first == "EcoSystem") {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
-                    if (auto ecosystem = dynamic_cast<EcoSystem*>(conv))
-                        value += conv->accept(ecosystem);
+                    //if (auto ecosystem = dynamic_cast<EcoSystem*>(conv))
+                        //value.push_back(std::any_cast<String>(visitEcoSystemExpr(binary)));
                 }
             }
         }
@@ -85,35 +85,56 @@ Any interpreter::visitUnaryExpr(Expr& expr) {
  * ---------------------------------------------------------------------------
 */
 Any interpreter::visitBinaryExpr(auto& expr) {
-    Any left = evaluate(expr->left);
-    Any right = evaluate(expr->right); 
+    // Fails on this test: "((34 + 15) / 3))" <- doesn't grab the previous left
+    // But works on this test: "((34 + 15) / (12 * 6))" 
+    Any left = (!evaluatedExpressions.empty() && evalExprSize > 0 && evalExprSize % 3 != 0)
+    ? evaluatedExpressions[evalExprSize - (evalExprSize % 3 == 2 ? 2 : 1)]
+    : evaluate(expr->left);
+    Any right = (!evaluatedExpressions.empty() && evalExprSize > 1 && evalExprSize % 3 != 0)
+    ? evaluatedExpressions[evalExprSize - 1]
+    : evaluate(expr->right);
     switch (expr->op.getType()) {
         case TokenType::GREATER:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) > toNumeric<double>(right));
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) >= toNumeric<double>(right));
         case TokenType::LESS:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) < toNumeric<double>(right));
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr->op, left, right);
             return std::to_string(toNumeric<double>(left) <= toNumeric<double>(right));
         case TokenType::MINUS:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) - toNumeric<double>(right));
         case PLUS:
-            if (instanceof<int>(left) && instanceof<int>(right)) return std::to_string(toNumeric<int>(left) + toNumeric<int>(right));
-            if (instanceof<double>(left) && instanceof<double>(right)) return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
-            if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
+            if (instanceof<int>(left) && instanceof<int>(right)) {
+                evalExprSize++;
+                return std::to_string(toNumeric<int>(left) + toNumeric<int>(right));
+            }
+            if (instanceof<double>(left) && instanceof<double>(right)) {
+                evalExprSize++;
+                return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
+            }
+            if (instanceof<String>(left) && instanceof<String>(right)) { 
+                evalExprSize++;
+                return std::any_cast<String>(left) + std::any_cast<String>(right);
+            }
             throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) / toNumeric<double>(right));
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
+            evalExprSize++;
             return std::to_string(toNumeric<double>(left) * toNumeric<double>(right));
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
