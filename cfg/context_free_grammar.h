@@ -89,6 +89,8 @@ namespace ContextFreeGrammar {
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
+                    // TODO: This needs to be stored in a if block, because >, >=, !=, etc can be compared other representations that are not integer or double
+                    // Need to make a method that will store all this code and get called if expr->left or expr->right actually contain a integer or double
                     String leftResult = expr->left->accept(this, tree);
                     String rightResult = expr->right->accept(this, tree);
         
