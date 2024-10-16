@@ -1,19 +1,21 @@
 #include <scanner.h>
 
-/* ---------------------------------------------------------------------------------------------
- * This is the default constructor which can be used to create an instance of the Scanner Class
- * Params:
-    *  std::string source: the source line of code from a file or from the runprompt function
+/** ---------------------------------------------------------------------------------------------
+ * @brief This is the default constructor which can be used to create an instance of the Scanner Class
+ * 
+ * 
+ * @param source: the source line of code from a file or from the runprompt function
+ * 
  * --------------------------------------------------------------------------------------------  
- */
-Scanner::Scanner(const std::string source): source(std::move(source)) {}
+*/
+Scanner::Scanner(const String source): source(std::move(source)) {}
 
-/* ----------------------------------------------------------------------------------
- * (keywords) is a dictionary that holds in various keywords of programming languages 
- * Using unordered_map type because I want O(n) at run time
+/** ----------------------------------------------------------------------------------
+ * @brief "keywords" is a dictionary that holds in various keywords of programming languages 
+ *                   Using unordered_map type because I want O(n) at run time
  * ----------------------------------------------------------------------------------
 */
-const std::unordered_map<std::string, TokenType> Scanner::keywords = {
+const Unordered<String, TokenType> Scanner::keywords = {
     // Add all the Keywrods here
     {"and",    TokenType::AND},
     {"radiation",  TokenType::RADIATION},
@@ -43,19 +45,19 @@ const std::unordered_map<std::string, TokenType> Scanner::keywords = {
     {"ref", TokenType::REF}
 };
 
-/* ------------------------------------------------------------------------------------------------------
- * (ScanTokens) is a method that is apart of the scanner class 
- * Instead of (scanToken) method, this method scans the whole file until it reaches the EOF, (End Of File)
- * Takes no paramaters and returns void
+/** ------------------------------------------------------------------------------------------------------
+ * @brief ScanTokens is a method that is apart of the scanner class 
+ *        Instead of (scanToken) method, this method scans the whole file until it reaches the EOF, (End Of File)
+ * @details Takes no paramaters and returns updated vector
  * ------------------------------------------------------------------------------------------------------
  */
-std::vector<Token> Scanner::ScanTokens() {
+Vector<Token> Scanner::ScanTokens() {
     while (!isAtEnd()) {
         // We are at the beginning of the next lexeme.
         start = current;
         scanToken();
     }
-    tokens.push_back(Token(TokenType::END_OF_FILE, static_cast<const std::string>(std::string("EOF")), static_cast<const std::string>(std::string("EOF")), line));
+    tokens.push_back(Token(TokenType::END_OF_FILE, static_cast<const String>(String("EOF")), static_cast<const String>(String("EOF")), line));
     return tokens;
 
 }
@@ -89,7 +91,6 @@ void Scanner::scanToken() {
         case ';': addToken(TokenType::SEMICOLON); break;
         case '*': addToken(TokenType::STAR); break;
         case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-        //TODO: Make the case below the = so it searches for := and = 
         case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
         case '<': addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS); break;
         case '>': addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
@@ -139,7 +140,7 @@ void Scanner::addToken(const TokenType type) { addToken(type, ""); }
  * @return Nothing. This method only pushes to a vector. 
  * ---------------------------------------------------------------------------
 */
-void Scanner::addToken(const TokenType type, const std::string literal) {
+void Scanner::addToken(const TokenType type, const String literal) {
     std::string text = source.substr(start, current - start);
     tokens.push_back(Token(type, text, literal, line));
 }
@@ -148,12 +149,12 @@ void Scanner::addToken(const TokenType type, const std::string literal) {
  * @brief Searches for the keyword inside a string literal.
  * @param None
  * @return None. It uses a dictionary to see if the object type is inside the dictionary 
- *  If it is not in the dictionary, it will be converted into TokenType::IDENTIFIER
+ *         If it is not in the dictionary, it will be converted into TokenType::IDENTIFIER
  *  --------------------------------------------------------------------------
 */
 void Scanner::identifier() {
     while (isAlphaNumeric(peek())) advance();
-    std::string text = source.substr(start, current - start);
+    String text = source.substr(start, current - start);
     auto it = keywords.find(text);
     TokenType type;
     if (it != keywords.end()) {
@@ -175,7 +176,13 @@ bool Scanner::match(const char expected) {
     return true;
 }
 /** ------------------------------------
- *
+ * @brief A method that checks to see if the lexeme contains a single quote or a double quote
+ * 
+ * @param None
+ * 
+ * @return None
+ * 
+ * @details Updates the the vector or throws an exception
  *
 */
 void Scanner::string_() {
@@ -183,17 +190,26 @@ void Scanner::string_() {
         if (peek() == '\n') line++;
         advance();
     }
-    if (isAtEnd()) {  throw catcher<Scanner>("Unterminated string.");  }
+    if (isAtEnd()) {  throw new catcher<Scanner>("Unterminated string.");  }
     // The closing " or '.
     advance();
     // Trim the surrounding quotes.
-    std::string value = source.substr(start + 1, current - start - 2);
+    String value = source.substr(start + 1, current - start - 2);
     //std::string value = source;
     //value.erase(std::remove( value.begin(), value.end(), '\"' ),value.end());
     addToken(TokenType::STRING, value);
 }
-/*
- *
+/** -----------------------------------------
+ * @brief Checks to see if the lexeme is a number
+ * 
+ * @param None
+ * 
+ * @return None
+ * 
+ * @details Checks to see if the number contains a . or not. If it does it will get consumed 
+ *          Otherwise, it will add the an entry to the vector 
+ * 
+ * ---------------------------------------------
  *
 */
 void Scanner::number_() {    

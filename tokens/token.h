@@ -33,8 +33,7 @@ class Token: public MemberConv<Token>, catcher<Token>  {
         inline String tokenTypeToString() {
             auto it = tokenTypeStrings.find(type);
             if (it != tokenTypeStrings.end()) { return it->second;}
-            catcher<Token> cT("Unknown TokenType");
-            throw cT;
+            throw new catcher<Token>("Unknown TokenType");
         };
         inline static const char* what(const char* msg = std::move(getMsg())) throw() { return msg;};
     private:

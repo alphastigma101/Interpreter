@@ -3,21 +3,21 @@
 #include <token.h>
 class Scanner: public catcher<Scanner> {
     public:
-        Scanner(const std::string source);
+        Scanner(const String source);
         ~Scanner() noexcept = default;
-        std::vector<Token> ScanTokens();
-        inline std::string getSource() { return source; };
+        Vector<Token> ScanTokens();
+        inline String getSource() { return source; };
     protected:
         void number_();          
         void string_(); 
         bool match(const char expected);
         void identifier();
-        void addToken(const TokenType type, const std::string literal);
+        void addToken(const TokenType type, const String literal);
         void addToken(const TokenType type);
         void scanToken();
     private:
-        std::string source;
-        std::vector<Token> tokens; 
+        String source;
+        Vector<Token> tokens; 
         int start = 0;
         int current = 0;
         int line = 1;
@@ -35,6 +35,6 @@ class Scanner: public catcher<Scanner> {
             if (current + 1 >= source.length()) return '\0';
             return source.at(current + 1);
         };
-        static const std::unordered_map<std::string, TokenType> keywords;
+        static const Unordered<String, TokenType> keywords;
 };
 #endif
