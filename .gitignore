@@ -58,7 +58,7 @@ database/*.o
 languages/*.o
 ast/*.o
 cfg/*.o
-test/*.o
+tests/*.o
 collector/*.o
 vm/*.o
 Ast.txt
