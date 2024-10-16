@@ -96,7 +96,6 @@ namespace Interpreter {
     class interpreter;
 };
 extern Vector<String> evaluatedExpressions;
-extern int evalExprSize;
 namespace UnaryOperations {
     class unaryOperations;
 };

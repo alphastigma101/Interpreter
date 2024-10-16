@@ -4,7 +4,7 @@
 namespace TruthyOperations {
     class truthyOperations: public unaryOperations {
         public:
-            friend class runtimeerror<truthyOperations>;
+            //friend class runtimeerror<truthyOperations>;
             truthyOperations() = default;
             ~truthyOperations() noexcept = default;
         private:

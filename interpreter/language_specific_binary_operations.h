@@ -5,15 +5,11 @@
 #include <language_core.h> // Include tatical nuke language
 #include <stdexcept>
 namespace BinaryOperations {
-    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
+    class binaryOperations: public Check<binaryOperations>, protected catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
         public:
-            friend class runtimeerror<binaryOperations>;
-            friend class catcher<binaryOperations>;
             // Default constructor
             binaryOperations() = default;
             ~binaryOperations() noexcept {};
-            //static Any arithmeticOperations(Expr& expr);
-            static bool isEqual(Any& a, Any& b);
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
            /** --------------------------------------
@@ -122,8 +118,8 @@ namespace BinaryOperations {
                     return false;
                 }
             };
-         
-    
+            static bool isEqual(Any& a, Any& b);
+            
     };
 };
 using namespace BinaryOperations;

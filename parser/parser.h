@@ -6,7 +6,7 @@ namespace Parser {
     class parseError: public catcher<Derived> {
         public:
             friend class parser;
-            explicit parseError<Derived>(const Token& t, const std::string& msg) {
+            explicit parseError<Derived>(const Token& t, const String& msg) {
                 try {
                     token = std::move(t);
                     message = std::move(msg);
@@ -21,7 +21,7 @@ namespace Parser {
              * @brief A method that calls in the report method the error
              * -------------------------------------------------------------------------------------- 
             */
-            inline std::string error() { return static_cast<Derived*>(this)->error();};
+            inline String error() { return static_cast<Derived*>(this)->error();};
             /** --------------------------------------------------------------------------------------
              * @brief A method that calls in logging to store the error that occured
              * 
@@ -30,7 +30,7 @@ namespace Parser {
              * @param message: The error message
              * -------------------------------------------------------------------------------------- 
             */                   
-            inline std::string report(int line, const std::string where, const std::string message) throw() {
+            inline String report(int line, const String where, const String message) throw() {
                 return static_cast<Derived*>(this)->report(line, where, message);
             };
         protected:

@@ -118,8 +118,7 @@ Expr* parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return new Grouping(expr);
     }
-    parseError<parser> pp(peek(), "Expect expression.");
-    throw pp;
+    throw new parseError<parser>(peek(), "Expect expression.");
 }
 /** --------------------------------------------------------------------------
  * @brief Expands into equality to start the recrusion
@@ -165,8 +164,11 @@ Expr* parser::declarations() {
       if (match(TokenType::VAR, TokenType::INT, TokenType::AUTO, TokenType::BOOL, TokenType::CHAR, TokenType::FLOAT)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
-        std::cout << "Logs have been updated!" << std::endl;
         synchronize();
+        std::cout << "Logs have been updated!" << std::endl;
+        logging<parser> logs(logs_, e.what());
+        logs.update();
+        logs.rotate();
         return nullptr;
     }
 }
@@ -250,7 +252,10 @@ Expr* parser::parse() {
         return std::move(result);
     }
     catch (parseError<parser>& e) { 
-        std::cout << e.error() << std::endl;
+        std::cout << "Logs have been updated!" << std::endl;
+        logging<parser> logs(logs_, e.what());
+        logs.update();
+        logs.rotate();
         return nullptr; 
     }
 }

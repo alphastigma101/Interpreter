@@ -151,8 +151,7 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         cTree.insert(std::move(stmt));
     }
     catch(...) {
-        catcher<Arguments> cl("Undefined behavior occurred in Class Arguments!");
-        throw cl;
+        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
     }
 }
 /** ---------------------------------------------------------------

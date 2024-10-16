@@ -12,6 +12,7 @@ class NonMemberConv {
 };
 template<class Type>
 class Check {
+    // Used for checking object types and checking their instances
     public:
         ~Check() noexcept = default;
         inline bool isNumeric(const Any value) { return static_cast<Type*>(this)->isNumeric(value); };
@@ -25,7 +26,7 @@ class MemberConv {
     // An abstract class is used to convert member types of a class object into a string 
     public:
         ~MemberConv() noexcept = default;
-        inline std::any toString() { return static_cast<Type*>(this)->toString(); };
+        inline Any toString() { return static_cast<Type*>(this)->toString(); };
 };
 template<class Type>
 class Visitor {

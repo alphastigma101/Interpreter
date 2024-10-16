@@ -4,7 +4,6 @@
 #include <logging.h>
 #if ENABLE_EVALUATED_EXPRESSIONS
     Vector<String> evaluatedExpressions;
-    int evalExprSize;
 #endif 
 namespace Interpreter {
     class interpreter: protected truthyOperations, public logging<interpreter> {

@@ -64,7 +64,7 @@ namespace ContextFreeGrammar {
         protected:
             int idx = 0;
     };
-    class Binary: public Expr, public logging<Binary>, protected runtimeerror<Binary>, public catcher<Binary> {
+    class Binary: public Expr, public catcher<Binary> {
         /** --------------------------------------------------------------------
              * @brief A class that represents a binary abstraction syntax tree
              * 
@@ -118,7 +118,6 @@ namespace ContextFreeGrammar {
                 return result;
             };
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -132,42 +131,15 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Binary>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Binary>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             String parenthesize(String name, Expr* left, Expr* right);
     };
-    class Unary: public Expr, public logging<Unary>, protected runtimeerror<Unary>, public catcher<Unary> {
+    class Unary: public Expr, public catcher<Unary> {
         public:
-            friend class runtimeerror<Unary>; // Use to output TokenType and message
             friend class catcher<Unary>; // Use to output a message
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -180,31 +152,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Unary>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Unary>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override { 
                 if (tree == true)
@@ -213,9 +160,10 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
     };
-    class Grouping: public Expr, public logging<Grouping>, protected runtimeerror<Grouping>, public catcher<Grouping> {
+    class Grouping: public Expr, public catcher<Grouping> {
         public:
             friend class catcher<Grouping>; // Use to output a message
+            friend class Visitor<Grouping>;
             /** ----------------------------------------------------------------------------------------------------------
              * @brief constructor for creating the memory addresses that will later on be accessed by a vector 
              *
@@ -229,7 +177,6 @@ namespace ContextFreeGrammar {
             ~Grouping() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -243,31 +190,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Grouping>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Grouping>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true)
                     return parenthesize("group", expr->expression);
@@ -277,7 +199,7 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* expr);
     };
-    class Literal: public Expr, public logging<Literal>, protected runtimeerror<Literal>, public catcher<Literal> {
+    class Literal: public Expr, public catcher<Literal> {
         public:
             friend class catcher<Literal>; // Use to output a message
             friend class Visitor<Literal>;
@@ -293,7 +215,6 @@ namespace ContextFreeGrammar {
                     return expr->op.getLexeme();
             };
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -307,37 +228,11 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Literal>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Literal>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
         protected:
             Literal() = default; 
     };
-    class Variable: public Expr, public logging<Variable>, protected runtimeerror<Variable>, public catcher<Variable> {
+    class Variable: public Expr, public catcher<Variable> {
         public:
-            friend class runtimeerror<Variable>; // Use to output TokenType and message
             friend class catcher<Variable>; // Use to output a message
             friend class Visitor<Variable>;
             Variable(const Token&& oP);
@@ -350,8 +245,7 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
         protected:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -364,38 +258,12 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Variable>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Variable>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             String parenthesize(String name, Expr* left, Expr* right);
         private:
             //
     };
-    class Statement: public Expr, public logging<Statement>, protected runtimeerror<Statement>, public catcher<Statement> {
+    class Statement: public Expr, public catcher<Statement> {
         public:
-            friend class runtimeerror<Statement>; // Use to output TokenType and message
             friend class catcher<Statement>; // Use to output a message
             friend class Visitor<Statement>;
             Statement(Expr* initalizer, const Token&& oP);
@@ -410,8 +278,7 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
         protected:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -424,37 +291,11 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Statement>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Statement>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
         private:
             //
     };
-    class Methods: public Expr, public logging<Methods>, protected runtimeerror<Methods>, public catcher<Methods> {
+    class Methods: public Expr, public catcher<Methods> {
         public:
-            friend class runtimeerror<Methods>; // Use to output TokenType and message
             friend class catcher<Methods>; // Use to output a message
             explicit Methods(Expr* meth, const Token& op_);
             ~Methods() noexcept = default;
@@ -462,8 +303,7 @@ namespace ContextFreeGrammar {
         protected:
             Methods() = default;
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -476,31 +316,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Methods>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Methods>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true)
@@ -509,9 +324,8 @@ namespace ContextFreeGrammar {
                     return accept(this, tree);
             };
     };
-    class Arguments: public Expr, public logging<Arguments>, protected runtimeerror<Arguments>, public catcher<Arguments> {
+    class Arguments: public Expr, public catcher<Arguments> {
         public:
-            friend class runtimeerror<Arguments>; // Use to output TokenType and message
             friend class catcher<Arguments>; // Use to output a message
             friend class Visitor<Arguments>;
             explicit Arguments(Expr* left, const Token& op_, Expr* right);
@@ -520,8 +334,7 @@ namespace ContextFreeGrammar {
         //protected:
             //Arguments() noexcept = default;
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -534,31 +347,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Arguments>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Arguments>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true)
@@ -570,16 +358,14 @@ namespace ContextFreeGrammar {
         protected:
             Arguments() = default;
     };
-    class EcoSystem: public Expr, public logging<EcoSystem>, protected runtimeerror<EcoSystem>, public catcher<EcoSystem> {
+    class EcoSystem: public Expr, public catcher<EcoSystem> {
         public:
-            friend class runtimeerror<EcoSystem>; // Use to output TokenType and message
             friend class catcher<EcoSystem>; // Use to output a message
             friend class Visitor<EcoSystem>;
             explicit EcoSystem(Expr* ecoSystem, const Token& op_);
             ~EcoSystem() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
             inline static logTable<Map<String, Vector<String>>> logs_;
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -593,31 +379,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<EcoSystem>::getMsg()) throw() { return msg;};
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<EcoSystem>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
-                }
-            };
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override { 
                 if (tree == true) 
