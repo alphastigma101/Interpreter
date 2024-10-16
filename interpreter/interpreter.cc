@@ -85,42 +85,36 @@ Any interpreter::visitUnaryExpr(Expr& expr) {
  * ---------------------------------------------------------------------------
 */
 Any interpreter::visitBinaryExpr(auto& expr) {
-    // Fails on this test: "((34 + 15) / 3))" <- doesn't grab the previous left
-    // But works on this test: "((34 + 15) / (12 * 6))" 
-    Any left = (!evaluatedExpressions.empty() && evalExprSize > 0 && evalExprSize % 3 != 0)
-    ? evaluatedExpressions[evalExprSize - (evalExprSize % 3 == 2 ? 2 : 1)]
-    : evaluate(expr->left);
-    Any right = (!evaluatedExpressions.empty() && evalExprSize > 1 && evalExprSize % 3 != 0)
-    ? evaluatedExpressions[evalExprSize - 1]
-    : evaluate(expr->right);
+    Any left = searchEvaluatedExpression(expr->left);
+    Any right = searchEvaluatedExpression(expr->right);
     switch (expr->op.getType()) {
         case TokenType::GREATER:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) > toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) > toNumeric<int>(right));
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) >= toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) >= toNumeric<int>(right));
         case TokenType::LESS:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) < toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) < toNumeric<int>(right));
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) <= toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) <= toNumeric<int>(right));
         case TokenType::MINUS:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) - toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) - toNumeric<int>(right));
         case PLUS:
             if (instanceof<int>(left) && instanceof<int>(right)) {
                 evalExprSize++;
                 return std::to_string(toNumeric<int>(left) + toNumeric<int>(right));
             }
-            if (instanceof<double>(left) && instanceof<double>(right)) {
+            if (instanceof<int>(left) && instanceof<int>(right)) {
                 evalExprSize++;
-                return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
+                return std::to_string(toNumeric<int>(left) + toNumeric<int>(right));
             }
             if (instanceof<String>(left) && instanceof<String>(right)) { 
                 evalExprSize++;
@@ -131,16 +125,28 @@ Any interpreter::visitBinaryExpr(auto& expr) {
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) / toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) / toNumeric<int>(right));
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
             evalExprSize++;
-            return std::to_string(toNumeric<double>(left) * toNumeric<double>(right));
+            return std::to_string(toNumeric<int>(left) * toNumeric<int>(right));
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
     }
     // Unreachable.
     return nullptr;
+}
+
+String interpreter::searchEvaluatedExpression(auto& expr) {
+    /*auto temp = evaluate(expr);
+    // Must obey this pattern matching from vector: {}, {left, expr}, {left, expr, left}
+    Any left = (!evaluatedExpressions.empty() && evalExprSize > 1 && evalExprSize % 3 != 0)
+    ? evaluatedExpressions[evalExprSize - (evalExprSize % 3 == 2 ? 2 : 1)]
+    : evaluate(expr->left);
+    Any right = (!evaluatedExpressions.empty() && evalExprSize > 1 && evalExprSize % 3 != 0)
+    ? evaluatedExpressions[evalExprSize - 1]
+    : evaluate(expr->right);*/
+    return std::move(evaluate(expr));
 }
 
 String interpreter::stringify(Any object) {

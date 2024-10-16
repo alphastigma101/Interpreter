@@ -90,7 +90,6 @@ namespace ContextFreeGrammar {
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
                     if (expr->left) {
-                        // This I am having 
                         result += left->accept(this, tree);
                     }
                     if (expr->right) {
