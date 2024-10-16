@@ -93,8 +93,8 @@ namespace ContextFreeGrammar {
                     String rightResult = expr->right->accept(this, tree);
         
                     // Convert string results to numbers
-                    int leftValue = std::stoi(leftResult);
-                    int rightValue = std::stoi(rightResult);
+                    double leftValue = std::stoi(leftResult);
+                    double rightValue = std::stoi(rightResult);
                     switch (expr->op.getType()) {
                         case TokenType::PLUS:
                             result = std::to_string(leftValue + rightValue);

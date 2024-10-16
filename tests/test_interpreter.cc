@@ -61,15 +61,15 @@ TEST_F(InterpreterTest, AddDivideMultiple) {
     cTree.clear();   
 }
 
-/*TEST_F(InterpreterTest, Complex) {
+TEST_F(InterpreterTest, Complex) {
     Scanner scanner("(((34 + 15) * 2) - (12 / (3 + 1))) + ((45 * 2) / 3)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
     interpreter interp(cTree);
-    EXPECT_EQ(evaluatedExpressions.at(14), ".68");
+    EXPECT_EQ(evaluatedExpressions.at(15), "125.000000");
     cTree.clear();   
-}*/
+}
 
 
 

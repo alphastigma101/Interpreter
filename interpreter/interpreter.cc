@@ -103,11 +103,10 @@ Any interpreter::visitBinaryExpr(auto& expr) {
             checkNumberOperands(expr->op, left, right);
             return std::to_string(toNumeric<double>(left) - toNumeric<double>(right));
         case PLUS:
-            if (instanceof<int>(left) && instanceof<int>(right)) {
+            if (instanceof<double>(left) && instanceof<double>(right)) {
                 return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
             }
-            if (instanceof<int>(left) && instanceof<double>(right)) {
-                evalExprSize++;
+            if (instanceof<double>(left) && instanceof<double>(right)) {
                 return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
             }
             if (instanceof<String>(left) && instanceof<String>(right)) { 
@@ -117,11 +116,9 @@ Any interpreter::visitBinaryExpr(auto& expr) {
             break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
-            evalExprSize++;
             return std::to_string(toNumeric<double>(left) / toNumeric<double>(right));
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
-            evalExprSize++;
             return std::to_string(toNumeric<double>(left) * toNumeric<double>(right));
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
