@@ -89,12 +89,28 @@ namespace ContextFreeGrammar {
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
-                    if (expr->left) {
-                        result += left->accept(this, tree);
-                    }
-                    if (expr->right) {
-                        result += right->accept(this, tree);
-
+                    String leftResult = expr->left->accept(this, tree);
+                    String rightResult = expr->right->accept(this, tree);
+        
+                    // Convert string results to numbers
+                    int leftValue = std::stoi(leftResult);
+                    int rightValue = std::stoi(rightResult);
+                    switch (expr->op.getType()) {
+                        case TokenType::PLUS:
+                            result = std::to_string(leftValue + rightValue);
+                            break;
+                        case TokenType::MINUS:
+                            result = std::to_string(leftValue - rightValue);
+                            break;
+                        case TokenType::STAR:
+                            result = std::to_string(leftValue * rightValue);
+                            break;
+                        case TokenType::SLASH:
+                            result = std::to_string(leftValue / rightValue);
+                            break;
+                        // Add other cases as needed
+                        default:
+                            throw new catcher<Binary>("Unknown operator");
                     }
                 }
                 return result;

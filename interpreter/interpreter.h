@@ -28,12 +28,9 @@ namespace Interpreter {
              * 
              * ---------------------------------------
             */
-            inline static Any visitLiteralExpr(auto expr) {
-                return expr->getLexeme(); 
-            };
+            inline static Any visitLiteralExpr(auto expr) { return expr->getLexeme(); };
             static Any visitUnaryExpr(ContextFreeGrammar::Expr& expr);
             static Any visitBinaryExpr(auto& expr);
-            static String searchEvaluatedExpression(auto& expr);
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate
              * 
