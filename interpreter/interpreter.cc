@@ -35,8 +35,8 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
     catch (runtimeerror<interpreter>& e) {
         std::cout << "Logs have been updated!" << std::endl;
         logging<interpreter> logs(logs_, e.what(getType(), e.getMsg()));
-        //logs.update();
-        //logs.rotate();
+        logs.update();
+        logs.rotate();
     }                              
 }
 /** ------------------------------------------------

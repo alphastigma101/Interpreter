@@ -6,7 +6,7 @@
     Vector<String> evaluatedExpressions;
 #endif 
 namespace Interpreter {
-    class interpreter: protected truthyOperations, public logging<interpreter> {
+    class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, public runtimeerror<interpreter>, public catcher<interpreter> {
         public:
             friend class catcher<interpreter>; // Useful for one error
             friend class runtimeerror<interpreter>; 
@@ -45,6 +45,7 @@ namespace Interpreter {
             inline static String visitGroupingExpr(auto& expr) { return evaluate(expr); };
         private:
             inline static logTable<Map<String, Vector<String>>> logs_{};
+            inline static TokenType* type_{};
             template<typename T>
             inline static bool instanceof(const Any& object) {
                 try {
@@ -57,7 +58,7 @@ namespace Interpreter {
         protected:
             static String evaluate(auto conv);
             static String stringify(Any object);
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(type_)); };
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -90,10 +91,16 @@ namespace Interpreter {
                         output = search->second.c_str() + String(msg);
                         return output.c_str();
                     }
+                    else 
+                        throw new catcher<interpreter>("In interpreter class: Error! conversion has failed!");
                 }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
+                catch(catcher<interpreter>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<interpreter> logs(logs_, e.what());
+                    logs.update();
+                    logs.rotate();
                 }
+                return output.c_str();
             };
     };
 };

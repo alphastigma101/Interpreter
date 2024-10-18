@@ -2,11 +2,14 @@
 #define _LANGUAGE_SPECIFIC_UNARY_OPERATIONS_H_ 
 #include <language_specific_binary_operations.h> 
 namespace UnaryOperations {
-    class unaryOperations: public binaryOperations {
+    class unaryOperations: public logging<unaryOperations>, public runtimeerror<unaryOperations>, public catcher<unaryOperations> {
         public:
+            friend class catcher<unaryOperations>; // Useful for one error
+            friend class runtimeerror<unaryOperations>; 
             explicit unaryOperations() = default;
             ~unaryOperations() noexcept = default;
         private:
+            inline static TokenType* type_{};
             logTable<std::map<std::string, std::vector<std::string>>> logs_{};
             Nuke::core tatical_nuke;
             template<class T, class F>
