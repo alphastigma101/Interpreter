@@ -1,7 +1,7 @@
 #pragma once
 #ifndef _LOGGING_H_
 #define _LOGGING_H_
-#include <interface.h>
+#include <declarations.h>
 namespace Logging {
     template<class T>
     class logging {
@@ -30,7 +30,6 @@ namespace Logging {
 };
 using namespace Logging;
 #include <logging.cc>
-//#include <run_time_error.h>
 #endif
 
 

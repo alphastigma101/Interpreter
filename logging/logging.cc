@@ -6,20 +6,15 @@
 #include <fstream>
 #include <iomanip>
 #include <filesystem>
-
-
-
 template<typename T>
-std::string logging<T>::text;
+String logging<T>::text;
 
-/**
+/** ---------------------------------------------------------------------------
  * @brief Rotate the logs by removing old entries from the logs directory.
  * 
- * Description:
- * This method searches through the folder called "logs" and iterates through each .json file,
- * removing old entries based on some criteria (e.g., age). If the "logs" folder does not exist,
- * it creates the folder.
- */
+ * @details This method searches through the folder called "logs" and iterates through each .json file,
+ *          removing old entries based on some criteria (e.g., age). If the "logs" folder does not exist, it creates the folder.
+*/
 template<class T>
 void logging<T>::rotate() {
     std::filesystem::path logDir = "logs";
@@ -46,13 +41,13 @@ void logging<T>::rotate() {
     return;
 }
 
-/**
+/** ------------------------------------------------------------------
  * @brief Update the logs object by adding new entries.
  * 
- * Description:
- * This method updates the logs object by adding new log entries. These entries represent
- * events such as crashes or errors that have occurred within the system.
- */
+ * @details This method updates the logs object by adding new log entries. These entries represent
+ *          events such as crashes or errors that have occurred within the system.
+ * --------------------------------------------------------------------
+*/
 template<class T>
 void logging<T>::update() {
     std::string timestamp = getCurrentTimeString();
@@ -62,14 +57,14 @@ void logging<T>::update() {
     return;
 }
 
-/**
+/** -------------------------------------------------
  * @brief Write the logs data to a .json file.
  * 
- * Description:
- * This method writes the contents of the logs object to a .json file in the "logs" directory.
- * The filename is based on the current timestamp.
+ * @details This method writes the contents of the logs object to a .json file in the "logs" directory.
+ *          The filename is based on the current timestamp.
  * 
  * @return bool Returns true if the write operation is successful, false otherwise.
+ * ---------------------------------------------------
  */
 template<class T>
 bool logging<T>::write() {
@@ -87,10 +82,11 @@ bool logging<T>::write() {
     return true;
 }
 
-/**
+/** --------------------------------------------------------
  * @brief write to the file in JSON-like format
  *
  * @return returns the file back 
+ * ----------------------------------------------------------
 */
 template<typename T>
 void logging<T>::create(std::string& filename) {
@@ -166,11 +162,12 @@ void logging<T>::create(std::string& filename) {
     return;
 }
 
-/**
+/** ------------------------------------------------------------------
  * @brief Get the current time as a formatted string.
  * 
  * @return std::string The current time formatted as "YYYY-MM-DD HH:MM:SS".
- */
+ * --------------------------------------------------------------------
+*/
 template<class T>
 std::string logging<T>::getCurrentTimeString() {
     // Get current time as time_point
@@ -190,10 +187,11 @@ std::string logging<T>::getCurrentTimeString() {
     return oss.str();
 }
 
-/*
+/** -------------------------------------------------------------
  * @brief Find the current json file within the hour
  *
  * @return returns a string if there is a .json file within the hour otherwise null
+ * ---------------------------------------------------------------
 */
 template<typename T>
 std::string logging<T>::read() {

@@ -1,7 +1,6 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
-#include <logging.h>
 namespace Interpreter {
     class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter> {
         public:

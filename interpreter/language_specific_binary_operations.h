@@ -106,20 +106,55 @@ namespace BinaryOperations {
                        Otherwise, return false
              * ----------------------------------------------------------------
             */
-            inline static bool isNumeric(const std::any value) {
+            inline static bool isNumeric(const Any value) {
                 try {
                     std::string temp = std::any_cast<std::string>(value);
-                    std::size_t pos;  
-                    std::stoi(temp, &pos);
-                    if (pos == temp.length()) return true;  
-                    std::stod(temp, &pos);
-                    if (pos == temp.length()) return true;
-                    std::stof(temp, &pos);
-                    if (pos == temp.length()) return true;
-                    return false;
-                } catch (const std::bad_any_cast&) {
-                    return false;
-                }
+                    if (temp.empty()) return false;
+                    
+                    // Remove leading/trailing whitespace
+                    temp.erase(0, temp.find_first_not_of(" \t\n\r\f\v"));
+                    temp.erase(temp.find_last_not_of(" \t\n\r\f\v") + 1);
+                    
+                    // Handle negative numbers and decimals
+                    bool hasDecimal = false;
+                    bool hasDigit = false;
+                    
+                    for (size_t i = 0; i < temp.length(); i++) {
+                        if (i == 0 && temp[i] == '-') continue;  // Allow negative sign at start
+                        if (temp[i] == '.') {
+                            if (hasDecimal) return false;  // Multiple decimal points
+                            hasDecimal = true;
+                            continue;
+                        }
+                        if (std::isdigit(temp[i])) {
+                            hasDigit = true;
+                            continue;
+                        }
+                        return false;  // Any other character means it's not a number
+                    }
+                    
+                    if (!hasDigit) return false;  // Must have at least one digit
+                    
+                    std::size_t pos = 0;
+                    try {
+                        if (hasDecimal) {
+                            std::stod(temp, &pos);
+                        } else {
+                            std::stoll(temp, &pos);
+                        }
+                        return pos == temp.length();
+                    } catch (const std::out_of_range&) {
+                        // If integer conversion fails, try double
+                        try {
+                            std::stod(temp, &pos);
+                            return pos == temp.length();
+                        } catch (const std::out_of_range&) {
+                            return false;
+                        }
+                    }
+                } 
+                catch (const std::bad_any_cast&) { return false;} 
+                catch (const std::invalid_argument&) { return false; }
             };
             static bool isEqual(Any& a, Any& b);
             
