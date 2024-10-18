@@ -2,10 +2,7 @@
 #define _ABSTRACTION_TREE_SYNTAX_H_
 #include <context_free_grammar.h>
 #include <threading.h>
-#if ENABLE_TESTING
-    String file_name, user_choice;
-    int settings;
-#endif
+#include <run_time_error.h>
 namespace AbstractionTreeSyntax {
     template<class Type>
     class generateAst: public catcher<Type>, public runtimeerror<Type> {

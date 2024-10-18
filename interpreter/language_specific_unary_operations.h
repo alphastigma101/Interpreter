@@ -2,14 +2,13 @@
 #define _LANGUAGE_SPECIFIC_UNARY_OPERATIONS_H_ 
 #include <language_specific_binary_operations.h> 
 namespace UnaryOperations {
-    class unaryOperations: public logging<unaryOperations>, public runtimeerror<unaryOperations>, public catcher<unaryOperations> {
+    class unaryOperations: public logging<unaryOperations>, protected runtimeerror<unaryOperations>, public catcher<unaryOperations> {
         public:
             friend class catcher<unaryOperations>; // Useful for one error
             friend class runtimeerror<unaryOperations>; 
             explicit unaryOperations() = default;
             ~unaryOperations() noexcept = default;
         private:
-            inline static TokenType* type_{};
             logTable<std::map<std::string, std::vector<std::string>>> logs_{};
             Nuke::core tatical_nuke;
             template<class T, class F>
@@ -34,7 +33,7 @@ namespace UnaryOperations {
                     return false;
                 }
             };
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(runtimeerror<unaryOperations>::type);};
             inline static bool isString(const std::any value) { return value.type() == typeid(std::string);};
             inline static const char* what(const char* msg = catcher<unaryOperations>::getMsg()) throw() { return msg; };
             inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<unaryOperations>::getMsg()) throw() {

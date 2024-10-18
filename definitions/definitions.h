@@ -3,7 +3,22 @@
 #define _DEFINITIONS_H_
 #include <experimental/random>
 #include <declarations.h>
-#include <enum_types.h>
+// These are macros that are enabled or disabled by the compiler 
+#if ENABLE_LOGGING_TEST
+    logTable<Map<String, Vector<String>>> logEntries;
+#endif
+
+#if ENABLE_TREE_BUILD
+   Set<astTree<int, String, ExprVariant>> cTree;
+#endif
+
+#if ENABLE_EVALUATED_EXPRESSIONS
+    Vector<String> evaluatedExpressions;
+#endif 
+#if ENABLE_TESTING
+    String file_name, user_choice;
+    int settings;
+#endif
 /** ---------------------------------------------------------------------------
  * @brief Custom function that creates a tuple for later use.
  * ----------------Generic Arguments------------------------------------------
@@ -28,7 +43,7 @@ inline astTree<T, U, V> compressedAstTree(T first, U second, V third) {
     );
 }
 
-/**---------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
  * @brief Uses atomic to prevent 'data races'/sync. It also uses threading.
  *
  *

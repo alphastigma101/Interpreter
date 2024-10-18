@@ -27,14 +27,14 @@ namespace RunTimeError {
             };
         
             template<typename Sig>
-            inline void setType(const Sig& value) { type_ = const_cast<void*>(static_cast<const void*>(&value)); };
+            inline void setType(const Sig& value) { type = const_cast<void*>(static_cast<const void*>(&value)); };
 
             // Get the token associated with the error
             template<typename Sig>
-            inline const Sig& getType() { return *static_cast<Sig*>(this)->getType(); };
+            inline const Sig& getType() { return static_cast<Type*>(this)->getType(); };
 
         protected:
-            inline static void* type_ = nullptr;
+            inline static void* type = nullptr;
             inline static const char* message_{};
     };
 };

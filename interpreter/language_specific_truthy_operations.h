@@ -2,15 +2,14 @@
 #define _LANGUAGE_SPECIFIC_TRUTHY_OPERATIONS_H_
 #include <language_specific_unary_operations.h>
 namespace TruthyOperations {
-    class truthyOperations: public logging<unaryOperations>, public runtimeerror<unaryOperations>, public catcher<unaryOperations> {
+    class truthyOperations: public logging<truthyOperations>, protected runtimeerror<truthyOperations>, public catcher<truthyOperations> {
         public:
             friend class runtimeerror<truthyOperations>;
             friend class catcher<truthyOperations>;
             truthyOperations() = default;
             ~truthyOperations() noexcept = default;
         private:
-            inline static TokenType* type_{};
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(runtimeerror<truthyOperations>::type);};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 

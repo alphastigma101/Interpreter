@@ -6,7 +6,7 @@
 #include <logging.h>
 #include <stdexcept>
 namespace BinaryOperations {
-    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, public runtimeerror<binaryOperations> {
+    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
         public:
             friend class catcher<binaryOperations>; // Useful for one error
             friend class runtimeerror<binaryOperations>; 
@@ -14,8 +14,7 @@ namespace BinaryOperations {
             binaryOperations() = default;
             ~binaryOperations() noexcept {};
         private:
-            inline static TokenType* type_{};
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(type_); };
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(runtimeerror<binaryOperations>::type);};
            /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
