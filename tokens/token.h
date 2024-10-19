@@ -11,11 +11,12 @@
  *          interface.h is a package basically and should only be needed if the class that is being declared/defined needs those methods 
  * 
 */
-class Token: public MemberConv<Token>, catcher<Token>  {
+class Token: public catcher<Token>  {
     public:
-        /**
+        /** --------------------------------------------------------------------
          * @brief default constructor is needed only for initialization, (Instantiation) of the member vairables
          *
+         * --------------------------------------------------------------------
         */
         explicit Token() = default;
         ~Token() noexcept = default;

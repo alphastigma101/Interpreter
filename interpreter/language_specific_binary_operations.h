@@ -6,7 +6,7 @@
 #include <logging.h>
 #include <stdexcept>
 namespace BinaryOperations {
-    class binaryOperations: public Check<binaryOperations>, public catcher<binaryOperations>, public NonMemberConv<binaryOperations>, protected runtimeerror<binaryOperations> {
+    class binaryOperations: public catcher<binaryOperations>, protected runtimeerror<binaryOperations> {
         public:
             friend class catcher<binaryOperations>; // Useful for one error
             friend class runtimeerror<binaryOperations>; 

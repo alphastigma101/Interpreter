@@ -50,8 +50,6 @@ namespace UnaryOperations {
             };
         protected:
             static void checkNumberOperand(Token& op, const Any& object);
-           
-
     };
 };
 using namespace UnaryOperations;
