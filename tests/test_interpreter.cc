@@ -80,6 +80,15 @@ TEST_F(InterpreterTest, Integers) {
     EXPECT_EQ(evaluatedExpressions.at(evaluatedExpressions.size() - 1), "-65");
     cTree.clear();   
 }
+TEST_F(InterpreterTest, Comparison) {
+    Scanner scanner("(34 > 15)");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    p.beginParse();
+    interpreter interp(cTree);
+    EXPECT_EQ(evaluatedExpressions.at(evaluatedExpressions.size() - 1), "1");
+    cTree.clear();   
+}
 
 
 int main(int argc, char **argv) {
