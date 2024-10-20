@@ -159,8 +159,7 @@ namespace Parser {
                     }
                 };
                 clear();*/
-                parseError<parser> pp(peek(), message);
-                throw pp;
+                throw new parseError<parser>(peek(), message);
             };
         private:
             Vector<astTree<int, String, ExprVariant>> nodes;

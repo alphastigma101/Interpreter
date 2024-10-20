@@ -2,7 +2,6 @@
 #define _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
 #include <token.h> // includes declarations.h 
 #include <run_time_error.h>
-#include <language_core.h> // Include tatical nuke language
 #include <logging.h>
 #include <stdexcept>
 namespace BinaryOperations {
@@ -52,51 +51,26 @@ namespace BinaryOperations {
                     std::cout << "Error! conversion has failed!" << std::endl;
                 }
             };
-            inline static bool isString(const std::any value) { return value.type() == typeid(std::string);};
-            static bool bothEqual(const Any a, const Any b);
-            logTable<Map<String, Vector<String>>> logs_{};
+            /** -----------------------------------
+             * @brief A Map that holds logging entries.
+             * 
+             * @param String First parameter the map takes
+             * @param Vector The second parameter the map takes. 
+             *               The vector takes in a String type
+             * ------------------------------------
+            */
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             template<class T, class F>
-            static std::pair<const std::type_index, std::function<void(std::any const&)>> to_any_visitor(F const& f); 
-            static std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_visitor;
+            static std::pair<const std::type_index, std::function<void(Any const&)>> to_any_visitor(F const& f); 
+            static Unordered<std::type_index, std::function<void(Any const&)>>any_visitor;
             template<class T, class F>
             inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
-            inline static bool is_registered(const Any& a) {
-                // cend() points one past the element. Menaing it is checking the bounds of the map
-                if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
-                    return true;
-                else
-                    throw new runtimeerror<binaryOperations>(getType(), "This object was not properly registered!");
-                return false;
-            };
+            inline static bool is_registered(const Any& a);
+            Nuke::core tatical_nuke;
             template<typename T>
-            inline static bool instanceof(const Any& object) {
-                try {
-                    if (isNumeric(object)) return true;
-                    return true;
-                } catch (...) {
-                    return false;
-                }
-            };
+            static bool instanceof(const Any& object);
         protected:
             static void checkNumberOperands(Token& op, Any& left, Any& right);
-            /** -------------------------------------------------------------
-             * @brief convert an any object into a numeric representation 
-             *
-             * @param value is a any object type that provides type safe checking
-             * --------------------------------------------------------------
-            */
-            template<typename T>
-            inline static T toNumeric(Any& value) {
-                try {
-                    String temp = std::any_cast<String>(value);
-                    // Check the type T and attempt to convert the string to that type
-                    if constexpr (std::is_same<T, int>::value) return std::stoi(temp);
-                    else if constexpr (std::is_same<T, double>::value) return std::stod(temp);
-                    else if constexpr (std::is_same<T, float>::value) return std::stof(temp); 
-                    throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");
-                } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
-                throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");
-            };
             /** ---------------------------------------------------------------
              * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)
              * 
@@ -106,57 +80,20 @@ namespace BinaryOperations {
                        Otherwise, return false
              * ----------------------------------------------------------------
             */
-            inline static bool isNumeric(const Any value) {
-                try {
-                    std::string temp = std::any_cast<std::string>(value);
-                    if (temp.empty()) return false;
-                    
-                    // Remove leading/trailing whitespace
-                    temp.erase(0, temp.find_first_not_of(" \t\n\r\f\v"));
-                    temp.erase(temp.find_last_not_of(" \t\n\r\f\v") + 1);
-                    
-                    // Handle negative numbers and decimals
-                    bool hasDecimal = false;
-                    bool hasDigit = false;
-                    
-                    for (size_t i = 0; i < temp.length(); i++) {
-                        if (i == 0 && temp[i] == '-') continue;  // Allow negative sign at start
-                        if (temp[i] == '.') {
-                            if (hasDecimal) return false;  // Multiple decimal points
-                            hasDecimal = true;
-                            continue;
-                        }
-                        if (std::isdigit(temp[i])) {
-                            hasDigit = true;
-                            continue;
-                        }
-                        return false;  // Any other character means it's not a number
-                    }
-                    
-                    if (!hasDigit) return false;  // Must have at least one digit
-                    
-                    std::size_t pos = 0;
-                    try {
-                        if (hasDecimal) {
-                            std::stod(temp, &pos);
-                        } else {
-                            std::stoll(temp, &pos);
-                        }
-                        return pos == temp.length();
-                    } catch (const std::out_of_range&) {
-                        // If integer conversion fails, try double
-                        try {
-                            std::stod(temp, &pos);
-                            return pos == temp.length();
-                        } catch (const std::out_of_range&) {
-                            return false;
-                        }
-                    }
-                } 
-                catch (const std::bad_any_cast&) { return false;} 
-                catch (const std::invalid_argument&) { return false; }
-            };
+            template<typename T>
+            static bool isNumeric(const Any value);
             static bool isEqual(Any& a, Any& b);
+            inline static bool isString(const Any value) { return value.type() == typeid(String);};
+            static bool bothEqual(const Any a, const Any b);
+            static bool isOther(const Any value);
+            /** -------------------------------------------------------------
+             * @brief convert an any object into a numeric representation 
+             *
+             * @param value is a any object type that provides type safe checking
+             * --------------------------------------------------------------
+            */
+            static Any toNumeric(Any& value); 
+            static Any toOther(Any& value);
             
     };
 };

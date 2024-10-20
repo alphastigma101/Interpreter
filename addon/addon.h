@@ -2,6 +2,10 @@
 #ifndef _ADDON_H_
 #define _ADDON_H_
 
+#ifndef ENABLE_TATICAL_NUKE
+    #define ENABLE_TATICAL_NUKE 0
+#endif
+
 #ifndef ENABLE_EVALUATED_EXPRESSIONS
     #define ENABLE_EVALUATED_EXPRESSIONS 0
 #endif

@@ -5,6 +5,7 @@
 #include <variant>
 #include <set>
 #include <tuple>
+#include <list>
 #include <memory>
 #include <unordered_map>
 #include <map>
@@ -33,6 +34,8 @@ template<typename... T>
 using Variant = std::variant<T...>;
 template<typename T>
 using Vector = std::vector<T>;
+template<typename T>
+using List = std::list<T>;
 template<typename T>
 // Pointers
 using Shared = std::shared_ptr<T>;
@@ -154,6 +157,15 @@ extern logTable<std::map<std::string, std::vector<std::string>>> logEntries;
 typedef std::map<String, std::pair<String, String>> Table;
 static Table initTable(const Unordered<String, Vector<String>> languageExtensions, const Unordered<std::string, String> downloads);
 
+
+/** ---------------------------------------
+ * @brief This is my custom language that I am supporting called Tatical Nuke
+ * 
+*/
+namespace Nuke {
+    struct core;
+};
+//extern Nuke::core tatical_nuke;
 #include <enum_types.h>
 
 #endif 

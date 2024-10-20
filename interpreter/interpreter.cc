@@ -54,26 +54,7 @@ String interpreter::evaluate(auto conv) {
     else { throw new catcher<interpreter>("Unexpected type in evaluate function"); }
     return nullptr;
 }
-/** ---------------------------------------------------------------------------
- * @brief A method that visits the unary abstract syntax tree
- *
- * @param right: Is a fancy pointer that will point to Expr<Unary> at run time.
- * 
- * @return A Unary abstraction tree syntax node in the form of a string 
- * ---------------------------------------------------------------------------
-*/
-Any interpreter::visitUnaryExpr(Expr& expr) {
-    Any right = evaluate(expr.right);
-    switch (expr.op.getType()) {
-        case TokenType::BANG:
-            return !isTruthy(right);
-        case MINUS:
-            checkNumberOperand(expr.op, right);
-            return -std::any_cast<double>(right);
-    }
-    // Unreachable.
-    return nullptr;
-}
+
 /** ---------------------------------------------------------------------------
  * @brief visits the Binary abstraction syntax tree 
  * 
@@ -89,37 +70,54 @@ Any interpreter::visitBinaryExpr(auto& expr) {
     switch (expr->op.getType()) {
         case TokenType::GREATER:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) > toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) > std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) > std::any_cast<int>(toNumeric(right)));
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) >= toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) >= std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) >= std::any_cast<int>(toNumeric(right)));
         case TokenType::LESS:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) < toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) < std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) < std::any_cast<int>(toNumeric(right)));
         case TokenType::LESS_EQUAL:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) <= toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) <= std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) <= std::any_cast<int>(toNumeric(right)));
         case TokenType::MINUS:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) - toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) - std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) - std::any_cast<int>(toNumeric(right)));
         case PLUS:
-            if (instanceof<double>(left) && instanceof<double>(right)) {
-                return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
-            }
-            if (instanceof<double>(left) && instanceof<double>(right)) {
-                return std::to_string(toNumeric<double>(left) + toNumeric<double>(right));
-            }
-            if (instanceof<String>(left) && instanceof<String>(right)) { 
-                return std::any_cast<String>(left) + std::any_cast<String>(right);
-            }
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) + std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) + std::any_cast<int>(toNumeric(right)));
+            //if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
             throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) / toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) / std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) / std::any_cast<int>(toNumeric(right)));
         case TokenType::STAR:
             checkNumberOperands(expr->op, left, right);
-            return std::to_string(toNumeric<double>(left) * toNumeric<double>(right));
+            if (instanceof<double>(left) && instanceof<double>(right))
+                return std::to_string(std::any_cast<double>(toNumeric(left)) * std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(left) && instanceof<int>(right))
+                return std::to_string(std::any_cast<int>(toNumeric(left)) * std::any_cast<int>(toNumeric(right)));
         case TokenType::BANG_EQUAL: return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL: return isEqual(left, right);
     }
@@ -129,7 +127,7 @@ Any interpreter::visitBinaryExpr(auto& expr) {
 
 String interpreter::stringify(Any object) {
     if (!object.has_value()) return "nil";
-    if (instanceof<double>(object)) {
+    /*if (instanceof<double>(object)) {
         double value = std::any_cast<double>(object);
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(15) << value;
@@ -153,7 +151,7 @@ String interpreter::stringify(Any object) {
     }
     if (instanceof<int>(object)) {
         return std::to_string(std::any_cast<int>(object));
-    }
+    }*/
     
     // Add more type checks as needed here!
     
@@ -163,4 +161,15 @@ String interpreter::stringify(Any object) {
     } catch (const std::bad_any_cast&) {
         return "<?>";  // Unknown type
     }
+}
+template<typename T>
+bool interpreter::instanceof(const Any& object) {
+    try {
+        if (isNumeric<T>(object)) return true;
+        else if (isOther(object)) return true;
+        return false;
+    } catch (...) {
+        throw new catcher<interpreter>("Unknown Type!");
+    }
+    return false;
 }

@@ -2,7 +2,8 @@
 #define _CONTEXT_FREE_GRAMMAR_H_
 #include <logging.h>
 #include <token.h>
-#include <filesystem>
+//#include <filesystem>
+#include <run_time_error.h>
 /*
  * A Context Free Grammar consists of a head and a body, which describes what it can generate.
  * The body's purest form will be a list of symbols and these symbols are:
@@ -61,7 +62,7 @@ namespace ContextFreeGrammar {
         protected:
             int idx = 0;
     };
-    class Binary: public Expr, public catcher<Binary> {
+    class Binary: public Expr, public catcher<Binary>, public Computation<Binary>, protected runtimeerror<Binary> {
         /** --------------------------------------------------------------------
              * @brief A class that represents a binary abstraction syntax tree
              * 
@@ -78,6 +79,8 @@ namespace ContextFreeGrammar {
          */
         public:
             friend class catcher<Binary>; // Use to output a message
+            friend class runtimeerror<Binary>;
+            Computation<Binary> conv; // Static polymorphism grab methods that convert instances and checks them 
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
@@ -86,35 +89,31 @@ namespace ContextFreeGrammar {
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
                 else {
-                    // TODO: This needs to be stored in a if block, because >, >=, !=, etc can be compared other representations that are not integer or double
-                    // Need to make a method that will store all this code and get called if expr->left or expr->right actually contain a integer or double
-                    String leftResult = expr->left->accept(this, tree);
-                    String rightResult = expr->right->accept(this, tree);
-        
-                    // Convert string results to numbers
-                    double leftValue = std::stoi(leftResult);
-                    double rightValue = std::stoi(rightResult);
-                    switch (expr->op.getType()) {
-                        case TokenType::PLUS:
-                            result = std::to_string(leftValue + rightValue);
-                            break;
-                        case TokenType::MINUS:
-                            result = std::to_string(leftValue - rightValue);
-                            break;
-                        case TokenType::STAR:
-                            result = std::to_string(leftValue * rightValue);
-                            break;
-                        case TokenType::SLASH:
-                            result = std::to_string(leftValue / rightValue);
-                            break;
-                        // Add other cases as needed
-                        default:
-                            throw new catcher<Binary>("Unknown operator");
+                    try {
+                        // Check and see if leftResult and rightResult are binary
+                        Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                        Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                        Any res = conv.compute(leftResult, rightResult, expr);
+                        if (!res.has_value()) 
+                            throw new runtimeerror<Binary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
+                        else
+                            result = std::any_cast<String>(res);
+                    }
+                    catch(...) {
+                        try {
+                            Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                            Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                            return std::any_cast<String>(conv.toOther(leftResult, rightResult));
+                        }
+                        catch(...) {
+                            std::cout << "Invalid Type!" << std::endl;
+                        }
                     }
                 }
                 return result;
             };
         private:
+            inline static const Token& getType() { return *static_cast<const Token*>(std::move(runtimeerror<Binary>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -129,10 +128,12 @@ namespace ContextFreeGrammar {
             */
             inline static const char* what(const char* msg = catcher<Binary>::getMsg()) throw() { return msg;};
             String parenthesize(String name, Expr* left, Expr* right);
+           
     };
-    class Unary: public Expr, public catcher<Unary> {
+    class Unary: public Expr, public catcher<Unary>, public Computation<Unary> {
         public:
             friend class catcher<Unary>; // Use to output a message
+            Computation<Unary> conv; // Static polymorphism grab methods that convert instances and checks them 
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
@@ -150,11 +151,28 @@ namespace ContextFreeGrammar {
             */
             inline static const char* what(const char* msg = catcher<Unary>::getMsg()) throw() { return msg;};
             String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr, bool tree = true) override { 
+            inline String visit(Expr* expr, bool tree = true) override {
+                String result; 
                 if (tree == true)
                     return parenthesize(expr->op.getLexeme(), expr->right); 
-                else
-                    return accept(this, tree);
+                else {
+                    try {
+                        Any right = std::make_any<String>(expr->right->accept(this, tree));
+                        switch (expr->op.getType()) {
+                            case TokenType::BANG:
+                                //return !isTruthy(right);
+                                break;
+                            case MINUS:
+                                if (conv.instanceof<double>(right))
+                                    return std::to_string(-std::any_cast<double>(conv.toNumeric(right)));
+                                if (conv.instanceof<int>(right)) return std::to_string(-std::any_cast<int>(conv.toNumeric(right)));
+                        }
+                    }
+                    catch(...) {
+                        std::cout << "Invalid Type!" << std::endl;
+                    }
+                }
+                return result;
             };
     };
     class Grouping: public Expr, public catcher<Grouping> {

@@ -24,7 +24,6 @@ namespace Interpreter {
              * ---------------------------------------
             */
             inline static Any visitLiteralExpr(auto expr) { return expr->getLexeme(); };
-            static Any visitUnaryExpr(ContextFreeGrammar::Expr& expr);
             static Any visitBinaryExpr(auto& expr);
             /** --------------------------------------
              * @brief A method that wraps around another method called evaluate
@@ -42,14 +41,7 @@ namespace Interpreter {
         private:
             inline static logTable<Map<String, Vector<String>>> logs_{};
             template<typename T>
-            inline static bool instanceof(const Any& object) {
-                try {
-                    if (isNumeric(object)) return true;
-                    return true;
-                } catch (...) {
-                    return false;
-                }
-            };
+            static bool instanceof(const Any& object);
         protected:
             static String evaluate(auto conv);
             static String stringify(Any object);

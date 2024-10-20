@@ -12,6 +12,9 @@
 
 ### Getting Started:
 * You can run tatical nuke by issuing `make` inside the root directory to generate `exec_interpreter`. If you are stuck on understanding tatical nuke's syntax, view the syntax located in `Code-Analysis`.
+* If you're wanting to contribute to this project, here are a couple pointers:
+    1. View the header file called `declarations.h`. It declares user types, and uses various template techniques that makes the codebase very organized.
+    2. `definitions.h` is a header that contains all the defined types including types that require `extern`. Those are wrapped in `directives` to simply avoid `mulitple definitions` and or `undefined references`.
 
 ### Product Construction
 * The goal is to create a hand-made interpreter that processes a language called Tatical Nuke written in c++. It will have the option to either be interpeted, (if the user chooses not manually manage memory), or compiled.

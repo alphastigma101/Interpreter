@@ -12,7 +12,7 @@ class InterpreterTest : public ::testing::Test {
 
 
 TEST_F(InterpreterTest, Adding) {
-    Scanner scanner("(34 + 15)");
+    Scanner scanner("(34.000000 + 15.000000)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -23,7 +23,7 @@ TEST_F(InterpreterTest, Adding) {
 
 
 TEST_F(InterpreterTest, Substract) {
-    Scanner scanner("(34 - 15)");
+    Scanner scanner("(34.000000 - 15.000000)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -33,7 +33,7 @@ TEST_F(InterpreterTest, Substract) {
 }
 
 TEST_F(InterpreterTest, Multiplication) {
-    Scanner scanner("(34 * 15)");
+    Scanner scanner("(34.000000 * 15.000000)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -43,7 +43,7 @@ TEST_F(InterpreterTest, Multiplication) {
 }
 
 TEST_F(InterpreterTest, ComplexAddAndDivide) {
-    Scanner scanner("((34 + 15) / 3))");
+    Scanner scanner("((34.000000 + 15.000000) / 3.000000))");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -52,7 +52,7 @@ TEST_F(InterpreterTest, ComplexAddAndDivide) {
     cTree.clear();   
 }
 TEST_F(InterpreterTest, AddDivideMultiple) {
-    Scanner scanner("((34 + 15) / (12 * 6))");
+    Scanner scanner("((34.000000 + 15.000000) / (12.000000 * 6.000000))");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -62,7 +62,7 @@ TEST_F(InterpreterTest, AddDivideMultiple) {
 }
 
 TEST_F(InterpreterTest, Complex) {
-    Scanner scanner("(((34 + 15) * 2) - (12 / (3 + 1))) + ((45 * 2) / 3)");
+    Scanner scanner("(((34.000000 + 15.000000) * 2.000000) - (12.000000 / (3.000000 + 1.000000))) + ((45.000000 * 2.000000) / 3.000000)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
@@ -71,6 +71,15 @@ TEST_F(InterpreterTest, Complex) {
     cTree.clear();   
 }
 
+TEST_F(InterpreterTest, Integers) {
+    Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3)");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    p.beginParse();
+    interpreter interp(cTree);
+    EXPECT_EQ(evaluatedExpressions.at(evaluatedExpressions.size() - 1), "-65");
+    cTree.clear();   
+}
 
 
 int main(int argc, char **argv) {
