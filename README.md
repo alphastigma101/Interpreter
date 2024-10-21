@@ -15,6 +15,7 @@
 * If you're wanting to contribute to this project, here are a couple pointers:
     1. View the header file called `declarations.h`. It declares user types, and uses various template techniques that makes the codebase very organized.
     2. `definitions.h` is a header that contains all the defined types including types that require `extern`. Those are wrapped in `directives` to simply avoid `mulitple definitions` and or `undefined references`.
+    3. If `make` is broken then you need to cd into the folder called `debugging` and execute this command: `bash ./Makefile.sh` and execute `./exec_interpreter` to start it up. 
 
 ### Product Construction
 * The goal is to create a hand-made interpreter that processes a language called Tatical Nuke written in c++. It will have the option to either be interpeted, (if the user chooses not manually manage memory), or compiled.
