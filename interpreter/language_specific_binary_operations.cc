@@ -24,7 +24,7 @@ Unordered<std::type_index, std::function<void(Any const&)>> binaryOperations::an
 void binaryOperations::checkNumberOperands(Token& op, Any& left, Any& right) {
     if (instanceof<double>(left) && instanceof<double>(right)) return;
     else if (instanceof<int>(left) && instanceof<int>(right)) return;
-    throw new runtimeerror<binaryOperations>(op.getType(), "Operands must be numbers.");
+    throw new runtimeerror<binaryOperations>(op, "Operands must be numbers.");
 }
 /** -----------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if one object equals the other
@@ -44,86 +44,57 @@ bool binaryOperations::isEqual(Any& a, Any& b) {
     return bothEqual(a,b);
 }
 /** ---------------------------------------------------------------
- * @brief ...
+ * @brief A method that checks two objects to see if they are equal too
  *
- * @param a ...
- * @param b ...
+ * @param a  An any container that represents the left side 
+ * @param b  An any container that represents the right side
  *
  * @details .....
  * ----------------------------------------------------------------
 */
 bool binaryOperations::bothEqual(const Any a, const Any b) {
-    if (instanceof<int>(a) && instanceof<int>(b)) {
-        int temp_a = std::any_cast<int>(a);
-        int temp_b = std::any_cast<int>(b);
-        if (temp_a == temp_b) return true;
-        else return false;
-    }
-    if (instanceof<double>(a) && instanceof<double>(b)) {
-        double temp_a = std::any_cast<double>(a);
-        double temp_b = std::any_cast<double>(b);
-        if (temp_a == temp_b) return true;
-        else return false;
-    }
-    return false;
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param value ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-template<typename T>
-bool binaryOperations::isNumeric(const Any value) {
     try {
-        String temp = std::move(std::any_cast<String>(value));
-        for (int i = 0; i < temp.length() - 1; i++) {
-            if (temp[i] == '.') {
-                try {
-                    if (typeid(std::stod(temp)) == typeid(T)) return true;
-                    return false;
-                }
-                catch(...) { return false; }
+        try {
+            if (instanceof<int>(a) && instanceof<int>(b)) {
+                String&& mutable_a = std::move(std::any_cast<String>(a));
+                String&& mutable_b = std::move(std::any_cast<String>(b));
+                int temp_a = std::stoi(std::move(mutable_a));
+                int temp_b = std::stoi(std::move(mutable_b));
+                return temp_a == temp_b;
+            }
+            if (instanceof<double>(a) && instanceof<double>(b)) {
+                String&& mutable_a = std::move(std::any_cast<String>(a));
+                String&& mutable_b = std::move(std::any_cast<String>(b));
+                double temp_a = std::stod(std::move(mutable_a));
+                double temp_b = std::stod(std::move(mutable_b));
+                return temp_a == temp_b;
             }
         }
-        try {
-            if (typeid(std::stoi(temp)) == typeid(T)) return true;
-            return false;
-        }
         catch(...) { return false; }
-    } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
-    throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");     
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param value ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-bool binaryOperations::isOther(const Any value) {
-    /*if (auto search = any_visitor.find(value); search != any_visitor.end())
-        return true;
-    else
-        return false;*/
+        throw new catcher<binaryOperations>(
+            String(String("In binaryOperations bothEqual method, unsupported type detected! ") + "\n\t"  
+            + std::any_cast<String>(a) + "," + std::any_cast<String>(b)).c_str()
+        );
+    }
+    catch(catcher<binaryOperations>& e) {
+        return false;
+    }
     return false;
 }
 /** ---------------------------------------------------------------
- * @brief ...
+ * @brief A simple method that checks the instance using generics methods inside of it
  *
- * @param object ...
+ * @param object Is an any container that always stores a String value.
+ *               
  *
- * @details .....
+ * @details The parameter object will go through a series of generic methods to check and see if it is a supported type
  * ----------------------------------------------------------------
 */
 template<typename T>
 bool binaryOperations::instanceof(const Any& object) {
     try {
         if (isNumeric<T>(object)) return true;
-        else if (isOther(object)) return true;
+        else if (isOther<T>(object)) return true;
         return false;
     } catch (...) {
         return false;
@@ -143,12 +114,15 @@ bool binaryOperations::is_registered(const Any& a) {
         if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
             return true;
         else
-            throw new runtimeerror<binaryOperations>(getType(), "This object has not been registered yet!");
+           throw new catcher<binaryOperations>(
+            String(String("In binaryOperations is_registered method, type has not been added to map!") + "\n\t"  
+            + std::any_cast<String>(a)).c_str()
+        );
     }
-    catch(runtimeerror<binaryOperations>& e) {
+    catch(catcher<binaryOperations>& e) {
         std::cout << e.getMsg() << std::endl;
-        std::cout << "Logs have been updated that'll have the Type. But will Atempt to regiester type..." << std::endl;
-        logging<binaryOperations> logs(logs_, e.what(e.getType<TokenType>(), e.getMsg()));
+        std::cout << "Logs have been updated! will Atempt to regiester type..." << std::endl;
+        logging<binaryOperations> logs(logs_, e.what(e.getMsg()));
         logs.update();
         logs.rotate();
     }
@@ -163,22 +137,30 @@ bool binaryOperations::is_registered(const Any& a) {
  * ----------------------------------------------------------------
 */
 Any binaryOperations::toNumeric(Any& value) {
-    try {
-        String temp = std::any_cast<String>(value);
-        for (int i = 0; i < temp.length() - 1; i++) {
-            if (temp[i] == '.') {
-                try {
-                    return std::stod(temp);
-                }
-                catch(...) { return nullptr; }
+    String temp = std::any_cast<String>(value);
+    // Check to see if string is a precision type and to converting it
+    for (int i = 0; i < temp.length() - 1; i++) {
+        if (temp[i] == '.') {
+            try {
+                return std::stod(temp);
+            }
+            catch(...) { 
+                throw new catcher<binaryOperations>(
+                    String(String("In binaryOperations toNumeric method, invalid percision type! ") + "\n\t"  
+                    + std::any_cast<String>(value)).c_str()
+                );
             }
         }
-        try {
-            return std::stoi(temp);
-        }
-        catch(...) { return nullptr; }
-    } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
-    throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");
+    }
+    // Try to convert the string into an integer 
+    try { return std::stoi(temp); }
+    catch(...) { 
+        throw new catcher<binaryOperations>(
+            String(String("In binaryOperations toNumeric method, invalid integer type! ") + "\n\t"  
+            + std::any_cast<String>(value)).c_str()
+        );
+    }
+    return nullptr;
 }
 
 Any binaryOperations::toOther(Any& value) {

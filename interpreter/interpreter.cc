@@ -4,7 +4,7 @@
  * @brief Calls in evaluate mehtod to begin the evaluation 
  * 
 */
-interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
+interpreter::interpreter(Vector<astTree<int, String, ExprVariant>>& expr) {
     try {
         for (auto& it : expr) {
             auto& [intVal, pairVal] = it;
@@ -31,6 +31,7 @@ interpreter::interpreter(Set<astTree<int, String, ExprVariant>>& expr) {
                 }
             }
         }
+        currentEnvEle++; // Increment the value to keep track of what has been parsed or is being parsed
     } 
     catch (runtimeerror<interpreter>& e) {
         std::cout << "Logs have been updated!" << std::endl;
@@ -103,7 +104,7 @@ Any interpreter::visitBinaryExpr(auto& expr) {
                 return std::to_string(std::any_cast<double>(toNumeric(left)) + std::any_cast<double>(toNumeric(right)));
             if (instanceof<int>(left) && instanceof<int>(right))
                 return std::to_string(std::any_cast<int>(toNumeric(left)) + std::any_cast<int>(toNumeric(right)));
-            //if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
+            if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
             throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
@@ -162,11 +163,20 @@ String interpreter::stringify(Any object) {
         return "<?>";  // Unknown type
     }
 }
+/** ---------------------------------------------------------------
+ * @brief A simple method that checks the instance using generics methods inside of it
+ *
+ * @param object Is an any container that always stores a String value.
+ *               
+ *
+ * @details The parameter object will go through a series of generic methods to check and see if it is a supported type
+ * ----------------------------------------------------------------
+*/
 template<typename T>
 bool interpreter::instanceof(const Any& object) {
     try {
         if (isNumeric<T>(object)) return true;
-        else if (isOther(object)) return true;
+        else if (isOther<T>(object)) return true;
         return false;
     } catch (...) {
         throw new catcher<interpreter>("Unknown Type!");

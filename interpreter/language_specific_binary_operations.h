@@ -5,7 +5,7 @@
 #include <logging.h>
 #include <stdexcept>
 namespace BinaryOperations {
-    class binaryOperations: public catcher<binaryOperations>, protected runtimeerror<binaryOperations> {
+    class binaryOperations: public catcher<binaryOperations>, protected runtimeerror<binaryOperations>, public logging<binaryOperations> {
         public:
             friend class catcher<binaryOperations>; // Useful for one error
             friend class runtimeerror<binaryOperations>; 
@@ -13,7 +13,7 @@ namespace BinaryOperations {
             binaryOperations() = default;
             ~binaryOperations() noexcept {};
         private:
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(runtimeerror<binaryOperations>::type);};
+            inline static const Token& getType() { return *static_cast<Token*>(runtimeerror<binaryOperations>::type);};
            /** --------------------------------------
              * @brief A method that is overloaded by this class 
              * 
@@ -39,16 +39,25 @@ namespace BinaryOperations {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<binaryOperations>::getMsg()) throw() {
+            inline static const char* what(const Token& type = getType(), const char* msg = runtimeerror<binaryOperations>::getMsg()) throw() {
                 static String output;
+                auto op = std::move(type);
                 try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                    if (auto search = tokenTypeStrings.find(op.getType()); search != tokenTypeStrings.end()) {
                         output = search->second.c_str() + String(msg);
                         return output.c_str();
                     }
+                    throw new catcher<binaryOperations>(
+                        String(String("From binaryOperations what() method, TokenType is not supported!")+ String("\n\t") + 
+                        String("Could not find targeted type in map: ")  +   String("\n\t") + String(std::move(op.getLexeme()))).c_str()
+                    );
+                    // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                 }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
+                catch(catcher<binaryOperations>& e) {
+                    std::cout << "A new log entry has been added." << std::endl;
+                    logging<binaryOperations> logs(logs_, e.what());
+                    logs.update();
+                    logs.rotate();
                 }
             };
             /** -----------------------------------
@@ -77,15 +86,51 @@ namespace BinaryOperations {
              * @param Type: Is a generic type that must have a concrete type during run time
              *
              * @return True if the object at runtime is type: int, int64_t, float, double, etc.
-                       Otherwise, return false
+             *         Otherwise, return false
              * ----------------------------------------------------------------
             */
             template<typename T>
-            static bool isNumeric(const Any value);
+            inline static bool isNumeric(const Any value) {
+                try {
+                    String temp = std::move(std::any_cast<String>(value));
+                    for (int i = 0; i < temp.length() - 1; i++) {
+                        if (temp[i] == '.') {
+                            try {
+                                if (typeid(std::stod(temp)) == typeid(T)) return true;
+                                return false;
+                            }
+                            catch(...) { return false; }
+                        }
+                    }
+                    try {
+                        if (typeid(std::stoi(temp)) == typeid(T)) return true;
+                        return false;
+                    }
+                    catch(...) { return false; }
+                } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
+                throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");    
+            };
             static bool isEqual(Any& a, Any& b);
             inline static bool isString(const Any value) { return value.type() == typeid(String);};
             static bool bothEqual(const Any a, const Any b);
-            static bool isOther(const Any value);
+            /** ---------------------------------------------------------------
+             * @brief A complex method that will check the generic type T is a type that Tatical Nuke Suppports
+             *
+             * @param value Is an Any container that will always hold a stirng
+             *
+             * @details .....
+             * @return Returns true if the generic type T is supported. 
+             *         Otherwise, throw an exception and return false. 
+             * ----------------------------------------------------------------
+            */
+            template<typename T>
+            inline static bool isOther(const Any value) {
+                /*if (auto search = any_visitor.find(value); search != any_visitor.end())
+                    return true;
+                else
+                    return false;*/
+                return false;
+            };
             /** -------------------------------------------------------------
              * @brief convert an any object into a numeric representation 
              *
@@ -94,7 +139,6 @@ namespace BinaryOperations {
             */
             static Any toNumeric(Any& value); 
             static Any toOther(Any& value);
-            
     };
 };
 using namespace BinaryOperations;

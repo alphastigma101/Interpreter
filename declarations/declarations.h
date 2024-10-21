@@ -98,6 +98,7 @@ namespace Parser {
 namespace Interpreter {
     class interpreter;
 };
+extern int currentEnvEle;
 extern Vector<String> evaluatedExpressions;
 namespace UnaryOperations {
     class unaryOperations;
@@ -131,7 +132,7 @@ template<typename T, typename U, typename V>
 using astTree = std::tuple<T, std::pair<U, V>>;
 template<typename T, typename U, typename V>
 extern astTree<T, U, V> compressedAstTree(T first, U second, V third);
-extern Set<astTree<int, String, ExprVariant>> cTree;
+extern Vector<astTree<int, String, ExprVariant>> cTree;
 //template<typename X, typename Y, typename Z>
 //using Vertices =
 //template<typename X, typename Y, typename Z>

@@ -9,7 +9,7 @@
 #endif
 
 #if ENABLE_TREE_BUILD
-   Set<astTree<int, String, ExprVariant>> cTree;
+   Vector<astTree<int, String, ExprVariant>> cTree;
 #endif
 
 #if ENABLE_EVALUATED_EXPRESSIONS
@@ -21,6 +21,7 @@
 #endif
 #if ENABLE_TATICAL_NUKE
     //Nuke::core tatical_nuke;
+    int currentEnvEle = 0;
 #endif
 /** ---------------------------------------------------------------------------
  * @brief Custom function that creates a tuple for later use.
@@ -44,7 +45,7 @@ inline astTree<T, U, V> compressedAstTree(T first, U second, V third) {
             std::forward<V>(third)
         )
     );
-}
+};
 /** ---------------------------------------------------------------------------
  * @brief Uses atomic to prevent 'data races'/sync. It also uses threading.
  *

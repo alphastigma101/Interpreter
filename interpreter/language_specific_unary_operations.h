@@ -9,11 +9,11 @@ namespace UnaryOperations {
             explicit unaryOperations() = default;
             ~unaryOperations() noexcept = default;
         private:
-            logTable<std::map<std::string, std::vector<std::string>>> logs_{};
+            inline static logTable<std::map<std::string, std::vector<std::string>>> logs_{};
             Nuke::core tatical_nuke;
             template<class T, class F>
-            static std::pair<const std::type_index, std::function<void(std::any const&)>> to_any_visitor(F const& f); 
-            static std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_visitor;
+            static std::pair<const std::type_index, std::function<void(Any const&)>> to_any_visitor(F const& f); 
+            static Unordered<std::type_index, std::function<void(Any const&)>> any_visitor;
             template<class T, class F>
             inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
             inline static bool is_registered(const Any& a) {
@@ -24,28 +24,28 @@ namespace UnaryOperations {
                     throw new runtimeerror<unaryOperations>(getType(), "This object was not properly registered!");
                 return false;
             };
-            template<typename T>
-            inline static bool instanceof(const Any& object) {
-                try {
-                    (void)std::any_cast<T>(object);
-                    return true;
-                } catch (const std::bad_any_cast&) {
-                    return false;
-                }
-            };
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(runtimeerror<unaryOperations>::type);};
-            inline static bool isString(const std::any value) { return value.type() == typeid(std::string);};
+            inline static const Token& getType() { return *static_cast<const Token*>(runtimeerror<unaryOperations>::type);};
+            inline static bool isString(const Any value) { return value.type() == typeid(String);};
             inline static const char* what(const char* msg = catcher<unaryOperations>::getMsg()) throw() { return msg; };
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<unaryOperations>::getMsg()) throw() {
+            inline static const char* what(const Token& type = getType(), const char* msg = runtimeerror<unaryOperations>::getMsg()) throw() {
                 static String output;
+                auto op = std::move(type);
                 try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                    if (auto search = tokenTypeStrings.find(op.getType()); search != tokenTypeStrings.end()) {
                         output = search->second.c_str() + String(msg);
                         return output.c_str();
                     }
+                    throw new catcher<unaryOperations>(
+                        String(String("From binaryOperations what() method, TokenType is not supported!")+ String("\n\t") + 
+                        String("Could not find targeted type in map: ")  +   String("\n\t") + String(std::move(op.getLexeme()))).c_str()
+                    );
+                    // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                 }
-                catch(...) {
-                    std::cout << "Error! conversion has failed!" << std::endl;
+                catch(catcher<unaryOperations>& e) {
+                    std::cout << "A new log entry has been added." << std::endl;
+                    logging<unaryOperations> logs(logs_, e.what());
+                    logs.update();
+                    logs.rotate();
                 }
             };
         protected:

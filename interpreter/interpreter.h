@@ -2,7 +2,7 @@
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
 namespace Interpreter {
-    class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter> {
+    class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
             friend class catcher<interpreter>; // Useful for one error
             friend class runtimeerror<interpreter>; 
@@ -10,35 +10,11 @@ namespace Interpreter {
              * @brief A constructor that handles the traversing of the ast
              * ------------------------------------------------
             */
-            explicit interpreter(Set<astTree<int, String, ExprVariant>>& expr);
+            explicit interpreter(Vector<astTree<int, String, ExprVariant>>& expr);
             ~interpreter() noexcept = default;
-            /** --------------------------------------
-             * @brief A method that wraps around another method called evaluate
-             * 
-             * @details By making this the caller of evaluate, this will prevent infinity loop
-             * 
-             * @param expr Is a varaint type that has been passed by referenced
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static Any visitLiteralExpr(auto expr) { return expr->getLexeme(); };
             static Any visitBinaryExpr(auto& expr);
-            /** --------------------------------------
-             * @brief A method that wraps around another method called evaluate
-             * 
-             * @details By making this the caller of evaluate, this will prevent infinity loop
-             * @details This is the visitor method that will visit the grouping expression
-             * 
-             * @param expr Is a varaint type that has been passed by referenced
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static String visitGroupingExpr(auto& expr) { return evaluate(expr); };
         private:
+            inline static Check<interpreter> check{};
             inline static logTable<Map<String, Vector<String>>> logs_{};
             template<typename T>
             static bool instanceof(const Any& object);
