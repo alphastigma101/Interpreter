@@ -77,3 +77,7 @@ g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=
 g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o abstraction_tree_syntax.o interpreter.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o logging.o debug_interpreter.o -o exec_debug_interpreter
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++17 -fconcepts interpreter.o scanner.o parser.o context_free_grammar.o token.o logging.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
+
+echo "Compiling main.cc!"
+g++ -g -std=c++17 -fconcepts  $INCLUDE  -DENABLE_LOGGING_TEST=1 -c ../main.cc -o main.o
+g++ -g -std=c++17 -fconcepts  interpreter.o scanner.o parser.o context_free_grammar.o token.o logging.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o main.o -o exec_interpreter

@@ -45,6 +45,7 @@ debugging/db_scanner.txt
 debugging/db_ast.txt
 debugging/db_parser.txt
 debugging/test_interpreter
+debugging/exec_interpreter
 # Executables to exclude
 exec_*
 # Object files to exclude
