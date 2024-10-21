@@ -1,3 +1,4 @@
+#include <abstraction_tree_syntax.h>
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h>
@@ -17,9 +18,16 @@ static void run(std::string& source) {
     std::vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
-    //std::thread build_(ast(cTree));
-    interpreter interp(cTree);
     if (hadError) return;
+    std::thread build([]() {
+        return ast(cTree);
+    });
+    interpreter interp(cTree);
+    if (build.joinable()) {
+        build.join();
+    }
+   cTree.clear();
+
 }
 /** ------------------------------------------------------------------------- 
  * @brief This function will implement > at runtime 

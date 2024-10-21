@@ -40,7 +40,7 @@ namespace AbstractionTreeSyntax {
         */
         public:
             friend class generateAst<ast>;
-            ast() noexcept;
+            ast(Vector<astTree<int, String, ExprVariant>>& expr) noexcept;
             ~ast() noexcept = default; // TODO: This is virtual for some reason, and it needs to be not virtual
             inline static Table getTable() { return table; };
             inline static Unique<Atomic<const char*>> getCode() { return std::move(accessCodeStr); };

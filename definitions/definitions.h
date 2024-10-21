@@ -17,7 +17,6 @@
 #endif 
 #if ENABLE_TESTING
     String file_name, user_choice;
-    int settings;
 #endif
 #if ENABLE_TATICAL_NUKE
     //Nuke::core tatical_nuke;

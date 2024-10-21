@@ -14,7 +14,7 @@ Table ast::table = {};
  * @param expr: The data structure that represents the compacted abstraction syntax tree 
  * -----------------------------------------------------------------------------------------
 */
-ast::ast() noexcept {
+ast::ast(Vector<astTree<int, String, ExprVariant>>& expr) noexcept {
     String stringTree = gA.buildTree();
     gA.formatAst(stringTree);
     /*if (user_choice.empty()) {

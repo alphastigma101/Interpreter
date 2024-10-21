@@ -33,7 +33,7 @@ int main(void) {
         parser p(tokens);
         p.beginParse();
         //p.printNodes();
-        ast aT;
+        ast aT(cTree);
         //#if ENABLE_TREE_DEBUGGING
         
         //#else
