@@ -9,18 +9,16 @@
 2. [Project Construction](#product-construction)
 3. [What Is Tatical Nuke?](#what-is-tatical-nuke-?)
 4. [Project Motivation and Potential Applications](#project-motivation-and-potential-applications)
+5. [Contributation](#contributation)
 
 ### Getting Started:
-* You can run tatical nuke by issuing `make` inside the root directory to generate `exec_interpreter`. If you are stuck on understanding tatical nuke's syntax, view the syntax located in `Code-Analysis`.
-* If you're wanting to contribute to this project, here are a couple pointers:
-    1. View the header file called `declarations.h`. It declares user types, and uses various template techniques that makes the codebase very organized.
-    2. `definitions.h` is a header that contains all the defined types including types that require `extern`. Those are wrapped in `directives` to simply avoid `mulitple definitions` and or `undefined references`.
-    3. If `make` is broken then you need to cd into the folder called `debugging` and execute this command: `bash ./Makefile.sh` and execute `./exec_interpreter` to start it up. 
+* To get started, type `make` inside the root of the project and execute `exec_interpreter`. The interpreter can parse raw binary expressions and can interpret a cutom language called `tactical nuke`. You can view tactical nuke's syntax inside 'Code Analysis'.If typing 'make' inside the root folder does not work, then the codebase itself is getting updated. If this is the case, then navigate over to the folder called `debugging`. There is a file called `Makefile.sh` that will compile the project. You can also run  unit tests from that folder or feed in your own data into the interpreter or parser to see what it does. 
 
 ### Product Construction
-* The goal is to create a hand-made interpreter that processes a language called Tatical Nuke written in c++. It will have the option to either be interpeted, (if the user chooses not manually manage memory), or compiled.
+* The goal is to create a hand-made interpreter that processes a language called Tatical Nuke. This whole project is written in c++.
 
 ### What Is Tatical Nuke
+* Tatical nuke is custom language I developed myself. It uses c++ syntax 
 * ***Pros***:
     * Tatical Nuke is a language that I implemented myself. It is inspired by low level languages and has a mixture of keywords from modern languages. 
     * It has a keyword called Query that is connected to a database. 
@@ -42,4 +40,7 @@ This project serves as my inaugural venture into crafting a customly made langua
 - Interpreting query languages
 - Building code analysis and static checking tools
 - Enhancing document processing systems
+
+### Contributation
+* I am not looking for any callobaration with anyone for this project. Pull requests are welcome. If you somehow find a bug, please feel free to report it.  f you want to contribute to this project, 
 
