@@ -12,7 +12,7 @@
 5. [Contributation](#contributation)
 
 ### Getting Started:
-* To get started, type `make` inside the root of the project and execute `exec_interpreter`. The interpreter can parse raw binary expressions and can interpret a cutom language called `tactical nuke`. You can view tactical nuke's syntax inside 'Code Analysis'.If typing 'make' inside the root folder does not work, then the codebase itself is getting updated. If this is the case, then navigate over to the folder called `debugging`. There is a file called `Makefile.sh` that will compile the project. You can also run  unit tests from that folder or feed in your own data into the interpreter or parser to see what it does. 
+* To get started, type `make` inside the root of the project and execute `exec_interpreter`. The interpreter can parse raw binary expressions and can interpret a cutom language called `tactical nuke`. You can view tactical nuke's syntax inside `Code Analysis`.If typing `make` inside the root folder does not work, then the codebase itself is getting updated. If this is the case, then navigate over to the folder called `debugging`. There is a file called `Makefile.sh` that will compile the project. You can also run  unit tests from that folder or feed in your own data into the interpreter or parser to see what it does. 
 
 ### Product Construction
 * The goal is to create a hand-made interpreter that processes a language called Tatical Nuke. This whole project is written in c++.
@@ -21,12 +21,12 @@
 * Tatical nuke is custom language I developed myself. It uses c++ syntax 
 * ***Pros***:
     * Tatical Nuke is a language that I implemented myself. It is inspired by low level languages and has a mixture of keywords from modern languages. 
-    * It has a keyword called Query that is connected to a database. 
+    * It has a keyword called `Query` that is connected to a database. The database I will be choosing `ODB` for the flexibility  
     * It is less strict than c++ but should offer the same performance.
     * To create classes you type `Radation`, `posioning` for functions, and `MUSHROOMCLOUD` to include other code. 
 * ***Cons***:
 * It will spam out random ASCI characters, and display TATICAL NUKE and delete itself, if the programmer messes up the syntax.
-* That is it basically. 
+* Can also display a 2D nuke droping down on a bunch of people and displays `TATICAL NUKE` upon impact. 
 
 ### Project Motivation and Potential Applications
 
@@ -42,5 +42,5 @@ This project serves as my inaugural venture into crafting a customly made langua
 - Enhancing document processing systems
 
 ### Contributation
-* I am not looking for any callobaration with anyone for this project. Pull requests are welcome. If you somehow find a bug, please feel free to report it.  f you want to contribute to this project, 
+* Callobaration is possible for this project. Please make a pull requests with your name, and preferable an issue of some sort. 
 
