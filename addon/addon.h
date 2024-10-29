@@ -1,15 +1,25 @@
 #pragma once
 #ifndef _ADDON_H_
 #define _ADDON_H_
-
+/** ------------------------------------------------------------------------------------------------------------
+ * @brief Enables the custome language tatical nuke to be compiled or not
+*/
+#ifndef ENABLE_ENV
+    #define ENABLE_ENV 0
+#endif
+/** ----------------------------------------------------------------------------
+ * @brief Enables the custom language tatical nuke to be compiled or not in a .o file 
+*/
 #ifndef ENABLE_TATICAL_NUKE
     #define ENABLE_TATICAL_NUKE 0
 #endif
-
+/** ---------------------------------------------------------------------------
+ * @brief Enables evaluatedExpressions to be compiled or not in a .o file
+*/
 #ifndef ENABLE_EVALUATED_EXPRESSIONS
     #define ENABLE_EVALUATED_EXPRESSIONS 0
 #endif
-/** ------------------------------------------------------------------------------------------------------------
+/** ----------------------------------------------------------------------------
  * @brief Builds the bits that will prevent undefined reference to cTree 
  */
 #ifndef ENABLE_TREE_DEBUGGING

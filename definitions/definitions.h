@@ -4,6 +4,10 @@
 #include <experimental/random>
 #include <declarations.h>
 // These are macros that are enabled or disabled by the compiler 
+#if ENABLE_ENV
+    Map<Map<Any,String>, Vector<Any>> env;
+#endif
+
 #if ENABLE_LOGGING_TEST
     logTable<Map<String, Vector<String>>> logEntries;
 #endif

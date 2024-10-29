@@ -6,7 +6,7 @@ LDFLAGS := -L $(HOME)/Interpreter/tests -lgtest -lgtest_main -pthread
 # Include directories
 INCLUDES := -I types/ -I logging/ -I asm/ -I catch/ -I tokens/ \
             -I interface/ -I ast/ -I cfg/ -I declarations/ -I definitions/ -I runtime/ -I interpreter/ \
-            -I scanner/ -I parser/ -I threading/ -I addon/
+            -I scanner/ -I parser/ -I threading/ -I addon/ -I environment/
 
 ########
 # Compiler flags for specific components
@@ -15,6 +15,7 @@ DEBUG_INTERPRETER_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_T
 CFG_FLAGS := -DENABLE_TREE_BUILD=1 -DENABLE_TATICAL_NUKE=1
 INTERPRETER_FLAGS := -DENABLE_EVALUATED_EXPRESSIONS=1
 TEST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1
+ENV_FLAGS := -DENABLE_ENV=1 -DENABLE_EVALUATED_EXPRESSIONS=1
 
 ########
 # Source file definitions
@@ -23,6 +24,10 @@ SRC_FILES_DEBUG_TOKENS := logging/logging.cc tokens/token.cc debugging/debug_tok
 SRC_FILES_DEBUG_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc debugging/debug_scanner.cc
 SRC_FILES_DEBUG_AST := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc debugging/debug_ast.cc
 SRC_FILES_DEBUG_PARSER := logging/logging.cc tokens/token.cc parser/parser.cc scanner/scanner.cc cfg/context_free_grammar.cc debugging/debug_parser.cc
+SRC_FILES_DEBUG_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
+		       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+		       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
+		       environment/environment.cc debugging/debug_environment.cc
 SRC_FILES_DEBUG_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
 			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
 			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc debugging/debug_interpreter.cc
@@ -32,6 +37,10 @@ SRC_FILES_TEST_TOKENS := logging/logging.cc tokens/token.cc tests/test_token.cc
 SRC_FILES_TEST_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc tests/test_scanner.cc
 SRC_FILES_TEST_AST := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_ast.cc
 SRC_FILES_TEST_PARSER := logging/logging.cc tokens/token.cc scanner/scanner.cc tests/test_parser.cc
+SRC_FILES_TEST_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
+		      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+		      interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
+		      environment/environment.cc tests/test_environment.cc
 SRC_FILES_TEST_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc interpreter/interpreter.cc \
 			      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
 			      interpreter/language_specific_truthy_operations.cc tests/test_interpreter.cc
@@ -47,21 +56,25 @@ OBJ_FILES_DEBUG_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_TOKENS))
 OBJ_FILES_DEBUG_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_SCANNER))
 OBJ_FILES_DEBUG_AST := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_AST))
 OBJ_FILES_DEBUG_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_PARSER))
+OBJ_FILES_DEBUG_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_ENV))
 OBJ_FILES_DEBUG_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_INTERPRETER))
+
 
 OBJ_FILES_TEST_LOGGING := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_LOGGING))
 OBJ_FILES_TEST_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TOKENS))
 OBJ_FILES_TEST_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_SCANNER))
 OBJ_FILES_TEST_AST := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_AST))
 OBJ_FILES_TEST_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_PARSER))
+OBJ_FILES_TEST_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_ENV))
 OBJ_FILES_TEST_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_INTERPRETER))
 
 OBJ_FILES_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
 
 # All binaries
 BINARIES := exec_debug_logging exec_debug_tokens exec_debug_scanner exec_debug_ast \
-            exec_debug_parser exec_debug_interpreter exec_test_logging exec_test_tokens \
-            exec_test_scanner exec_test_ast exec_test_parser exec_test_interpreter \
+            exec_debug_parser exec_debug_interpreter exec_debug_environment \
+	    exec_test_logging exec_test_tokens exec_test_scanner exec_test_ast \
+	    exec_test_parser exec_test_environment exec_test_interpreter \
             exec_interpreter
 
 .PHONY: all clean
@@ -72,17 +85,23 @@ all: $(BINARIES)
 cfg/context_free_grammar.o: cfg/context_free_grammar.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CFG_FLAGS) -c $< -o $@
 
+environment/environment.o: environment/environment.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENV_FLAGS) -c $< -o $@
+
 interpreter/interpreter.o: interpreter/interpreter.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(INTERPRETER_FLAGS) -c $< -o $@
 
 debugging/debug_ast.o: debugging/debug_ast.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_AST_FLAGS) -c $< -o $@
 
-debugging/debug_interpreter.o: debugging/debug_interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_INTERPRETER_FLAGS) -c $< -o $@
-
 debugging/debug_parser.o: debugging/debug_parser.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+
+debugging/debug_environment.o: debugging/debug_environment.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+
+debugging/debug_interpreter.o: debugging/debug_interpreter.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_INTERPRETER_FLAGS) -c $< -o $@
 
 main.o: main.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
@@ -105,9 +124,12 @@ exec_debug_scanner: $(OBJ_FILES_DEBUG_SCANNER)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 exec_debug_ast: $(OBJ_FILES_DEBUG_AST)
-	$(CXX) $(CXXFLAGS) $(DEBUG_AST_FLAGS) $(INCLUDES) $^ -o $@
+	$(CXX) $(CXXFLAGS)  $(INCLUDES) $^ -o $@
 
 exec_debug_parser: $(OBJ_FILES_DEBUG_PARSER)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+
+exec_debug_environment: $(OBJ_FILES_DEBUG_ENV)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 exec_debug_interpreter: $(OBJ_FILES_DEBUG_INTERPRETER)
@@ -127,6 +149,9 @@ exec_test_ast: $(OBJ_FILES_TEST_AST)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 exec_test_parser: $(OBJ_FILES_TEST_PARSER)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+exec_test_environment: $(OBJ_FILES_TEST_ENV)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 exec_test_interpreter: $(OBJ_FILES_TEST_INTERPRETER)

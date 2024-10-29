@@ -4,17 +4,19 @@
 #include <run_time_error.h>
 #include <token.h>
 namespace Environment {
-    class environment: public catcher<Environment>, public runtimeerror<environment> {
+    class environment: protected catcher<environment>, protected runtimeerror<environment> {
         public:
             friend class catcher<environment>;
+            friend class runtimeerror<environment>;
+            friend class EnvironmentTest;
             environment() noexcept = default;
             ~environment() noexcept = default;
-            String get(Token name);
+            static String get(Token name);
             inline void define(String name, Any value) {
-                values.emplace(name, value);
+                //value.emplace(name, value);
             };
         private:
-            inline static Map<String, Any> values = new Map<String, Any>();
+            //inline static Map<String, Any> values = new Map<String, Any>();
 
 
     };

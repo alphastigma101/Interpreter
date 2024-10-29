@@ -151,10 +151,12 @@ Expr* parser::program() {
  * --------------------------------------------------------------------------
 */
 Expr* parser::statement() {
+    //auto left = statement();
     while (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
-        auto expr = expression();
-        return new Statement(std::move(expr), std::move(op));
+        auto right = statement();
+        consume(TokenType::SEMICOLON, "Expect ';' after value.");
+        return new Statement(std::move(right), std::move(op));
     }
     return expression();
 }
