@@ -1,4 +1,7 @@
 #include <environment.h>
+Environment::environment::environment(): Interpreter::interpreter(cTree) {
+
+}
 /** -----------------------------------
  * @brief This is a default constructor for environment 
  * 

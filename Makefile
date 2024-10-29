@@ -15,18 +15,18 @@ DEBUG_INTERPRETER_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_T
 CFG_FLAGS := -DENABLE_TREE_BUILD=1 -DENABLE_TATICAL_NUKE=1
 INTERPRETER_FLAGS := -DENABLE_EVALUATED_EXPRESSIONS=1
 TEST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1
-ENV_FLAGS := -DENABLE_ENV=1 
+ENV_FLAGS := -DENABLE_ENV=1 -DENABLE_EVALUATED_EXPRESSIONS=1
 
 ########
 # Source file definitions
 SRC_FILES_DEBUG_LOGGING := logging/logging.cc debugging/debug_logging.cc
 SRC_FILES_DEBUG_TOKENS := logging/logging.cc tokens/token.cc debugging/debug_tokens.cc
 SRC_FILES_DEBUG_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc debugging/debug_scanner.cc
-SRC_FILES_DEBUG_AST := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
-		       ast/abstraction_tree_syntax.cc debugging/debug_ast.cc
-SRC_FILES_DEBUG_PARSER := logging/logging.cc tokens/token.cc parser/parser.cc scanner/scanner.cc cfg/context_free_grammar.cc \
-			  debugging/debug_parser.cc
+SRC_FILES_DEBUG_AST := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc debugging/debug_ast.cc
+SRC_FILES_DEBUG_PARSER := logging/logging.cc tokens/token.cc parser/parser.cc scanner/scanner.cc cfg/context_free_grammar.cc debugging/debug_parser.cc
 SRC_FILES_DEBUG_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
+		       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+		       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
 		       environment/environment.cc debugging/debug_environment.cc
 SRC_FILES_DEBUG_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
 			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
@@ -38,6 +38,8 @@ SRC_FILES_TEST_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc 
 SRC_FILES_TEST_AST := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_ast.cc
 SRC_FILES_TEST_PARSER := logging/logging.cc tokens/token.cc scanner/scanner.cc tests/test_parser.cc
 SRC_FILES_TEST_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
+		      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+		      interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
 		      environment/environment.cc tests/test_environment.cc
 SRC_FILES_TEST_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc interpreter/interpreter.cc \
 			      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
@@ -83,20 +85,11 @@ all: $(BINARIES)
 cfg/context_free_grammar.o: cfg/context_free_grammar.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CFG_FLAGS) -c $< -o $@
 
-interpreter/language_specific_unary_operations.o: interpreter/language_specific_unary_operations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-interpreter/language_specific_binary_operations.o: interpreter/language_specific_binary_operations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-interpreter/language_specific_truthy_operations.o: interpreter/language_specific_truthy_operations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+environment/environment.o: environment/environment.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENV_FLAGS) -c $< -o $@
 
 interpreter/interpreter.o: interpreter/interpreter.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(INTERPRETER_FLAGS) -c $< -o $@
-
-environment/environment.o: environment/environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENV_FLAGS) -c $< -o $@
 
 debugging/debug_ast.o: debugging/debug_ast.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_AST_FLAGS) -c $< -o $@
@@ -170,4 +163,7 @@ exec_interpreter: $(OBJ_FILES_INTERPRETER)
 
 clean:
 	rm -f $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
+	rm -f debugging/*.o
+	rm -f tests/*.o
 	rm -f $(BINARIES)
+

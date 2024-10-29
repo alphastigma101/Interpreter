@@ -107,11 +107,10 @@ Expr* parser::primary() {
     }
     if (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
-        if (advance().getType() == TokenType::DOT) { return methods(); }
-        else {current--;}
-        if (advance().getType() == TokenType::COMMA) { return arguments(); }
-        else {current--;}
-        return new Variable(std::move(op));
+        /*if (advance().getType() == TokenType::DOT) return Identifier(methods(), std::move(op)); 
+        else current--;
+        if (advance().getType() == TokenType::COMMA) return Identifer(arguments(), std::move(op)); 
+        else current--;*/
     }
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
@@ -144,14 +143,16 @@ Expr* parser::program() {
 /** --------------------------------------------------------------------------
  * @brief A grammar rule that will bind the statement and hold the value 
  *
- * @details Statement is considered as type = value; 
- *          Where type can be primtive types or complex types, and value can be bounded to it, but must be the related to it
+ * @details Statements can represent a Variable, Functions or expression statement, but they do not evaluate to a value of some sort.
+ *          This is called 'side effect'. 
+ * @details State is 
+ *          
  *
  * @return statement() or nullptr
  * --------------------------------------------------------------------------
 */
 Expr* parser::statement() {
-    //auto left = statement();
+    //auto left = statement(); // This might be needed maybe..
     while (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
         auto right = statement();
@@ -163,7 +164,7 @@ Expr* parser::statement() {
 Expr* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
-      if (match(TokenType::VAR, TokenType::INT, TokenType::AUTO, TokenType::BOOL, TokenType::CHAR, TokenType::DOUBLE)) return identifier();
+      if (match(TokenType::VAR, TokenType::INT, TokenType::BOOL, TokenType::CHAR, TokenType::DOUBLE)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -208,7 +209,7 @@ Expr* parser::arguments() {
     while(match(TokenType::COMMA, TokenType::IDENTIFIER)) {
         auto right = primary();
         //expr = std::make_unique<Arguments>(std::move(expr), std::move(right));
-        left = new Arguments(std::move(left), std::move(previous()), std::move(right));
+        //left = new Function(std::move(left), std::move(previous()), std::move(right));
         consume(TokenType::IDENTIFIER, "Expected Identifer after comma!");
     }
     return left;
