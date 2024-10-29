@@ -14,7 +14,7 @@ DEBUG_AST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBU
 DEBUG_INTERPRETER_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1
 CFG_FLAGS := -DENABLE_TREE_BUILD=1 -DENABLE_TATICAL_NUKE=1
 INTERPRETER_FLAGS := -DENABLE_EVALUATED_EXPRESSIONS=1
-TEST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 
+TEST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1
 
 ########
 # Source file definitions
@@ -80,8 +80,12 @@ debugging/debug_ast.o: debugging/debug_ast.cc
 
 debugging/debug_interpreter.o: debugging/debug_interpreter.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_INTERPRETER_FLAGS) -c $< -o $@
+
+debugging/debug_parser.o: debugging/debug_parser.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+
 main.o: main.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) $(TEST_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
 
 tests/test_%.o: tests/test_%.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@

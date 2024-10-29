@@ -1,5 +1,6 @@
 #include <parser.h>
 #include <scanner.h>
+//logTable<Map<String, Vector<String>>> logEntries;
 void runTest(const std::string& input) {
     std::cout << "Testing input: " << input << std::endl;
     
