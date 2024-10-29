@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     p.beginParse();
-    interpreter interp(cTree);
+    //interpreter interp(cTree);
     std::cout << evaluatedExpressions[evaluatedExpressions.size() - 1] << std::endl;
     return 0;
 }

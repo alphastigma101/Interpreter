@@ -129,7 +129,7 @@ namespace ArgumentOperations {
     class argumentOperations;
 };
 namespace Environment {
-    class environment;
+    //class environment;
 };
 /** ---------------------------------------------------------------------------
  * @details 'ExprTypes' used alot in parser.cc and context_free_grammar.h

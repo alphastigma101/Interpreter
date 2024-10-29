@@ -2,6 +2,7 @@
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h>
+#include <environment.h>
 #include <filesystem>
 #include <system_error>
 #include <fstream>

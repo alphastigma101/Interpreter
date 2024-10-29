@@ -1,8 +1,6 @@
 #ifndef _ENVIRONMENT_H_
 #define _ENVIRONMENT_H_
-#include <catch.h>
-#include <run_time_error.h>
-#include <token.h>
+#include <interpreter.h>
 namespace Environment {
     class environment: protected catcher<environment>, protected runtimeerror<environment> {
         public:
