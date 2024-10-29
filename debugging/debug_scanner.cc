@@ -61,7 +61,7 @@ void debugStrings() {
     std::string source_ = "\"Hello, World!\" \"Another string\"";
     Scanner scanner(source_);
     std::vector<Token> tokens = scanner.ScanTokens();
-    std::cout << FINAL(tokens[0].getLexeme())tokens[0].getLexeme() << std::endl;
+    //std::cout << FINAL(tokens[0].getLexeme())tokens[0].getLexeme() << std::endl;
     return;
 }
 

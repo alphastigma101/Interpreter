@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <regex>
 #include <filesystem>
 template<typename T>
 String logging<T>::text;
