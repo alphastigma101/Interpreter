@@ -1,0 +1,32 @@
+Implementation Notes:
+    | -> Implement as if/switch statement
+    * or + -> Implement as while/for loop
+    ? -> Implement as if statement
+    Terminals -> Direct code to match/consume token
+    Nonterminals -> Function calls
+
+program     → declarations;
+declarations → identifer? statement;
+statement   → expression | expression;            
+expression  → literal                      // Expression can be any ONE of these:
+            | unary                        //   - a literal value
+            | binary                       //   - a unary expression
+            | grouping ;                   //   - a binary expression
+                                          //   - a grouping
+
+literal     → NUMBER                       // Literal can be any ONE of these:
+            | STRING                       //   - a number
+            | "true"                       //   - a string
+            | "false"                      //   - true
+            | "nil" ;                      //   - false
+                                          //   - nil
+
+grouping    → "(" expression ")" ;         // Grouping is an expression in parentheses
+
+unary       → ( "-" | "!" ) expression ;   // Unary is either "-" or "!" followed by an expression
+
+binary      → expression operator expression ;  // Binary is expression, operator, expression
+
+operator    → "==" | "!=" | "<" | "<="     // Operator can be any ONE of these:
+            | ">" | ">="                   //   comparison operators
+            | "+" | "-" | "*" | "/" ;      //   arithmetic operators

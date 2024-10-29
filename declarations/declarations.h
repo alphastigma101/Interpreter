@@ -162,6 +162,7 @@ static Table initTable(const Unordered<String, Vector<String>> languageExtension
 /** ---------------------------------------
  * @brief This is my custom language that I am supporting called Tatical Nuke
  * 
+ * -----------------------------------------
 */
 namespace Nuke {
     struct core;

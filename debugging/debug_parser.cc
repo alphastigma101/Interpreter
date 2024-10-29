@@ -41,8 +41,10 @@ static void debugEquality() {
         "true == true",
         "false != true",
         "null == null",
-        //temp,
         "5 % 0",
+        "var x = 23;",
+        "int y = 48;",
+        "double z = 90.0000",
         //"42 == 42.0",
         //"3.14 != 3.14159",*/
         //"'hello' == 'hello'",
