@@ -163,7 +163,5 @@ exec_interpreter: $(OBJ_FILES_INTERPRETER)
 
 clean:
 	rm -f $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
-	rm -f debugging/*.o
-	rm -f tests/*.o
-	rm -f $(BINARIES)
+	rm -f *.o debugging/*.o main.o $(BINARIES)
 

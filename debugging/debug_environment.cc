@@ -1,6 +1,5 @@
 #include <scanner.h>
 #include <parser.h>
-#include <interpreter.h>
 #include <environment.h>
 
 

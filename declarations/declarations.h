@@ -115,7 +115,7 @@ extern Vector<String> evaluatedExpressions;
 // details an expression statement is something a developer writes followed by ';'
 // variable is the reference to what the identifer was initalized with. EX: int foo = 0; identifer is foo while variable refers to 0
 //
-extern Map<Map<Any,String>, Vector<Any>> env; 
+//extern Map<Map<Any,String>, Vector<Any>> env; 
 namespace UnaryOperations {
     class unaryOperations;
 };
