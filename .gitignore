@@ -36,6 +36,7 @@ logs/
 debugging/logs/
 debugging/*.o
 debugging/Ast.txt
+debugging/test_environment
 debugging/exec_debug_tokens
 debugging/exec_debug_scanner
 debugging/test_tokens
