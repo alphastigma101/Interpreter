@@ -43,8 +43,8 @@ g++ -g -std=c++17 -fconcepts parser.o context_free_grammar.o scanner.o abstracti
 
 echo "Creating debugging object files and executables for parser"
 g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../debugging/debug_parser.cc -o debug_parser.o
-#g++ -g -std=c++17 -fconcepts context_free_grammar.o token.o scanner.o abstraction_tree_syntax.o parser.o  languages.o logging.o debug_parser.o -o exec_debug_parser
-#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../tests/test_parser.cc -o test_parser.o
+g++ -g -std=c++17 -fconcepts context_free_grammar.o token.o scanner.o  parser.o logging.o debug_parser.o -o exec_debug_parser
+g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../tests/test_parser.cc -o test_parser.o
 #g++ -g -std=c++17 -fconcepts context_free_grammar.o scanner.o abstraction_tree_syntax.o parser.o languages.o token.o logging.o test_parser.o -o test_parser $LDFLAGS
 
 echo "Creating debugging object files and executables for truthy"

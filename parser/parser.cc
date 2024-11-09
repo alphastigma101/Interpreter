@@ -105,12 +105,10 @@ Expr* parser::primary() {
     if (match(TokenType::NUMBER, TokenType::STRING)) {
         return new Literal(previous());
     }
-    if (match(TokenType::IDENTIFIER)) {
-        const Token op = previous();
-        /*if (advance().getType() == TokenType::DOT) return Identifier(methods(), std::move(op)); 
-        else current--;
-        if (advance().getType() == TokenType::COMMA) return Identifer(arguments(), std::move(op)); 
-        else current--;*/
+    if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
+        Token&& op = previous();
+        if (op.getType()  == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
+        //if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
     }
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
@@ -205,11 +203,11 @@ Expr* parser::identifier() {
  * ---------------------------------------------------------------------------
 */
 Expr* parser::arguments() {
-    auto left = primary();
+    auto left = primary(); // this grabs the ( and expects it to be closed
     while(match(TokenType::COMMA, TokenType::IDENTIFIER)) {
         auto right = primary();
         //expr = std::make_unique<Arguments>(std::move(expr), std::move(right));
-        //left = new Function(std::move(left), std::move(previous()), std::move(right));
+        left = new Functions(std::move(left), std::move(previous()), std::move(right));
         consume(TokenType::IDENTIFIER, "Expected Identifer after comma!");
     }
     return left;
@@ -220,13 +218,14 @@ Expr* parser::arguments() {
  * ---------------------------------------------------------------------------
 */
 Expr* parser::methods() {
-    if(match(TokenType::DOT)) {
+    if(match(TokenType::IDENTIFIER)) {
         const Token op = previous();
-        auto expr = methods();
-        auto right = new Methods(std::move(expr), std::move(op));
+        auto right = new Methods(std::move(arguments()), std::move(op));
         consume(TokenType::SEMICOLON, "Expected ';' after indentifer!");
+        return new Statement(std::move(right), std::move(op));
     }
-    return expression();
+    throw new catcher<parser>("Expected an identifier after '.' for method!");
+    //return expression();
 }
 /** ---------------------------------------------------------------------------
  * @brief A rule that will call to the left and to the right to parse. 

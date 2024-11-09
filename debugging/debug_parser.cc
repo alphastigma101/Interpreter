@@ -17,6 +17,7 @@ void runTest(const std::string& input) {
     
     // Parse tokens
     parser p(tokens);
+    p.beginParse();
     /*auto result = p.parse();
     
     // Print result or error
@@ -33,19 +34,19 @@ void runTest(const std::string& input) {
 parser createParser(std::vector<Token>& tokens) { return parser(tokens);}
 
 static void debugEquality() {
-    std::string temp = "'apple'"; 
-    temp += ">";
-    temp += "'banana'";
     std::vector<std::string> testCases = {
-        "(1 == 1)",
+        /*"(1 == 1)",
         "2 != 3",
         "true == true",
         "false != true",
         "null == null",
-        "5 % 0",
-        "var x = 23;",
-        "int y = 48;",
-        "double z = 90.0000",
+        "5 % 0",*/
+        "print one;",
+        "print true;"
+        "print 2 + 1;",
+        //"var x = 23;",
+        //"foo.bar(1,2,3,4);",
+        //"double z = 90.0000",
         //"42 == 42.0",
         //"3.14 != 3.14159",*/
         //"'hello' == 'hello'",

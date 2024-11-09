@@ -391,6 +391,122 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
+     class Identifier: public Expr, public catcher<Identifier>, public logging<Identifier>, public Evaluation<Identifier>, protected runtimeerror<Identifier> {
+        public:
+            friend class catcher<Identifier>; // Use to output a message
+            friend class runtimeerror<Identifier>;
+            friend class Visitor<Identifier>;
+            friend class Check<Identifier>;
+            friend class Conv<Identifier>;
+            friend class Evaluation<Identifier>;
+            explicit Identifier(Expr* right_, const Token& op_);
+            ~Identifier() noexcept = default;
+            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+        private:
+            inline static Evaluation<Identifier> eval{};
+            //static Any compute(Any& a, Any& b, auto& expr);
+            /** --------------------------------------------
+             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
+             * 
+             * @param value Is an any container that will always have a string value inside of it
+             * 
+             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
+             * 
+             * @details ...
+             * 
+             * @return Returns a complex any container that will hold two values 
+             * 
+            */
+            template<typename T>
+            inline static bool isOther(const Any value) {
+                // TODO: This needs to be implemented when creating the environment later on
+                return false;
+            };
+            /*template<typename T>
+            static bool instanceof(const Any& object);
+            inline static bool isString(const Any value) { return value.type() == typeid(String);};
+            template<typename T>
+            static bool isNumeric(const Any value);
+            static Any toNumeric(Any& value);
+            static Any toOther(Any& lhs, Any& rhs);*/
+        private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Identifier>::type));};
+            inline static logTable<Map<String, Vector<String>>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Unary>::getMsg()) throw() { return msg;};
+            /** --------------------------------------
+             * @brief A method that is overloaded here from this class 
+             * 
+             * @details The runtimeerror class will call this method and it will output something to the temrinal
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output error message
+             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
+             *             It also calls in a statically inlined method to get the TokenType
+             * 
+             * @return a concated string back to the caller method
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Identifier>::getMsg()) throw() {
+                static String output;
+                try {
+                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                        output = search->second.c_str() + String(msg);
+                        return output.c_str();
+                    }
+                    else {
+                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        if (std::holds_alternative<Expr*>(pairVal.second)) {
+                            auto& conv = std::get<Expr*>(pairVal.second);
+                            throw new catcher<Unary>(
+                                String(String("From Unary what() method, TokenType is not supported!")+ String("\n\t") + 
+                                String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
+                            );
+                        }
+                        // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
+                    }
+                }
+                catch(catcher<Unary>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<Unary> logs(logs_, e.what());
+                    logs.update();
+                    logs.rotate();
+                }
+                return output.c_str();
+            };
+            String parenthesize(String name, Expr* expr);
+            inline String visit(Expr* expr, bool tree = true) override {
+                String result; 
+                if (tree == true)
+                    //return parenthesize(expr->op.getLexeme(), expr->right); 
+                    return "\0";
+                else {
+                    try {
+                        /*Any right = std::make_any<String>(expr->right->accept(this, tree));
+                        auto temp = std::make_any<String>("\0");
+                        Any res = eval.compute(temp, right, expr);
+                        if (!res.has_value()) 
+                            throw new runtimeerror<Unary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
+                        else
+                            result = std::any_cast<String>(res);*/
+                    }
+                    catch(...) {
+                        std::cout << "Invalid Type!" << std::endl;
+                    }
+                }
+                return result;
+            };
+    };
     class Variable: public Expr, public catcher<Variable> {
         public:
             friend class catcher<Variable>; // Use to output a message
@@ -517,6 +633,131 @@ namespace ContextFreeGrammar {
            
         protected:
             Arguments() = default;
+    };
+     class Functions: public Expr, public catcher<Functions>, public Evaluation<Functions>, protected runtimeerror<Functions> {
+        public:
+            friend class catcher<Functions>; // Use to output a message
+            friend class runtimeerror<Functions>;
+            friend class Visitor<Functions>;
+            friend class Check<Functions>;
+            friend class Conv<Functions>;
+            friend class Evaluation<Functions>;
+            explicit Functions(Expr* left_, const Token& op_, Expr* right_);
+            ~Functions() noexcept = default;
+            String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline String visit(Expr* expr, bool tree = true) override { 
+                String result;
+                if (tree == true)
+                    //return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
+                    return "\0";
+                else {
+                    try {
+                        // Check and see if leftResult and rightResult are binary
+                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                        //Any res = eval.compute(leftResult, rightResult, expr);
+                        //if (!res.has_value()) 
+                            //throw new runtimeerror<Binary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
+                        //else
+                            //result = std::any_cast<String>(res);
+                    }
+                    catch(...) {
+                        try {
+                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
+                        }
+                        catch(...) {
+                            std::cout << "Invalid Type!" << std::endl;
+                        }
+                    }
+                }
+                return result;
+            };
+        private:
+            inline static Evaluation<Functions> eval{};
+            //static Any compute(Any& a, Any& b, auto& expr);
+            /** --------------------------------------------
+             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
+             * 
+             * @param value Is an any container that will always have a string value inside of it
+             * 
+             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
+             * 
+             * @details ...
+             * 
+             * @return Returns a complex any container that will hold two values 
+             * 
+            */
+            template<typename T>
+            inline static bool isOther(const Any value) {
+                return false;
+            };
+            /*template<class T>
+            static bool instanceof(const Any& object);
+            inline static bool isString(const Any value) { return value.type() == typeid(String);};
+            template<class T>
+            static bool isNumeric(const Any value);
+            static Any toNumeric(Any& value);
+            static Any toOther(Any& lhs, Any& rhs);*/
+        private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Functions>::type));};
+            inline static logTable<Map<String, Vector<String>>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Functions>::getMsg()) throw() { return msg;};
+            /** --------------------------------------
+             * @brief A method that is overloaded here from this class 
+             * 
+             * @details The runtimeerror class will call this method and it will output something to the temrinal
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output error message
+             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
+             *             It also calls in a statically inlined method to get the TokenType
+             * 
+             * @return a concated string back to the caller method
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Functions>::getMsg()) throw() {
+                static String output;
+                try {
+                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                        output = search->second.c_str() + String(msg);
+                        return output.c_str();
+                    }
+                    else {
+                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        if (std::holds_alternative<Expr*>(pairVal.second)) {
+                            auto& conv = std::get<Expr*>(pairVal.second);
+                            throw new catcher<Binary>(
+                                String(String("From Binary what() method, TokenType is not supported!")+ String("\n\t") + 
+                                String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
+                            );
+                        }
+                        // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
+                    }
+                }
+                catch(catcher<Binary>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<Binary> logs(logs_, e.what());
+                    logs.update();
+                    logs.rotate();
+                }
+                return output.c_str();
+            };
+            //String parenthesize(String name, Expr* left, Expr* right);
+       
+           
     };
     class EcoSystem: public Expr, public catcher<EcoSystem> {
         public:

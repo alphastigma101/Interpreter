@@ -70,8 +70,10 @@ namespace ContextFreeGrammar {
     class Literal;
     class Statement;
     class Variable;
+    class Identifier;
     class Methods;
     class Arguments;
+    class Functions;
     class EcoSystem;
 };
 /** ---------------------------------------------------------------------------

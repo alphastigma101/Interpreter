@@ -393,6 +393,8 @@ bool Unary::isNumeric(const Any value) {
     try {
         String temp = std::move(std::any_cast<String>(value));
         for (int i = 0; i < temp.length() - 1; i++) {
+            // TODO: Here is a bug. Both float and double both have . in it 
+            // Need to absolutely make sure it is a double or a float
             if (temp[i] == '.') {
                 try {
                     if (typeid(std::stod(temp)) == typeid(T)) return true;
@@ -551,6 +553,20 @@ Literal::Literal(const Token&& oP) {
  * 
  * 
 */
+Identifier::Identifier(Expr* right_, const Token& op_)  {
+   this->right = std::move(right_);
+   this->op = std::move(op_);
+   auto unary = compressedAstTree(idx + 1, String("Identifier"), this);
+   cTree.push_back(std::move(unary));
+}
+/** -----------------------------
+ * @brief ...
+ * 
+ * @param Expr* Looks ahead to the left and gets whatever is on the left side of the = sign
+ * @param oP
+ * 
+ * 
+*/
 Variable::Variable(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
@@ -561,6 +577,28 @@ Variable::Variable(const Token&& oP) {
         catcher<Variable> cl("Undefined behavior occurred in Class Variable!");
         throw cl;
     }
+}
+/** --------------------------------------------------------------------------
+ * @brief This class will represent the Function node tree in a absraction syntax tree
+ *
+ * @details it moves the left and right resources and the token resources that were passed into it 
+ *          to it's own data members 
+ *
+ * @param left_ A raw pointer that holds a memory address to an object it points too
+ * @param right_  A raw pointer that holds a memory address to an object it points too
+ * @param op_ is an instance of the token class 
+ * 
+ * @details A custom garbage collector is implemented to cleanup the raw pointers
+ *
+ *
+ * ---------------------------------------------------------------------------
+*/
+Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
+    this->left = std::move(left_);
+    this->right = std::move(right_);
+    this->op = std::move(op_);
+    auto functions = compressedAstTree(idx + 1, String("Functions"), this);
+    cTree.push_back(std::move(functions));
 }
 /** -----------------------------
  * @brief Creates a node called Statement

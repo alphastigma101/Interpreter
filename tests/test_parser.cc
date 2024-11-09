@@ -16,10 +16,18 @@ class ParserTest : public testing::Test {
         parser createParser(std::vector<Token>& tokens) { return parser(tokens);}
 };
 //--Equality Testing--
-TEST_F(ParserTest, EqualityTest_0) {
-
+TEST_F(ParserTest, MissingSemiColon) {
+    /*EXPECT_THROW(
+        "double z = 90.0000",
+        catcher<Parser::parser>("Expected ';' after value!");
+    );*/
 }
-
+TEST_F(ParserTest, ParserTest_MissingPara_Test) {
+    /*EXPECT_THROW(
+        "double z = 90.0000",
+        catcher<Parser::parser>("Expected ';' after value!");
+    );*/
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
