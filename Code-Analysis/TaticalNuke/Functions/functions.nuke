@@ -1,0 +1,6 @@
+poison void people(int a, double b, string c) {
+    print("This function just prints the values");
+    print(a);
+    print(b);
+    print(c);
+}

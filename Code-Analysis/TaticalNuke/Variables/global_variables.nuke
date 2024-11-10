@@ -1,0 +1,5 @@
+bool y = false;
+double a = 90.0000;
+int b = 2;
+string c = "hello";
+string d = 'bye!';

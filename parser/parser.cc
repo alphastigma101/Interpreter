@@ -105,15 +105,17 @@ Expr* parser::primary() {
     if (match(TokenType::NUMBER, TokenType::STRING)) {
         return new Literal(previous());
     }
-    if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
-        Token&& op = previous();
-        if (op.getType()  == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
-        //if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
-    }
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return new Grouping(expr);
+    }
+    if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
+        Token&& op = previous();
+        if (op.getType()  == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
+        if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
+        // TODO: It must not return if TokenType is not identifier 
+        return new Variable(std::move(op));
     }
     throw new parseError<parser>(peek(), "Expect expression.");
 }
@@ -162,7 +164,7 @@ Expr* parser::statement() {
 Expr* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
-      if (match(TokenType::VAR, TokenType::INT, TokenType::BOOL, TokenType::CHAR, TokenType::DOUBLE)) return identifier();
+      if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, TokenType::STRING, TokenType::DOUBLE)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();

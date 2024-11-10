@@ -1,6 +1,5 @@
 #include <parser.h>
 #include <scanner.h>
-//logTable<Map<String, Vector<String>>> logEntries;
 void runTest(const std::string& input) {
     std::cout << "Testing input: " << input << std::endl;
     
@@ -9,46 +8,36 @@ void runTest(const std::string& input) {
     std::vector<Token> tokens = scanner.ScanTokens();
     
     // Print tokens for debugging
-    std::cout << "Tokens:" << std::endl;
+    std::cout << "Lexemes:" << std::setw(15) << "Tokens:" << std::endl;
     for (auto& token : tokens) {
-        std::string temp = token.getLexeme(); //std::any_cast<std::string>(token.toString());
-        std::cout << temp << std::endl;
+        std::string temp = token.getLexeme();
+        std::cout << std::left << std::setw(15) << temp << token.getTypeStr() << std::endl;
     }
     
     // Parse tokens
     parser p(tokens);
     p.beginParse();
-    /*auto result = p.parse();
-    
-    // Print result or error
-    if (result) {
-        std::cout << "Parsing successful!" << std::endl;
-        // You might want to add a method to print the AST here
-    } else {
-        std::cout << "Parsing failed." << std::endl;
-    }*/
-    
     std::cout << "------------------------" << std::endl;
 }
 
 parser createParser(std::vector<Token>& tokens) { return parser(tokens);}
 
 static void debugEquality() {
-    std::vector<std::string> testCases = {
+    Vector<String> types = {
+        "bool y = false;",
+        "double a = 90.0000;",
+        "int b = 2;",
+        "string c = \"hello\";",
+        "string d = 'bye!';",
+        //"void &c = &funky;",
+    };
+    Vector<String> expressions = {
         /*"(1 == 1)",
         "2 != 3",
         "true == true",
         "false != true",
         "null == null",
         "5 % 0",*/
-        "print one;",
-        "print true;"
-        "print 2 + 1;",
-        //"var x = 23;",
-        //"foo.bar(1,2,3,4);",
-        //"double z = 90.0000",
-        //"42 == 42.0",
-        //"3.14 != 3.14159",*/
         //"'hello' == 'hello'",
         /*"('world' != 'World')",
         //"1 == 2 == false",
@@ -68,11 +57,24 @@ static void debugEquality() {
         "(1 < 2) == (3 > 2)",
         "(1 <= 1) != (2 >= 3)"*/
     };
-    for (const auto& testCase : testCases) {
-        runTest(testCase);
-    }
-    //debugParser dP;
-    //dP.debugEquality(&dP);
+    Vector<String> Exceptions = {
+        //"double z = 90.0000",
+        //"print one",
+        //"print one;"
+        //"foo.bar(1,2,3,4)",
+        // "bar(int x, double y, string z)",
+    };
+    Vector<String> functions = {
+        "print(one);",
+        //"foo.bar(1,2,3,4);",
+        // "bar(int x, double y, string z);",
+    };
+    std::cout << "Debugging supported types:" << std::endl;
+    for (const auto& testCase : types) runTest(testCase); // debug the supported types
+    for (const auto& testCase : Exceptions) runTest(testCase); // debug the exceptions
+    for (const auto& testCase : functions) runTest(testCase);
+    
+   
 }
 
 /*static void debugComparison() {

@@ -17,8 +17,8 @@ enum TokenType {
     LESS, LESS_EQUAL, IDENTIFIER, STRING,
     NUMBER, EQUALS,
     // KeyWords
-    FALSE, TRUE, THIS, SUPER, RETURN, VAR,
-    STATIC, FINAL, CATCH, CONST, TRY, EXCEPT,
+    FALSE, TRUE, RETURN, BREAK,
+    STATIC, CATCH, THROW, CONST, TRY, EXCEPT,
     // Primitive Types
     INT, DOUBLE, CHAR, VOID, BOOL, NIL,
     // Complex Types
@@ -28,16 +28,15 @@ enum TokenType {
     // Loops
     FOR, WHILE,
     // Logical operators
-    OR, AND, DEATH, NOT, PRINT,
+    OR, AND, NOT, PRINT,
     // classes
     RADIATION, PUBLIC,
     PRIVATE, PROTECTED,
     // structs
     NUKE, // these are structs 
-    POSION, // these are used for function declarations
+    POISON, // these are used for function declarations
     LAMBDA,
     MUSHROOMCLOUD, // the ecosystem mechanic
-    ARROW,
     BRACES,
     PARENS,
     END_OF_FILE,
@@ -73,41 +72,36 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::STRING, "STRING"},
     {TokenType::NUMBER, "NUMBER"},
     {TokenType::INT, "INT"},
-    //{TokenType::FLOAT, "FLOAT"},
     {TokenType::DOUBLE, "DOUBLE"},
-    {TokenType::CHAR, "CHAR"},
     {TokenType::VOID, "VOID"},
-    {TokenType::AUTO, "AUTO"},
     {TokenType::BOOL, "BOOL"},
     {TokenType::AND, "AND"},
     {TokenType::RADIATION, "RADIATION"}, // these are classes
     {TokenType::ELSE, "ELSE"},
     {TokenType::FALSE, "FALSE"},
     {TokenType::FOR, "FOR"},
+    {TokenType::BREAK, "BREAK"},
     {TokenType::IF, "IF"},
     {TokenType::NIL, "NIL"},
     {TokenType::OR, "OR"},
     {TokenType::PRINT, "PRINT"},
     {TokenType::RETURN, "RETURN"},
-    {TokenType::SUPER, "SUPER"},
-    {TokenType::THIS, "THIS"},
     {TokenType::TRUE, "TRUE"},
-    {TokenType::VAR, "VAR"},
     {TokenType::WHILE, "WHILE"},
     {TokenType::PUBLIC, "PUBLIC"},
     {TokenType::PRIVATE, "PRIVATE"},
     {TokenType::PROTECTED, "PROTECTED"},
     {TokenType::STATIC, "STATIC"},
-    {TokenType::FINAL, "FINAL"},
     {TokenType::CATCH, "CATCH"},
+    {TokenType::THROW, "THROW"},
     {TokenType::NUKE, "NUKE"}, // these are structs 
     {TokenType::TRY, "TRY"},
     {TokenType::EXCEPT, "EXCEPT"},
     {TokenType::CONST, "CONST"},
-    {TokenType::POSION, "POSION"}, // these are used for function declarations
+    {TokenType::POISON, "POISON"}, // these are used for function declarations
     {TokenType::LAMBDA, "LAMBDA"},
     {TokenType::MUSHROOMCLOUD, "MUSHROOMCLOUD"}, // the ecosystem mechanic
-    {TokenType::ARROW, "ARROW"},
+    {TokenType::LAMBDA, "LAMBDA"},
     {TokenType::EQUALS, "EQUALS"},
     {TokenType::QUERY, "QUERY"},
     {TokenType::LIST, "LIST"},

@@ -117,7 +117,10 @@ namespace Parser {
                     if (previous().getType() == TokenType::SEMICOLON) return;               
                     switch (peek().getType()) {                                             
                         case TokenType::RADIATION:                                             
-                        case TokenType::VAR:                                                
+                        case TokenType::DOUBLE:
+                        //case TokenType::VOID:
+                        //case TokenType::POINTER:
+                        case TokenType::INT:                                                
                         case TokenType::FOR:                                                
                         case TokenType::IF:                                                 
                         case TokenType::WHILE:                                              
@@ -147,7 +150,7 @@ namespace Parser {
             */
             template<typename... Args>
             inline bool match(Args... types) {  return (... || (check(types) ? (advance(), true) : false)); };
-            inline Token consume(const TokenType type, const std::string message) {
+            inline Token consume(const TokenType type, const String message) {
                 if (check(type)) return advance();
                 /*auto clear = [this]() {
                     for (int i = 0; i < nodes.size(); i++) {
