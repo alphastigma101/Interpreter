@@ -157,7 +157,7 @@ Expr* parser::statement() {
     //auto left = statement(); // This might be needed maybe..
     while (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
-        auto right = statement();
+        auto right = expression();
         consume(TokenType::SEMICOLON, "Expect ';' after value.");
         return new Statement(std::move(right), std::move(op));
     }
@@ -168,7 +168,7 @@ Expr* parser::declarations() {
     try {
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
-                TokenType::RADIATE)) return identifier();
+                TokenType::RADIATE, TokenType::CONTAINMENT)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -197,7 +197,7 @@ Expr* parser::declarations() {
 Expr* parser::identifier() {
     const Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
     Expr* initializer = nullptr;
-    if (match(TokenType::EQUAL)) {
+    if (match(TokenType::EQUAL, TokenType::BRACES)) {
       initializer = expression();
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
