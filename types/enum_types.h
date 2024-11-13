@@ -28,13 +28,18 @@ enum TokenType {
     // Loops
     FOR, WHILE,
     // Logical operators
-    OR, AND, NOT, PRINT,
+    OR, AND, NOT, 
+    // built in methods
+    // Radiate is for printing
+    RADIATE, 
+    // built-in operations 
+    // concating/splitting operations
+    // querying: RADIATION
+    FUSION, FISSION, RADIATION,
     // classes
-    RADIATION, PUBLIC,
+    CONTAINMENT, PUBLIC,
     PRIVATE, PROTECTED,
-    // structs
-    NUKE, // these are structs 
-    POISON, // these are used for function declarations
+    // hidden functions
     LAMBDA,
     MUSHROOMCLOUD, // the ecosystem mechanic
     BRACES,
@@ -76,7 +81,7 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::VOID, "VOID"},
     {TokenType::BOOL, "BOOL"},
     {TokenType::AND, "AND"},
-    {TokenType::RADIATION, "RADIATION"}, // these are classes
+    {TokenType::CONTAINMENT, "CONTAINMENT"}, // these are classes
     {TokenType::ELSE, "ELSE"},
     {TokenType::FALSE, "FALSE"},
     {TokenType::FOR, "FOR"},
@@ -84,9 +89,13 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::IF, "IF"},
     {TokenType::NIL, "NIL"},
     {TokenType::OR, "OR"},
-    {TokenType::PRINT, "PRINT"},
+    {TokenType::RADIATE, "RADIATE"}, // printing
+    {TokenType::FUSION, "FUSION"}, // concating
+    {TokenType::FISSION, "FISSION"}, // spliting
+    {TokenType::RADIATION, "RADIATION"}, // querying such as making a database or modifying it
     {TokenType::RETURN, "RETURN"},
     {TokenType::TRUE, "TRUE"},
+    {TokenType::FALSE, "FALSE"},
     {TokenType::WHILE, "WHILE"},
     {TokenType::PUBLIC, "PUBLIC"},
     {TokenType::PRIVATE, "PRIVATE"},
@@ -94,16 +103,14 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::STATIC, "STATIC"},
     {TokenType::CATCH, "CATCH"},
     {TokenType::THROW, "THROW"},
-    {TokenType::NUKE, "NUKE"}, // these are structs 
     {TokenType::TRY, "TRY"},
     {TokenType::EXCEPT, "EXCEPT"},
     {TokenType::CONST, "CONST"},
-    {TokenType::POISON, "POISON"}, // these are used for function declarations
+    {TokenType::CHAR, "CHAR"}, // these are used for function declarations
     {TokenType::LAMBDA, "LAMBDA"},
     {TokenType::MUSHROOMCLOUD, "MUSHROOMCLOUD"}, // the ecosystem mechanic
     {TokenType::LAMBDA, "LAMBDA"},
     {TokenType::EQUALS, "EQUALS"},
-    {TokenType::QUERY, "QUERY"},
     {TokenType::LIST, "LIST"},
     {TokenType::BRACES, "BRACES"},
     {TokenType::PARENS, "PARENS"},

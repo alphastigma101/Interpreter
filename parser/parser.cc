@@ -164,7 +164,7 @@ Expr* parser::statement() {
 Expr* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
-      if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, TokenType::STRING, TokenType::DOUBLE)) return identifier();
+      if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();

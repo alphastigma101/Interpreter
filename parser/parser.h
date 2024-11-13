@@ -124,7 +124,7 @@ namespace Parser {
                         case TokenType::FOR:                                                
                         case TokenType::IF:                                                 
                         case TokenType::WHILE:                                              
-                        case TokenType::PRINT:                                              
+                        case TokenType::RADIATE:                                              
                         case TokenType::RETURN:                                             
                         return;                                                             
                     }                                                                       

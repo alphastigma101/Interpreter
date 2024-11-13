@@ -1,1 +1,1 @@
-radiation hell { public: poison people(int b, double c, string e);};
+containment hell { public: void people(int b, double c, string e);};

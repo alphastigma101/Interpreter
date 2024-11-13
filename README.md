@@ -18,13 +18,13 @@
 * The goal is to create a hand-made interpreter that processes a language called Tatical Nuke. This whole project is written in c++.
 
 ### What Is Tatical Nuke
-* Tatical nuke is custom language I developed myself. It uses c++ syntax 
+* Tatical nuke is custom language I developed myself. It uses c++ syntax. It will be a lighter version of c++, and should be used to build `operating systems` 
 * ***Pros***:
     * Tatical Nuke is a language that I implemented myself. It is inspired by low level languages and has a mixture of keywords from modern languages. 
-    * It has a keyword called `Query` that is connected to a database. The database I will be choosing `ODB` for the flexibility  
+    * It has a keyword called `radiation` that is connected to a database. The database I will be choosing `ODB` for the flexibility  
     * It is less strict than c++ but should offer the same performance.
-    * To create classes you type `Radation`, `posioning` for functions, and `MUSHROOMCLOUD` to include other code files that end with `.nuke`. 
-    * Basic Keywords it suports `int`, `void`, `double`, `string`, references `&`, and raw pointers `*`. **Note** that references and pointers will not be supported when interpreting tatical nuke. It will be avialable when compiling it 
+    * To create classes you type `containment`, and `MUSHROOMCLOUD` to include other code files that end with `.nuke`. 
+    * Basic Keywords it suports `int`, `void`, `double`, `string`, `char`, references `&`, and raw pointers `*`. **Note** that references and pointers will not be supported when interpreting tatical nuke. It will be avialable when compiling it 
 * ***Cons***:
 * It will spam out random ASCI characters, and display TATICAL NUKE and delete itself, if the programmer messes up the syntax.
 * Can also display a 2D nuke droping down on a bunch of people and displays `TATICAL NUKE` upon impact. 

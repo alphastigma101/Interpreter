@@ -20,20 +20,23 @@ const Unordered<String, TokenType> Scanner::keywords = {
     {"and",    TokenType::AND},
     {"!",      TokenType::NOT},
     {"or",     TokenType::OR},
-    {"radiation",  TokenType::RADIATION},
     {"else",   TokenType::ELSE},
-    {"false",  TokenType::FALSE},
     {"for",    TokenType::FOR},
-    {"poison",  TokenType::POISON},
     {"if",     TokenType::IF},
     {"nil",    TokenType::NIL},
-    {"print",  TokenType::PRINT},
     {"return", TokenType::RETURN},
     {"true",   TokenType::TRUE},
+    {"false",  TokenType::FALSE},
+    {"containment",  TokenType::CONTAINMENT}, // classes
+    {"radiate",  TokenType::RADIATE}, // print
+    {"fission",  TokenType::FISSION}, // split method
+    {"radiate",  TokenType::FUSION}, // concat method
+    {"radiation", TokenType::RADIATION}, // query method
     {"int",    TokenType::INT},
     {"static", TokenType::STATIC},
     {"double", TokenType::DOUBLE},
     {"string", TokenType::STRING},
+    {"char", TokenType::CHAR},
     {"bool", TokenType::BOOL},
     {"void", TokenType::VOID},
     {"while",  TokenType::WHILE},
