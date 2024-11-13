@@ -112,11 +112,13 @@ Expr* parser::primary() {
     }
     if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
         Token&& op = previous();
-        if (op.getType()  == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
-        if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
+        // TODO: The logic here still needs to be worked out 
+        if (peek().getType() == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
+        if (peek().getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
         // TODO: It must not return if TokenType is not identifier 
         return new Variable(std::move(op));
     }
+    std::cout << "Thowing!" << std::endl;
     throw new parseError<parser>(peek(), "Expect expression.");
 }
 /** --------------------------------------------------------------------------
@@ -164,7 +166,9 @@ Expr* parser::statement() {
 Expr* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
-      if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR)) return identifier();
+      if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
+                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
+                TokenType::RADIATE)) return identifier();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
