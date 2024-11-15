@@ -154,7 +154,6 @@ Expr* parser::program() {
  * --------------------------------------------------------------------------
 */
 Expr* parser::statement() {
-    //auto left = statement(); // This might be needed maybe..
     while (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
         auto right = expression();
@@ -181,6 +180,7 @@ Expr* parser::declarations() {
 }
 /** -----------------------------------------------------------------------------
  * @brief A method that checks to see if the language has an identifier.
+ *        A `variable name` is considered as the identifier. 
  * 
  * @details An identifier represents the type of something, essentially a variable type.
  * Rules usually require recursion. Think of calling a function again as if you're 

@@ -6,13 +6,16 @@ Implementation Notes:
     Nonterminals -> Function calls
 
 program     → declarations;
-declarations → identifer? statement;
-statement   → expression | expression;            
+declarations → identifier? | statement;
+statement   → expression*;            
 expression  → literal                      // Expression can be any ONE of these:
             | unary                        //   - a literal value
             | binary                       //   - a unary expression
-            | grouping ;                   //   - a binary expression
-                                          //   - a grouping
+            | grouping                     //   - a binary expression
+            | identifier
+            | variable                     //   - a grouping
+            ;                   
+                                         
 
 literal     → NUMBER                       // Literal can be any ONE of these:
             | STRING                       //   - a number

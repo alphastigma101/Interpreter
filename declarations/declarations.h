@@ -113,10 +113,6 @@ extern Vector<String> evaluatedExpressions;
  * @param Vector: It is a container that holds a string that represents an evaluated expression, which are pulled from 'evaluatedExpressions'.
  *                Or it can hold a specific node from 'context_free_grammar.h' that can be visited and/or converted into a string later on.
 */
-// TODO: Add to your presonal notes
-// details an expression statement is something a developer writes followed by ';'
-// variable is the reference to what the identifer was initalized with. EX: int foo = 0; identifer is foo while variable refers to 0
-//
 //extern Map<Map<Any,String>, Vector<Any>> env; 
 namespace UnaryOperations {
     class unaryOperations;

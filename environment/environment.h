@@ -2,6 +2,11 @@
 #define _ENVIRONMENT_H_
 #include <interpreter.h>
 namespace Environment {
+    /** --------------------------------------
+    * @brief A class that implements the environment data structure.
+    *        It will map the identifier to its values.
+    * ---------------------------------------- 
+    */
     class environment: protected catcher<environment>, protected runtimeerror<environment>, public Interpreter::interpreter {
         public:
             friend class catcher<environment>;
