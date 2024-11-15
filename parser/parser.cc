@@ -113,8 +113,8 @@ Expr* parser::primary() {
     if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
         Token&& op = previous();
         // TODO: The logic here still needs to be worked out 
-        if (peek().getType() == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
-        if (peek().getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
+        if (op.getType() == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
+        if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
         // TODO: It must not return if TokenType is not identifier 
         return new Variable(std::move(op));
     }

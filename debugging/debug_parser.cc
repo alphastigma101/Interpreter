@@ -65,13 +65,13 @@ static void debugEquality() {
         // "bar(int x, double y, string z)",
     };
     Vector<String> functions = {
-        "radiate one;",
+        //"radiate one;",
         //"foo.bar(1,2,3,4);",
         // "bar(int x, double y, string z);",
     };
     std::cout << "Debugging supported types:" << std::endl;
-    for (const auto& testCase : types) runTest(testCase); // debug the supported types
-    for (const auto& testCase : Exceptions) runTest(testCase); // debug the exceptions
+    //for (const auto& testCase : types) runTest(testCase); // debug the supported types
+    //for (const auto& testCase : Exceptions) runTest(testCase); // debug the exceptions
     for (const auto& testCase : functions) runTest(testCase);
     
    
