@@ -5,9 +5,9 @@
 #include <logging.h>
 namespace Environment {
     /** --------------------------------------
-    * @brief A class that implements the environment data structure.
-    *        It will map the identifier to its values.
-    * ---------------------------------------- 
+        * @brief A class that implements the environment data structure.
+        *        It will map the identifier to its values.
+        * ---------------------------------------- 
     */
     class environment: protected catcher<environment>, protected runtimeerror<environment> {
         public:

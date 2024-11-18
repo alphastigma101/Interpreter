@@ -1,8 +1,6 @@
 #ifndef _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
 #define _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
-#include <token.h> // includes declarations.h 
-#include <run_time_error.h>
-#include <logging.h>
+#include <environment.h>
 #include <stdexcept>
 namespace BinaryOperations {
     class binaryOperations: public catcher<binaryOperations>, protected runtimeerror<binaryOperations>, public logging<binaryOperations> {
