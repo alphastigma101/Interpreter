@@ -1,6 +1,7 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
+#include <environment.h>
 namespace Interpreter {
     class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
@@ -16,6 +17,7 @@ namespace Interpreter {
         private:
             inline static Check<interpreter> check{};
             inline static logTable<Map<String, Vector<String>>> logs_{};
+            Environment::environment* env = new Environment::environment();
             template<typename T>
             static bool instanceof(const Any& object);
         protected:

@@ -1,13 +1,15 @@
 #ifndef _ENVIRONMENT_H_
 #define _ENVIRONMENT_H_
-#include <interpreter.h>
+#include <token.h> // includes declarations.h 
+#include <run_time_error.h>
+#include <logging.h>
 namespace Environment {
     /** --------------------------------------
     * @brief A class that implements the environment data structure.
     *        It will map the identifier to its values.
     * ---------------------------------------- 
     */
-    class environment: protected catcher<environment>, protected runtimeerror<environment>, public Interpreter::interpreter {
+    class environment: protected catcher<environment>, protected runtimeerror<environment> {
         public:
             friend class catcher<environment>;
             friend class runtimeerror<environment>;

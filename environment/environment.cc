@@ -4,7 +4,7 @@
  * 
  * -------------------------------------
 */
-Environment::environment::environment(): Interpreter::interpreter(cTree) {
+Environment::environment::environment() {
 
 }
 /** -----------------------------------
@@ -20,7 +20,7 @@ String Environment::environment::get(Token name) {
         if (auto search = it.second.find(name.getLexeme()); search != it.second.end())
             return name.getLexeme();
     }
-    return "\0";
+    throw new runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }
 /** -----------------------------------
  * @brief Method that defines/re-defines the variable 
