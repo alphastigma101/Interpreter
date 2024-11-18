@@ -16,7 +16,7 @@ Scanner::Scanner(const String source): source(std::move(source)) {}
  * ----------------------------------------------------------------------------------
 */
 const Unordered<String, TokenType> Scanner::keywords = {
-    // Add all the Keywrods here
+    // Add all the Keywords here
     {"and",    TokenType::AND},
     {"!",      TokenType::NOT},
     {"or",     TokenType::OR},

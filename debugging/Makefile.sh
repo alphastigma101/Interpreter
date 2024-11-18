@@ -78,7 +78,7 @@ g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o abstracti
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++17 -fconcepts interpreter.o scanner.o parser.o context_free_grammar.o token.o logging.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 echo "Creating debugging object files and executables for environment"
-g++ -g -std=c++17 -fconcepts  $INCLUDE -DENABLE_ENV=1 -c ../environment/environment.cc -o environment.o 
+g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../environment/environment.cc -o environment.o 
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1  -c ../debugging/debug_environment.cc -o debug_environment.o
 g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o abstraction_tree_syntax.o interpreter.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o logging.o debug_environment.o -o exec_debug_environment
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_environment.cc -o test_environment.o

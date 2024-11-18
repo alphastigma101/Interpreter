@@ -1,12 +1,12 @@
 #include <abstraction_tree_syntax.h>
 #include <scanner.h>
 #include <parser.h>
-#include <interpreter.h>
 #include <environment.h>
 #include <filesystem>
 #include <system_error>
 #include <fstream>
 static bool hadError = false;
+using namespace Environment;
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
  * 
@@ -23,7 +23,8 @@ static void run(std::string& source) {
     std::thread build([]() {
         return ast(cTree);
     });
-    interpreter interp(cTree);
+    //interpreter interp(cTree);
+    environment env;
     if (build.joinable()) {
         build.join();
     }
