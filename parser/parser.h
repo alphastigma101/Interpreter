@@ -79,6 +79,7 @@ namespace Parser {
             Expr* program();
             Expr* statement();
             Expr* declarations();
+            Expr* assignment();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
              * @brief Get the previous TokenType

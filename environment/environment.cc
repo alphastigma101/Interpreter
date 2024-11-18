@@ -5,7 +5,15 @@
  * -------------------------------------
 */
 Environment::environment::environment() {
-
+    enclosing = nullptr;
+}
+/** -----------------------------------
+ * @brief This is a constructor for environment 
+ * 
+ * -------------------------------------
+*/
+Environment::environment::environment(Environment::environment& enclosing) {
+    this->enclosing = &enclosing;
 }
 /** -----------------------------------
  * @brief Method that gets the variable name from the map
@@ -42,4 +50,23 @@ void Environment::environment::define(String type, String name, Any value) {
     env[type] = {{name, value}};
 }
 
-
+/** -----------------------------------
+ * @brief Method that updates the variables' values.
+ *  
+ * @param name Is a token class instance 
+ * @param value The value it is bind too or updated. 
+ * 
+ * @return Returns the name of the variable otherwise returns null if not found. 
+ * -------------------------------------
+*/
+void Environment::environment::assign(Token name, Any value) {
+    for (const auto& it: types) {
+        if (auto search = env.find(it); search != env.end()) {
+            if (search->second.find(name.getLexeme()) != search->second.end()) {
+                search->second.insert_or_assign(name.getLexeme(), value);  
+            }
+        }
+    }
+    throw new runtimeerror<Environment::environment>(name.getType(),
+        String("Undefined variable '" + name.getLexeme() + "'.").c_str());
+}
