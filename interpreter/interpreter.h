@@ -1,7 +1,6 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
-#include <environment.h>
 namespace Interpreter {
     class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
@@ -14,6 +13,8 @@ namespace Interpreter {
             explicit interpreter(Vector<astTree<int, String, ExprVariant>>& expr);
             ~interpreter() noexcept = default;
             static Any visitBinaryExpr(auto& expr);
+            inline Any visitBlockStmt(auto& stmt) { return executeBlock(stmt->statements, new Environment::environment(*env));};
+            String executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment);
         private:
             inline static Check<interpreter> check{};
             inline static logTable<Map<String, Vector<String>>> logs_{};

@@ -1,15 +1,10 @@
 #include <environment.h>
+Environment::environment* Environment::environment::enclosing = nullptr;
 /** -----------------------------------
- * @brief This is a default constructor for environment 
+ * @brief This is a default constructor for environment
  * 
- * -------------------------------------
-*/
-Environment::environment::environment() {
-    enclosing = nullptr;
-}
-/** -----------------------------------
- * @brief This is a constructor for environment 
- * 
+ * @details This constructor along with environment(Environment::environment& enclosing) support block-scope.
+            The idea is to keep the global variables defined in the outer-scope, while clearing out the inner scope variables 
  * -------------------------------------
 */
 Environment::environment::environment(Environment::environment& enclosing) {
@@ -28,6 +23,7 @@ String Environment::environment::get(Token name) {
         if (auto search = it.second.find(name.getLexeme()); search != it.second.end())
             return name.getLexeme();
     }
+    if (enclosing != nullptr) return enclosing->get(name);
     throw new runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }
 /** -----------------------------------
@@ -50,6 +46,7 @@ void Environment::environment::define(String type, String name, Any value) {
     env[type] = {{name, value}};
 }
 
+
 /** -----------------------------------
  * @brief Method that updates the variables' values.
  *  
@@ -63,9 +60,14 @@ void Environment::environment::assign(Token name, Any value) {
     for (const auto& it: types) {
         if (auto search = env.find(it); search != env.end()) {
             if (search->second.find(name.getLexeme()) != search->second.end()) {
-                search->second.insert_or_assign(name.getLexeme(), value);  
+                search->second.insert_or_assign(name.getLexeme(), value);
+                return;  
             }
         }
+    }
+    if (enclosing != nullptr) {
+      enclosing->assign(name, value);
+      return;
     }
     throw new runtimeerror<Environment::environment>(name.getType(),
         String("Undefined variable '" + name.getLexeme() + "'.").c_str());

@@ -7,7 +7,7 @@ Expr* parser::assignment() {
       auto value = assignment();
       if (auto conv = dynamic_cast<Variable*>(expr)) {
         Token name = conv->op;
-        //return new Assign(name, value);
+        return new Assign(name, value);
       }
       error(); 
     }
@@ -168,6 +168,7 @@ Expr* parser::program() {
  * --------------------------------------------------------------------------
 */
 Expr* parser::statement() {
+    if (match(TokenType::LEFT_BRACE)) return new Block(block());
     while (match(TokenType::IDENTIFIER)) {
         const Token op = previous();
         auto right = expression();
@@ -175,6 +176,14 @@ Expr* parser::statement() {
         return new Statement(std::move(right), std::move(op));
     }
     return expression();
+}
+Vector<ContextFreeGrammar::Statement*> parser::block() {
+    Vector<Statement*> statements;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+      statements.push_back(dynamic_cast<Statement*>(declarations()));
+    }
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
 }
 Expr* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 

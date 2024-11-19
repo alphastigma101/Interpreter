@@ -69,10 +69,34 @@ static void debugEquality() {
         //"foo.bar(1,2,3,4);",
         // "bar(int x, double y, string z);",
     };
+    const std::string program = 
+    "var a = \"global a\";\n"
+    "var b = \"global b\";\n"
+    "var c = \"global c\";\n"
+    "{\n"
+    "  var a = \"outer a\";\n"
+    "  var b = \"outer b\";\n"
+    "  {\n"
+    "    var a = \"inner a\";\n"
+    "    print a;\n"
+    "    print b;\n"
+    "    print c;\n"
+    "  }\n"
+    "  print a;\n"
+    "  print b;\n"
+    "  print c;\n"
+    "}\n"
+    "print a;\n"
+    "print b;\n"
+    "print c;\n";
+    Vector<String> blocks = {
+        program
+    };
     std::cout << "Debugging supported types:" << std::endl;
     //for (const auto& testCase : types) runTest(testCase); // debug the supported types
     //for (const auto& testCase : Exceptions) runTest(testCase); // debug the exceptions
-    for (const auto& testCase : functions) runTest(testCase);
+    //for (const auto& testCase : functions) runTest(testCase);
+    for (const auto& testCase : blocks) runTest(testCase);
     
    
 }

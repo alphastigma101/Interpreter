@@ -6,6 +6,7 @@ namespace Parser {
     class parseError: public catcher<Derived> {
         public:
             friend class parser;
+            // TODO: This constructor is not needed because it is a abstracted class 
             explicit parseError<Derived>(const Token& t, const String& msg) {
                 try {
                     token = std::move(t);
@@ -80,6 +81,7 @@ namespace Parser {
             Expr* statement();
             Expr* declarations();
             Expr* assignment();
+            Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
              * @brief Get the previous TokenType

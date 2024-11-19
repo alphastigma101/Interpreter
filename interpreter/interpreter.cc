@@ -23,6 +23,14 @@ interpreter::interpreter(Vector<astTree<int, String, ExprVariant>>& expr) {
                        //value.insert(std::any_cast<String>(visitStmtExpr(stmt)));
                 }
             }
+            if (pairVal.first == "Block") {
+                if (std::holds_alternative<Expr*>(pairVal.second)) {
+                    auto& conv = std::get<Expr*>(pairVal.second);
+                    if (auto blk = dynamic_cast<Block*>(conv)) {
+                       evaluatedExpressions.push_back(std::move(std::any_cast<String>(visitBlockStmt(blk))));
+                    }   
+                }
+            }
             if (pairVal.first == "EcoSystem") {
                 if (std::holds_alternative<Expr*>(pairVal.second)) {
                     auto& conv = std::get<Expr*>(pairVal.second);
@@ -51,7 +59,7 @@ String interpreter::evaluate(auto conv) {
     else if (auto stmt = dynamic_cast<Statement*>(conv)) return conv->accept(stmt, false);
     else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
     else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
-    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false); 
+    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
     else { throw new catcher<interpreter>("Unexpected type in evaluate function"); }
     return nullptr;
 }
@@ -124,6 +132,19 @@ Any interpreter::visitBinaryExpr(auto& expr) {
     }
     // Unreachable.
     return nullptr;
+}
+
+String interpreter::executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
+    String res; 
+    Environment::environment* previous = this->env;
+    try {
+        this->env = environment;
+        for (const auto& statement : statements) {
+            res += evaluate(statement);
+        }
+    } catch(...) { this->env = previous; }
+    this->env = previous;
+    return res;
 }
 
 String interpreter::stringify(Any object) {

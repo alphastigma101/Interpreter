@@ -629,7 +629,7 @@ Statement::Statement(Expr* initalizer, const Token&& oP) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-Methods::Methods(Expr* meth, const Token& op_) {
+Methods::Methods(Expr* method, const Token& op_) {
     try { 
         this->op = std::move(op_); 
         auto literal = compressedAstTree(idx + 1, String("Methods"), this);
@@ -662,6 +662,29 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
     }
 }
+Assign::Assign(const Token& op_, Expr* right) {
+    try { 
+        this->right = std::move(right);
+        this->op = std::move(op_); 
+        auto assign = compressedAstTree(idx + 1, String("Assign"), this);
+        cTree.push_back(std::move(assign));
+    }
+    catch(...) {
+        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
+    }
+}
+
+Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
+    try { 
+        this->statements = std::move(left);
+        auto blk = compressedAstTree(idx + 1, String("Block"), this);
+        cTree.push_back(std::move(blk));
+    }
+    catch(...) {
+        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
+    }
+}
+
 /** ---------------------------------------------------------------
  * @brief ...
  *

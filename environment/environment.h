@@ -14,10 +14,10 @@ namespace Environment {
             friend class catcher<environment>;
             friend class runtimeerror<environment>;
             friend class EnvironmentTest;
-            explicit environment();
+            explicit environment() = default;
             explicit environment(environment& env);
             ~environment() noexcept = default;
-            environment* enclosing;
+            static environment* enclosing;
             static String get(Token name);
             static void define(String type, String name, Any value);
             static void assign(Token name, Any value);

@@ -70,6 +70,8 @@ namespace ContextFreeGrammar {
     class Literal;
     class Statement;
     class Variable;
+    class Block;
+    class Assign;
     class Identifier;
     class Methods;
     class Arguments;
