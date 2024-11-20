@@ -750,6 +750,16 @@ String Grouping::parenthesize(String name, Expr* expr) {
     if (expr) result += expr->accept(this);
     return result + ")";
 }
+String Statement::parenthesize(String name, Expr* left, Expr* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + left->accept(this);
+    }
+    if (right) {
+        result += " " + right->accept(this);
+    }
+    return result + ")";
+}
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -760,13 +770,10 @@ String Grouping::parenthesize(String name, Expr* expr) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Variable::parenthesize(String name, Expr* left, Expr* right) {
+String Variable::parenthesize(String name, Expr* left) {
     String result = "(" + name;
     if (left) {
         result += " " + left->accept(this);
-    }
-    if (right) {
-        result += " " + right->accept(this);
     }
     return result + ")";
 }

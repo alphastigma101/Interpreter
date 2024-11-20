@@ -392,7 +392,7 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
-     class Identifier: public Expr, public catcher<Identifier>, public logging<Identifier>, public Evaluation<Identifier>, protected runtimeerror<Identifier> {
+    class Identifier: public Expr, public catcher<Identifier>, public logging<Identifier>, public Evaluation<Identifier>, protected runtimeerror<Identifier> {
         public:
             friend class catcher<Identifier>; // Use to output a message
             friend class runtimeerror<Identifier>;
@@ -517,7 +517,7 @@ namespace ContextFreeGrammar {
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
             inline String visit(Expr* expr, bool tree = true) override { 
                 if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr->left, expr->right); 
+                    return parenthesize("variable", expr); 
                 else
                     return accept(this, tree);
             };
@@ -535,7 +535,7 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Variable>::getMsg()) throw() { return msg;};
-            String parenthesize(String name, Expr* left, Expr* right);
+            String parenthesize(String name, Expr* left);
         private:
             //
     };
@@ -547,13 +547,34 @@ namespace ContextFreeGrammar {
             ~Statement() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
             inline String visit(Expr* expr, bool tree = true) override {
-                if (tree == true) {
-                    if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
-                    return " " + expr->op.getLiteral();
+                String result;
+                if (tree == true)
+                    return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
+                else {
+                    try {
+                        // Check and see if leftResult and rightResult are binary
+                        Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                        Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                        /*Any res = eval.compute(leftResult, rightResult, expr);
+                        if (!res.has_value()) 
+                            throw new runtimeerror<Statement>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
+                        else
+                            result = std::any_cast<String>(res);*/
+                    }
+                    catch(...) {
+                        try {
+                            Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
+                            Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
+                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
+                        }
+                        catch(...) {
+                            std::cout << "Invalid Type!" << std::endl;
+                        }
+                    }
                 }
-                else
-                    return accept(this, tree);
+                return result;
             };
+            String parenthesize(String name, Expr* left, Expr* right);
         protected:
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
