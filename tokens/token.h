@@ -26,21 +26,21 @@ class Token: public catcher<Token>  {
         String getTypeStr();
         String getLexeme();
         String getLiteral();
+        inline static Set<String> types = {"int", "bool", "char", "void", "double", "string"}; 
         int getLine();
         inline std::any toString() {
             return std::make_any<String>(tokenTypeToString() + " " + lexeme + " " + literal);
         };
     protected:
         inline String tokenTypeToString() {
-            auto it = tokenTypeStrings.find(type);
-            if (it != tokenTypeStrings.end()) { return it->second;}
-            throw new catcher<Token>("Unknown TokenType");
+            if (auto it = tokenTypeStrings.find(type); it != tokenTypeStrings.end()) { return it->second;}
+            return "\0";
         };
         inline static const char* what(const char* msg = std::move(getMsg())) throw() { return msg;};
     private:
         TokenType type;
         String lexeme;
-        String literal; 
+        String literal;
         int line;
     };
 

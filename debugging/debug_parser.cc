@@ -58,6 +58,7 @@ static void debugEquality() {
         "(1 <= 1) != (2 >= 3)"*/
     };
     Vector<String> Exceptions = {
+        "var x = 1;"
         //"double z = 90.0000",
         //"print one",
         //"print one;"
@@ -70,14 +71,14 @@ static void debugEquality() {
         // "bar(int x, double y, string z);",
     };
     const std::string program = 
-    "var a = \"global a\";\n"
-    "var b = \"global b\";\n"
-    "var c = \"global c\";\n"
+    "string a = \"global a\";\n"
+    "string b = \"global b\";\n"
+    "string c = \"global c\";\n"
     "{\n"
-    "  var a = \"outer a\";\n"
-    "  var b = \"outer b\";\n"
+    "  string a = \"outer a\";\n"
+    "  string b = \"outer b\";\n"
     "  {\n"
-    "    var a = \"inner a\";\n"
+    "    string a = \"inner a\";\n"
     "    print a;\n"
     "    print b;\n"
     "    print c;\n"
@@ -95,8 +96,8 @@ static void debugEquality() {
     std::cout << "Debugging supported types:" << std::endl;
     //for (const auto& testCase : types) runTest(testCase); // debug the supported types
     //for (const auto& testCase : Exceptions) runTest(testCase); // debug the exceptions
-    for (const auto& testCase : functions) runTest(testCase);
-    //for (const auto& testCase : blocks) runTest(testCase);
+    //for (const auto& testCase : functions) runTest(testCase);
+    for (const auto& testCase : blocks) runTest(testCase);
     
    
 }

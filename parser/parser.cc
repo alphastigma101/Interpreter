@@ -170,7 +170,10 @@ Expr* parser::program() {
 Expr* parser::statement() {
     if (match(TokenType::LEFT_BRACE)) return new Block(block());
     while (match(TokenType::IDENTIFIER)) {
-        const Token op = previous();
+        Token&& op = previous();
+        if (auto it = op.types.find(op.getLexeme()); it == op.types.end()) {
+            if (peek().getType() != TokenType::LEFT_PAREN) throw new parseError<parser>(op, "Unsupported type!");
+        }
         auto right = expression();
         consume(TokenType::SEMICOLON, "Expect ';' after value.");
         return new Statement(std::move(right), std::move(op));
