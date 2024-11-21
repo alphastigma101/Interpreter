@@ -668,8 +668,7 @@ namespace ContextFreeGrammar {
             inline String visit(Expr* expr, bool tree = true) override { 
                 String result;
                 if (tree == true)
-                    //return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
-                    return "\0";
+                    return parenthesize(std::move(expr->statements));
                 else {
                     try {
                         // Check and see if leftResult and rightResult are binary
@@ -775,7 +774,7 @@ namespace ContextFreeGrammar {
                 }
                 return output.c_str();
             };
-            //String parenthesize(String name, Expr* left, Expr* right);  
+            String parenthesize(Vector<ContextFreeGrammar::Statement*>&& left);  
     };
     class Assign: public Expr, public catcher<Assign>, public Evaluation<Assign>, protected runtimeerror<Assign> {
         public:

@@ -71,27 +71,28 @@ static void debugEquality() {
         // "bar(int x, double y, string z);",
     };
     const std::string program = 
-    "string a = \"global a\";\n"
-    "string b = \"global b\";\n"
-    "string c = \"global c\";\n"
-    "{\n"
-    "  string a = \"outer a\";\n"
-    "  string b = \"outer b\";\n"
-    "  {\n"
-    "    string a = \"inner a\";\n"
-    "    print a;\n"
-    "    print b;\n"
-    "    print c;\n"
-    "  }\n"
-    "  print a;\n"
-    "  print b;\n"
-    "  print c;\n"
-    "}\n"
-    "print a;\n"
-    "print b;\n"
-    "print c;\n";
+        "string a = \"global a\";\n"
+        "string b = \"global b\";\n"
+        "string c = \"global c\";\n"
+        "{\n"
+        "  string a = \"outer a\";\n"
+        "  string b = \"outer b\";\n"
+        "  {\n"
+        "    string a = \"inner a\";\n"
+        "    print a;\n"
+        "    print b;\n"
+        "    print c;\n"
+        "  }\n"
+        "  print a;\n"
+        "  print b;\n"
+        "  print c;\n"
+        "}\n"
+        "print a;\n"
+        "print b;\n"
+        "print c;\n";
     Vector<String> blocks = {
-        program
+        //program
+        "string a = \"global a\";\n"
     };
     std::cout << "Debugging supported types:" << std::endl;
     //for (const auto& testCase : types) runTest(testCase); // debug the supported types

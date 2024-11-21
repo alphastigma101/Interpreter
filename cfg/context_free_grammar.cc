@@ -611,7 +611,8 @@ Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
 */
 Statement::Statement(Expr* initalizer, const Token&& oP) {
     try { 
-        this->op = std::move(oP); 
+        this->op = std::move(oP);
+        this->left = std::move(initalizer); 
         auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
         cTree.push_back(std::move(stmt));
     }
@@ -774,6 +775,23 @@ String Variable::parenthesize(String name, Expr* left) {
     String result = "(" + name;
     if (left) {
         result += " " + left->accept(this);
+    }
+    return result + ")";
+}
+/** ---------------------------------------------------------------
+ * @brief ...
+ *
+ * @param name ...
+ * @param left ...
+ * @param right ...
+ *
+ * @details .....
+ * ----------------------------------------------------------------
+*/
+String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& left) {
+    String result = "(";
+    for (auto& it : left) {
+        result += " " + it->accept(this);
     }
     return result + ")";
 }
