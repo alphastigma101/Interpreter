@@ -57,14 +57,12 @@ namespace Parser {
              * ----------------------------------------------------------------------------------------------------------
             */
             explicit parser(std::vector<Token>& tokens) {  tokens_ = std::move(tokens); };
-            inline void beginParse() { 
-                parse(); 
-                return;
-            };
+            Vector<Statement*> parse();
             void printNodes();
             ~parser() noexcept = default; // This shouldn't be a virtual... 
         protected:
             // Current rules that were made from a grammar 
+            
             Expr* equality();
             Expr* comparison();
             Expr* expression();
@@ -72,15 +70,15 @@ namespace Parser {
             Expr* factor();
             Expr* unary();
             Expr* primary();
-            Expr* identifier();
             Expr* arguments();
             Expr* methods();
             Expr* ecosystem();
-            Expr* parse();
-            Expr* program();
-            Expr* statement();
-            Expr* declarations();
             Expr* assignment();
+            Statement* statement();
+            Statement* printStatement();
+            Statement* expressionStatement();
+            Statement* declarations();
+            Statement* varDeclaration();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------

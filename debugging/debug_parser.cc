@@ -16,7 +16,7 @@ void runTest(const std::string& input) {
     
     // Parse tokens
     parser p(tokens);
-    p.beginParse();
+    //p.beginParse();
     std::cout << "------------------------" << std::endl;
 }
 

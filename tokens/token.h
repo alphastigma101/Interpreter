@@ -26,7 +26,6 @@ class Token: public catcher<Token>  {
         String getTypeStr();
         String getLexeme();
         String getLiteral();
-        inline static Set<String> types = {"int", "bool", "char", "void", "double", "string"}; 
         int getLine();
         inline std::any toString() {
             return std::make_any<String>(tokenTypeToString() + " " + lexeme + " " + literal);

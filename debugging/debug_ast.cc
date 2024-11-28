@@ -15,7 +15,10 @@ int main(void) {
         "(15 + 19)",  
         "(7 * 3)",*/
         //"((32 * 17) + (9 - 11) / 2))"
-        "{ int x = 27; }"
+        //"int x = 34.0000; { int x = 27; } x = 54;"
+        //"radiate 'stick figures';"
+        "int x = 67;"
+        //"x = 45;"
         //"(((32 * 17) + (9 - 11) / 2) >= (49 * 3 / (6 + 2)) + (99 <= 100)) - ((12 * 2 - 45 / 5) != (8 + 9) * (2 - 3))"
         //"(((32 * 17) + (9 - 11) / 2) >= (49 * 3 / (6 + 2)) && (99 <= 100)) || ((12 * 2 - 45 / 5) != (8 + 9) * (2 - 3))",
         //"(((65 / 3) > (10 * 2)) && (45 <= (25 + 20)) || (7 != (7 + 1))) && (16 == (8 * 2)) || ((99 != 100) && (100 < 101))",
@@ -32,9 +35,9 @@ int main(void) {
         Scanner scanner(it);
         Vector<Token> tokens = scanner.ScanTokens();
         parser p(tokens);
-        p.beginParse();
+        auto stmt = p.parse();
         //p.printNodes();
-        ast aT(cTree);
+        ast aT(stmt);
 
     }
     return 0;

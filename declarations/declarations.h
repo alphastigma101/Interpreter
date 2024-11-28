@@ -69,10 +69,12 @@ namespace ContextFreeGrammar {
     class Grouping;
     class Literal;
     class Statement;
+    class Print;
+    class Expression;
+    class Var;
     class Variable;
     class Block;
     class Assign;
-    class Identifier;
     class Methods;
     class Arguments;
     class Functions;

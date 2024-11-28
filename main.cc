@@ -17,10 +17,10 @@ static void run(std::string& source) {
     Scanner scanner(source); // Create a new scanner instance
     std::vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
-    p.beginParse();
+    auto stmt = p.parse();
     if (hadError) return;
-    std::thread build([]() {
-        return ast(cTree);
+    std::thread build([&stmt]() {
+        return ast(stmt);
     });
     interpreter interp(cTree);
     if (build.joinable()) {

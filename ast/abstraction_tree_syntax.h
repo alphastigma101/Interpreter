@@ -16,7 +16,7 @@ namespace AbstractionTreeSyntax {
             ~generateAst<Type>() noexcept = default;
             inline void streamOutAst(String res) { return static_cast<Type*>(this)->streamOutAst(res); }; // could change the parameter so it uses Type* and use this
             inline void formatAst(String res) { return static_cast<Type*>(this)->formatAst(res);};
-            inline String buildTree() { return static_cast<Type*>(this)->buildTree();};
+            inline String buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) { return static_cast<Type*>(this)->buildTree(stmt);};
             inline void writeFile(std::string& ext) { return static_cast<Type*>(this)->writeFile(ext);};
             inline void tree_(const generateAst<Type>& gA) { return static_cast<Type*>(this)->tree_(gA);};
             inline static const char* what(const char* msg = catcher<Type>::getMsg()) throw() { return msg;};
@@ -40,12 +40,12 @@ namespace AbstractionTreeSyntax {
         */
         public:
             friend class generateAst<ast>;
-            ast(Vector<astTree<int, String, ExprVariant>>& expr) noexcept;
+            ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept;
             ~ast() noexcept = default; // TODO: This is virtual for some reason, and it needs to be not virtual
             inline static Table getTable() { return table; };
             inline static Unique<Atomic<const char*>> getCode() { return std::move(accessCodeStr); };
         protected:
-            String buildTree();
+            String buildTree(Vector<ContextFreeGrammar::Statement*>& stmt);
             void streamOutAst(String res);
             void formatAst(String res);
         private:

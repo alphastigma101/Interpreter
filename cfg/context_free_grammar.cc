@@ -553,20 +553,6 @@ Literal::Literal(const Token&& oP) {
  * 
  * 
 */
-Identifier::Identifier(Expr* right_, const Token& op_)  {
-   this->right = std::move(right_);
-   this->op = std::move(op_);
-   auto unary = compressedAstTree(idx + 1, String("Identifier"), this);
-   cTree.push_back(std::move(unary));
-}
-/** -----------------------------
- * @brief ...
- * 
- * @param Expr* Looks ahead to the left and gets whatever is on the left side of the = sign
- * @param oP
- * 
- * 
-*/
 Variable::Variable(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
@@ -576,6 +562,95 @@ Variable::Variable(const Token&& oP) {
     catch(...) {
         catcher<Variable> cl("Undefined behavior occurred in Class Variable!");
         throw cl;
+    }
+}
+/** -----------------------------
+ * @brief Creates a node called Print
+ * 
+ * @param initalizer A raw pointer that gets initalized with some kind of object
+ * 
+ * 
+ * -------------------------------
+*/
+Print::Print(Expr* initalizer) {
+    try { 
+        this->initializer = std::move(initalizer); 
+        //auto stmt = compressedAstTree(idx + 1, String("Print"), this);
+        //cTree.push_back(std::move(stmt));
+    }
+    catch(...) {
+        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
+        throw cl;
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Var::Var(const Token& op, Expr* initalizer) {
+    try { 
+        this->initializer = std::move(initalizer);
+        this->op = std::move(op); 
+        //auto stmt = compressedAstTree(idx + 1, String("Var"), this);
+        //cTree.push_back(std::move(stmt));
+    }
+    catch(...) {
+        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
+        throw cl;
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Expression::Expression(Expr* initalizer) {
+    try { 
+        this->initializer = std::move(initalizer); 
+        //auto stmt = compressedAstTree(idx + 1, String("Expression"), this);
+        //cTree.push_back(std::move(stmt));
+    }
+    catch(...) {
+        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
+        throw cl;
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Assign::Assign(const Token& op_, Expr* right) {
+    try { 
+        this->right = std::move(right);
+        this->op = std::move(op_); 
+        auto assign = compressedAstTree(idx + 1, String("Assign"), this);
+        cTree.push_back(std::move(assign));
+    }
+    catch(...) {
+        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
+    try { 
+        this->statements = std::move(left);
+    }
+    catch(...) {
+        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
     }
 }
 /** --------------------------------------------------------------------------
@@ -599,27 +674,6 @@ Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
     this->op = std::move(op_);
     auto functions = compressedAstTree(idx + 1, String("Functions"), this);
     cTree.push_back(std::move(functions));
-}
-/** -----------------------------
- * @brief Creates a node called Statement
- * 
- * @param initalizer A raw pointer that gets initalized with some kind of object
- * @param oP A class instance that holds getter methods to get the lexeme or literal
- * 
- * 
- * -------------------------------
-*/
-Statement::Statement(Expr* initalizer, const Token&& oP) {
-    try { 
-        this->op = std::move(oP);
-        this->left = std::move(initalizer); 
-        auto stmt = compressedAstTree(idx + 1, String("Statement"), this);
-        cTree.push_back(std::move(stmt));
-    }
-    catch(...) {
-        catcher<Statement> cl("Undefined behavior occurred in Class Statement!");
-        throw cl;
-    }
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -663,28 +717,6 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
     }
 }
-Assign::Assign(const Token& op_, Expr* right) {
-    try { 
-        this->right = std::move(right);
-        this->op = std::move(op_); 
-        auto assign = compressedAstTree(idx + 1, String("Assign"), this);
-        cTree.push_back(std::move(assign));
-    }
-    catch(...) {
-        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
-    }
-}
-
-Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
-    try { 
-        this->statements = std::move(left);
-        auto blk = compressedAstTree(idx + 1, String("Block"), this);
-        cTree.push_back(std::move(blk));
-    }
-    catch(...) {
-        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
-    }
-}
 
 /** ---------------------------------------------------------------
  * @brief ...
@@ -695,10 +727,7 @@ Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-EcoSystem::EcoSystem(Expr* ecoSystem, const Token& op_) {
-
-
-}
+EcoSystem::EcoSystem(Expr* ecoSystem, const Token& op_) {}
 // Helper methods for constructing the AST
 //
 /** ---------------------------------------------------------------
@@ -751,16 +780,6 @@ String Grouping::parenthesize(String name, Expr* expr) {
     if (expr) result += expr->accept(this);
     return result + ")";
 }
-String Statement::parenthesize(String name, Expr* left, Expr* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + left->accept(this);
-    }
-    if (right) {
-        result += " " + right->accept(this);
-    }
-    return result + ")";
-}
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -778,6 +797,56 @@ String Variable::parenthesize(String name, Expr* left) {
     }
     return result + ")";
 }
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String Print::parenthesize(String name, Statement* stmt) {
+    if (!stmt) return "(null)";
+    return "(Print " + 
+          (stmt->initializer ? 
+           "(" + stmt->initializer->op.getTypeStr() + " " + 
+           stmt->initializer->op.getLexeme() + ")" : 
+           "()") + 
+          ")";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String Var::parenthesize(String name, Statement* stmt) {
+    if (!stmt) return "(null)";
+    return "(" + name + " statement)";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String Expression::parenthesize(String name, Statement* stmt) {
+    if (!stmt) return "(null)";   
+    return "(" + name + " statement)";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String Assign::parenthesize(String name, Expr* expr) {
+    if (!expr) return "(null)";
+    return "(" + name + " " + expr->op.getLexeme() + ")";
+}
+
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -788,12 +857,12 @@ String Variable::parenthesize(String name, Expr* left) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& left) {
-    String result = "(";
-    for (auto& it : left) {
-        result += " " + it->accept(this);
+String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
+    String result;
+    for (auto& it : expr) {
+        result += "(" + it->op.getTypeStr() + "(" + " " + it->accept(this) + ")" + ")";
     }
-    return result + ")";
+    return result;
 }
 /** ---------------------------------------------------------------
  * @brief ...

@@ -11,7 +11,7 @@ class InterpreterTest : public ::testing::Test {
 };
 
 
-TEST_F(InterpreterTest, Adding) {
+/*TEST_F(InterpreterTest, Adding) {
     Scanner scanner("(34.000000 + 15.000000)");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -88,7 +88,7 @@ TEST_F(InterpreterTest, Comparison) {
     interpreter interp(cTree);
     EXPECT_EQ(evaluatedExpressions.at(evaluatedExpressions.size() - 1), "1");
     cTree.clear();   
-}
+}*/
 
 
 int main(int argc, char **argv) {

@@ -56,7 +56,7 @@ interpreter::interpreter(Vector<astTree<int, String, ExprVariant>>& expr) {
  */
 String interpreter::evaluate(auto conv) {
     if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
-    else if (auto stmt = dynamic_cast<Statement*>(conv)) return conv->accept(stmt, false);
+    //else if (auto stmt = dynamic_cast<Statement*>(conv)) return conv->accept(stmt, false);
     else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
     else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
     else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
@@ -135,7 +135,7 @@ Any interpreter::visitBinaryExpr(auto& expr) {
 }
 
 String interpreter::executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
-    String res; 
+    /*String res; 
     Environment::environment* previous = this->env;
     try {
         this->env = environment;
@@ -144,7 +144,8 @@ String interpreter::executeBlock(Vector<ContextFreeGrammar::Statement*> statemen
         }
     } catch(...) { this->env = previous; }
     this->env = previous;
-    return res;
+    return res;*/
+    return "\0";
 }
 
 String interpreter::stringify(Any object) {

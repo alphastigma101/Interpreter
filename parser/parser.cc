@@ -124,15 +124,11 @@ Expr* parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return new Grouping(expr);
     }
-    if (match(TokenType::IDENTIFIER, TokenType::DOT, TokenType::COMMA)) {
+    if (match(TokenType::IDENTIFIER)) {
         Token&& op = previous();
-        // TODO: The logic here still needs to be worked out 
-        if (op.getType() == TokenType::DOT) return new Identifier(methods(), std::move(op)); 
-        if (op.getType() == TokenType::COMMA) return new Identifier(arguments(), std::move(op)); 
-        // TODO: It must not return if TokenType is not identifier 
         return new Variable(std::move(op));
     }
-    std::cout << "Thowing!" << std::endl;
+    std::cout << "Throwing!" << std::endl;
     throw new parseError<parser>(peek(), "Expect expression.");
 }
 /** --------------------------------------------------------------------------
@@ -144,18 +140,7 @@ Expr* parser::primary() {
  * --------------------------------------------------------------------------
 */
 Expr* parser::expression() { return assignment(); }
-/** --------------------------------------------------------------------------
- * @brief Expands into equality to start the recrusion
- *
- * @details It becomes equality's caller
- *
- * @return equality()
- * --------------------------------------------------------------------------
-*/
-Expr* parser::program() {
-    while (!match(TokenType::END_OF_FILE)) return declarations(); 
-    return nullptr;
-}
+
 /** --------------------------------------------------------------------------
  * @brief A grammar rule that will bind the statement and hold the value 
  *
@@ -167,18 +152,20 @@ Expr* parser::program() {
  * @return statement() or nullptr
  * --------------------------------------------------------------------------
 */
-Expr* parser::statement() {
+Statement* parser::statement() {
     if (match(TokenType::LEFT_BRACE)) return new Block(block());
-    while (match(TokenType::IDENTIFIER)) {
-        Token&& op = previous();
-        if (auto it = op.types.find(op.getLexeme()); it == op.types.end()) {
-            if (peek().getType() != TokenType::LEFT_PAREN) throw new parseError<parser>(op, "Unsupported type!");
-        }
-        auto right = expression();
-        consume(TokenType::SEMICOLON, "Expect ';' after value.");
-        return new Statement(std::move(right), std::move(op));
-    }
-    return expression();
+    if (match(TokenType::RADIATE)) return printStatement();
+    return expressionStatement();
+}
+Statement* parser::printStatement() {
+    auto value = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return new Print(std::move(value));
+}
+Statement* parser::expressionStatement() {
+    auto expr = expression();
+    consume(SEMICOLON, "Expect ';' after expression.");
+    return new Expression(std::move(expr));
 }
 Vector<ContextFreeGrammar::Statement*> parser::block() {
     Vector<Statement*> statements;
@@ -186,14 +173,16 @@ Vector<ContextFreeGrammar::Statement*> parser::block() {
       statements.push_back(dynamic_cast<Statement*>(declarations()));
     }
     consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
-    return statements;
+    return std::move(statements);
 }
-Expr* parser::declarations() {
+Statement* parser::declarations() {
     //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
+        // NOTE: the if statement
+        // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
-                TokenType::RADIATE, TokenType::CONTAINMENT)) return identifier();
+                TokenType::RADIATE, TokenType::CONTAINMENT)) return varDeclaration();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -220,14 +209,14 @@ Expr* parser::declarations() {
  * For more information, see the Bison manual: https://www.gnu.org/software/bison/manual/bison.html#Grammar-File
  * ------------------------------------------------------------------------------
 */
-Expr* parser::identifier() {
+Statement* parser::varDeclaration() {
     const Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
     Expr* initializer = nullptr;
-    if (match(TokenType::EQUAL, TokenType::BRACES)) {
+    if (match(TokenType::EQUAL)) {
       initializer = expression();
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    return new Statement(std::move(initializer), std::move(name));
+    return new Var(std::move(name), std::move(initializer));
 }
 /** ---------------------------------------------------------------------------
  * @brief A rule that will call to the left and to the right to parse. 
@@ -254,7 +243,6 @@ Expr* parser::methods() {
         const Token op = previous();
         auto right = new Methods(std::move(arguments()), std::move(op));
         consume(TokenType::SEMICOLON, "Expected ';' after indentifer!");
-        return new Statement(std::move(right), std::move(op));
     }
     throw new catcher<parser>("Expected an identifier after '.' for method!");
     //return expression();
@@ -280,17 +268,20 @@ Expr* parser::ecosystem() {
  * @return Either return from all the recrusive calls if nothing was thrown, otherwise return null 
  * --------------------------------------------------------------------------
 */
-Expr* parser::parse() {
+Vector<Statement*> parser::parse() {
+    Vector<Statement*> statements;
     try { 
-        auto result = program();
-        return std::move(result);
+        while (!isAtEnd()) {
+            statements.push_back(statement());
+        }
+        return statements; 
     }
     catch (parseError<parser>& e) { 
         std::cout << "Logs have been updated!" << std::endl;
         logging<parser> logs(logs_, e.what());
         logs.update();
         logs.rotate();
-        return nullptr; 
+        return statements; 
     }
 }
 

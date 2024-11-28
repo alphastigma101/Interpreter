@@ -14,8 +14,8 @@ Table ast::table = {};
  * @param expr: The data structure that represents the compacted abstraction syntax tree 
  * -----------------------------------------------------------------------------------------
 */
-ast::ast(Vector<astTree<int, String, ExprVariant>>& expr) noexcept {
-    String stringTree = gA.buildTree();
+ast::ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept {
+    String stringTree = gA.buildTree(stmt);
     gA.formatAst(stringTree);
     /*if (user_choice.empty()) {
         // Subject to change. Have not decided if I want to compile the custom languyage or not
@@ -71,8 +71,8 @@ ast::ast(Vector<astTree<int, String, ExprVariant>>& expr) noexcept {
  * 
  * --------------------------------------
 */
-String ast::buildTree() {
-    for (auto& it : cTree) {
+String ast::buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) {
+    /*for (auto& it : cTree) {
         auto& [intVal, pairVal] = it;
         if (pairVal.first == "Binary") {
             if (std::holds_alternative<Expr*>(pairVal.second)) {
@@ -95,7 +95,11 @@ String ast::buildTree() {
                     outputDir_ += conv->accept(ecosystem, true);
             }
         }
-    }
+    }*/
+   for (auto &it: stmt) {
+        if (auto stmt = dynamic_cast<Statement*>(it))
+            outputDir_ += it->accept(stmt);
+   }
     return outputDir_;
 }
 /** ----------------------------------------------
