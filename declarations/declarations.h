@@ -96,6 +96,20 @@ namespace Parser {
     class parseError;
     class parser;
 };
+/** ---------------------------------------------------------------------------
+ * @brief defined in abstraction_tree_syntax.h
+ * 
+ * @details A codebase that prints out the ast in a string format 
+ * 
+ * @details Will be useful for test cases, debugging, and or the compiler 
+ *
+ * ---------------------------------------------------------------------------
+*/
+namespace AbstractionTreeSyntax {
+    template<class Derived>
+    class generateAst;
+    class ast;
+};
 /** --------------------------------------------------------------------------
  * @brief A forward declaration of the namespace Interpreter
  * 

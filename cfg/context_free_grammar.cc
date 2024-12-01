@@ -780,23 +780,6 @@ String Grouping::parenthesize(String name, Expr* expr) {
     if (expr) result += expr->accept(this);
     return result + ")";
 }
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Variable::parenthesize(String name, Expr* left) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + left->accept(this);
-    }
-    return result + ")";
-}
 /** -----------------------------
  * @brief .....
  * 
@@ -805,13 +788,11 @@ String Variable::parenthesize(String name, Expr* left) {
  * -------------------------------
 */
 String Print::parenthesize(String name, Statement* stmt) {
+    String result = "(" + name;
     if (!stmt) return "(null)";
-    return "(Print " + 
-          (stmt->initializer ? 
-           "(" + stmt->initializer->op.getTypeStr() + " " + 
-           stmt->initializer->op.getLexeme() + ")" : 
-           "()") + 
-          ")";
+    if (initializer)
+        result += initializer->accept(initializer);
+    return result + ")";
 }
 /** -----------------------------
  * @brief .....
@@ -822,7 +803,9 @@ String Print::parenthesize(String name, Statement* stmt) {
 */
 String Var::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
-    return "(" + name + " statement)";
+    String result = "(Var" + String("(") + name + " ";
+    if (initializer) result += initializer->accept(initializer);
+    return result + "))";
 }
 /** -----------------------------
  * @brief .....
@@ -832,8 +815,10 @@ String Var::parenthesize(String name, Statement* stmt) {
  * -------------------------------
 */
 String Expression::parenthesize(String name, Statement* stmt) {
-    if (!stmt) return "(null)";   
-    return "(" + name + " statement)";
+    if (!stmt) return "(null)";
+    String result = "(Expression" + String("(") + name + " ";
+    if (initializer) result += initializer->accept(initializer);
+    return result + "))";
 }
 /** -----------------------------
  * @brief .....
@@ -844,7 +829,9 @@ String Expression::parenthesize(String name, Statement* stmt) {
 */
 String Assign::parenthesize(String name, Expr* expr) {
     if (!expr) return "(null)";
-    return "(" + name + " " + expr->op.getLexeme() + ")";
+    String result = "(" + name + " ";
+    if (expr) result += expr->accept(this);
+    return result + ")";
 }
 
 /** ---------------------------------------------------------------
@@ -860,7 +847,9 @@ String Assign::parenthesize(String name, Expr* expr) {
 String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
     String result;
     for (auto& it : expr) {
-        result += "(" + it->op.getTypeStr() + "(" + " " + it->accept(this) + ")" + ")";
+        if (it) 
+            result += "(Block"  + String("(") + " " + it->accept(this) + ")" + ")";
+        else continue;
     }
     return result;
 }

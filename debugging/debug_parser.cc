@@ -79,17 +79,17 @@ static void debugEquality() {
         "  string b = \"outer b\";\n"
         "  {\n"
         "    string a = \"inner a\";\n"
-        "    print a;\n"
-        "    print b;\n"
-        "    print c;\n"
+        "    radiate a;\n"
+        "    radiate b;\n"
+        "    radiate c;\n"
         "  }\n"
-        "  print a;\n"
-        "  print b;\n"
-        "  print c;\n"
+        "  radiate a;\n"
+        "  radiate b;\n"
+        "  radiate c;\n"
         "}\n"
-        "print a;\n"
-        "print b;\n"
-        "print c;\n";
+        "radiate a;\n"
+        "radiate b;\n"
+        "radiate c;\n";
     Vector<String> blocks = {
         //program
         "string a = \"global a\";\n"

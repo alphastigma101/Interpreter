@@ -153,8 +153,8 @@ Expr* parser::expression() { return assignment(); }
  * --------------------------------------------------------------------------
 */
 Statement* parser::statement() {
-    if (match(TokenType::LEFT_BRACE)) return new Block(block());
     if (match(TokenType::RADIATE)) return printStatement();
+    if (match(TokenType::LEFT_BRACE)) return new Block(block());
     return expressionStatement();
 }
 Statement* parser::printStatement() {
@@ -182,7 +182,7 @@ Statement* parser::declarations() {
         // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
-                TokenType::RADIATE, TokenType::CONTAINMENT)) return varDeclaration();
+                TokenType::CONTAINMENT)) return varDeclaration();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -272,7 +272,7 @@ Vector<Statement*> parser::parse() {
     Vector<Statement*> statements;
     try { 
         while (!isAtEnd()) {
-            statements.push_back(statement());
+            statements.push_back(declarations());
         }
         return statements; 
     }

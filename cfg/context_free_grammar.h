@@ -521,10 +521,12 @@ namespace ContextFreeGrammar {
             ~Variable() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
             inline String visit(Expr* expr, bool tree = true) override { 
-                if (tree == true)
-                    return parenthesize("variable", expr); 
+                if (tree == true) {
+                    if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
+                    return " " + expr->op.getTypeStr() + "(" + expr->op.getLexeme() + ")"; 
+                }
                 else
-                    return accept(this, tree);
+                    return expr->op.getLexeme();
             };
         protected:
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -540,9 +542,6 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Variable>::getMsg()) throw() { return msg;};
-            String parenthesize(String name, Expr* left);
-        private:
-            //
     };
     //template<class Derived>
     class Statement /*: public Visitor<Derived>*/ {
@@ -589,9 +588,7 @@ namespace ContextFreeGrammar {
             inline String visit(Statement* stmt, bool tree = true) override {
                 String result;
                 if (tree == true)
-                    return parenthesize(stmt->initializer ? 
-                                stmt->initializer->op.getLexeme() : 
-                                "empty", stmt
+                    return parenthesize("Print", stmt
                     );
                 else {
                     try {
