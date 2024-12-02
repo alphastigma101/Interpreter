@@ -72,34 +72,10 @@ ast::ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept {
  * --------------------------------------
 */
 String ast::buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) {
-    /*for (auto& it : cTree) {
-        auto& [intVal, pairVal] = it;
-        if (pairVal.first == "Binary") {
-            if (std::holds_alternative<Expr*>(pairVal.second)) {
-                auto& conv = std::get<Expr*>(pairVal.second);
-                if (auto binary = dynamic_cast<Binary*>(conv))
-                    outputDir_ += " " + conv->accept(binary);
-            }
-        }
-        if (pairVal.first == "Statement") {
-            if (std::holds_alternative<Expr*>(pairVal.second)) {
-                auto& conv = std::get<Expr*>(pairVal.second);
-                if (auto stmt = dynamic_cast<Statement*>(conv))
-                    outputDir_ += conv->accept(stmt);
-            }
-        }
-        if (pairVal.first == "EcoSystem") {
-            if (std::holds_alternative<Expr*>(pairVal.second)) {
-                auto& conv = std::get<Expr*>(pairVal.second);
-                if (auto ecosystem = dynamic_cast<EcoSystem*>(conv))
-                    outputDir_ += conv->accept(ecosystem, true);
-            }
-        }
-    }*/
-   for (auto &it: stmt) {
+    for (auto &it: stmt) {
         if (auto stmt = dynamic_cast<Statement*>(it))
             outputDir_ += it->accept(stmt);
-   }
+    }
     return outputDir_;
 }
 /** ----------------------------------------------

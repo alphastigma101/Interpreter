@@ -4,8 +4,8 @@
 /** ------------------------------------------------------------------------------------------------------------
  * @brief Enables the custome language tatical nuke to be compiled or not
 */
-#ifndef ENABLE_ENV
-    #define ENABLE_ENV 0
+#ifndef ENABLE_VISITOR_PATTERN
+    #define ENABLE_VISITOR_PATTERN 0
 #endif
 /** ----------------------------------------------------------------------------
  * @brief Enables the custom language tatical nuke to be compiled or not in a .o file 

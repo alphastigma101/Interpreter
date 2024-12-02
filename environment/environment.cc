@@ -19,10 +19,8 @@ Environment::environment::environment(Environment::environment& enclosing) {
  * -------------------------------------
 */
 String Environment::environment::get(Token name) {
-    for (auto& it : env) {
-        if (auto search = it.second.find(name.getLexeme()); search != it.second.end())
-            return name.getLexeme();
-    }
+    if (auto search = env.find(name.getLexeme()); search != env.end())
+        return name.getLexeme();
     if (enclosing != nullptr) return enclosing->get(name);
     throw new runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }
@@ -36,14 +34,8 @@ String Environment::environment::get(Token name) {
  * @return Returns the name of the variable otherwise returns null if not found. 
  * -------------------------------------
 */
-void Environment::environment::define(String type, String name, Any value) {
-    if (auto search = env.find(type); search != env.end()) {
-        if (search->second.find(name) != search->second.end()) {
-            env[type] = {{name, value}};  
-            //throw new catcher<environment>(String("Variable '" + name + "' already defined in type '" + type.c_str() + "'").c_str());
-        }
-    }
-    env[type] = {{name, value}};
+void Environment::environment::define(String name, Any value) {
+   env[name] = value;
 }
 
 
@@ -57,13 +49,9 @@ void Environment::environment::define(String type, String name, Any value) {
  * -------------------------------------
 */
 void Environment::environment::assign(Token name, Any value) {
-    for (const auto& it: types) {
-        if (auto search = env.find(it); search != env.end()) {
-            if (search->second.find(name.getLexeme()) != search->second.end()) {
-                search->second.insert_or_assign(name.getLexeme(), value);
-                return;  
-            }
-        }
+    if (auto search = env.find(name.getLexeme()); search != env.end()) {
+        env.insert_or_assign(name.getLexeme(), value);
+        return;  
     }
     if (enclosing != nullptr) {
       enclosing->assign(name, value);

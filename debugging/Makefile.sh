@@ -1,6 +1,6 @@
 #!bin/bash 
 
-INCLUDE=" -I ../types/ -I ../logging/ -I ../asm/ -I ../catch/ -I ../tokens/ -I ../languages/ -I ../interface/ -I ../ast/ -I ../cfg/ -I 
+INCLUDE=" -I ../types/ -I ../logging/ -I ../asm/ -I ../catch/ -I ../tokens/ -I ../interface/ -I ../ast/ -I ../cfg/ -I 
              ../declarations/ -I ../definitions/ -I ../runtime/ -I ../interpreter/ -I ../scanner/ -I ../parser/ -I ../addon/ -I ../threading/ -I ../environment/"
 LDFLAGS=" -L $HOME/Public-Projects/logging -lgtest -lgtest_main -pthread"
 
@@ -30,22 +30,12 @@ g++ -g -std=c++17 -fconcepts $INCLUDE -c ../scanner/scanner.cc -o scanner.o
 echo "Building the expression types object files"
 g++ -g -std=c++17 -fconcepts $INCLUDE -DENABLE_TREE_BUILD=1  -DENABLE_TATICAL_NUKE=1  -c ../cfg/context_free_grammar.cc -o context_free_grammar.o
 
-
 echo "Build object file for parser.cc"
 g++ -w -g -std=c++17 -fconcepts $INCLUDE -c ../parser/parser.cc -o parser.o
 
-echo "Creating debugging object files and executables for ast"
+echo "Creating object files and executables for ast"
 g++ -g -std=c++17 -fconcepts $INCLUDE -c ../ast/abstraction_tree_syntax.cc -o abstraction_tree_syntax.o 
-g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 $INCLUDE  -c ../debugging/debug_ast.cc -o debug_abstraction_tree_syntax.o 
-g++ -g -std=c++17 -fconcepts parser.o context_free_grammar.o scanner.o abstraction_tree_syntax.o token.o logging.o debug_abstraction_tree_syntax.o -o exec_debug_abstraction_tree_syntax
-#g++ -g -std=c++17 -fconcepts $INCLUDE -c ../tests/test_ast.cc -o test_abstraction_tree_syntax.o 
-#g++ -g -std=c++17 -fconcepts -D RADNOM_EXTENSIONS=0 scanner.o test_abstraction_tree_syntax.o abstraction_tree_syntax.o languages.o token.o logging.o -o test_abstraction_tree_syntax $LDFLAGS
 
-echo "Creating debugging object files and executables for parser"
-g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../debugging/debug_parser.cc -o debug_parser.o
-g++ -g -std=c++17 -fconcepts context_free_grammar.o token.o scanner.o  parser.o logging.o debug_parser.o -o exec_debug_parser
-g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../tests/test_parser.cc -o test_parser.o
-#g++ -g -std=c++17 -fconcepts context_free_grammar.o scanner.o abstraction_tree_syntax.o parser.o languages.o token.o logging.o test_parser.o -o test_parser $LDFLAGS
 
 echo "Creating debugging object files and executables for truthy"
 g++ -g -std=c++17 -fconcepts $INCLUDE  -c ../interpreter/language_specific_truthy_operations.cc -o language_specific_truthy_operations.o 
@@ -80,10 +70,21 @@ g++ -g -std=c++17 -fconcepts logging.o test_environment.o -o test_environment $L
 echo "Creating debugging object files and executables for interpreter"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -DENABLE_EVALUATED_EXPRESSIONS=1 -c ../interpreter/interpreter.cc -o interpreter.o 
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1  -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
-g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o abstraction_tree_syntax.o environment.o interpreter.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o logging.o debug_interpreter.o -o exec_debug_interpreter
+g++ -g -std=c++17 -fconcepts scanner.o parser.o interpreter.o context_free_grammar.o abstraction_tree_syntax.o environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o logging.o debug_interpreter.o -o exec_debug_interpreter
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++17 -fconcepts interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o logging.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 
+#echo "Creating debug object files for ast"
+#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 $INCLUDE  -c ../debugging/debug_ast.cc -o debug_abstraction_tree_syntax.o 
+#g++ -g -std=c++17 -fconcepts interpreter.o parser.o context_free_grammar.o scanner.o abstraction_tree_syntax.o token.o logging.o debug_abstraction_tree_syntax.o -o exec_debug_abstraction_tree_syntax
+#g++ -g -std=c++17 -fconcepts $INCLUDE -c ../tests/test_ast.cc -o test_abstraction_tree_syntax.o 
+#g++ -g -std=c++17 -fconcepts -D RADNOM_EXTENSIONS=0 scanner.o test_abstraction_tree_syntax.o abstraction_tree_syntax.o languages.o token.o logging.o -o test_abstraction_tree_syntax $LDFLAGS
+
+#echo "Creating debugging object files for parser"
+#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../debugging/debug_parser.cc -o debug_parser.o
+#g++ -g -std=c++17 -fconcepts interpreter.o context_free_grammar.o token.o scanner.o  parser.o logging.o debug_parser.o -o exec_debug_parser
+#g++ -g -std=c++17 -fconcepts -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 $INCLUDE -c ../tests/test_parser.cc -o test_parser.o
+#g++ -g -std=c++17 -fconcepts context_free_grammar.o scanner.o abstraction_tree_syntax.o parser.o languages.o token.o logging.o test_parser.o -o test_parser $LDFLAGS
 
 echo "Compiling main.cc!"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -c ../main.cc -o main.o

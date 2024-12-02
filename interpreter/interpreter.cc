@@ -1,45 +1,15 @@
 #include <interpreter.h>
-#include <abstraction_tree_syntax.h>
+Environment::environment* interpreter::env = new Environment::environment();
 /** -------------------------------------------------
  * @brief Calls in evaluate mehtod to begin the evaluation 
  * 
 */
-interpreter::interpreter(Vector<astTree<int, String, ExprVariant>>& expr) {
+interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt) {
     try {
-        for (auto& it : expr) {
-            auto& [intVal, pairVal] = it;
-            if (pairVal.first == "Binary") {
-                if (std::holds_alternative<Expr*>(pairVal.second)) {
-                    auto& conv = std::get<Expr*>(pairVal.second);
-                    if (auto binary = dynamic_cast<Binary*>(conv)) {
-                        evaluatedExpressions.push_back(std::move(std::any_cast<String>(visitBinaryExpr(binary))));
-                    }   
-                }
-            }
-            if (pairVal.first == "Statement") {
-                if (std::holds_alternative<Expr*>(pairVal.second)) {
-                    auto& conv = std::get<Expr*>(pairVal.second);
-                    //if (auto stmt = dynamic_cast<Statement*>(conv))
-                       //value.insert(std::any_cast<String>(visitStmtExpr(stmt)));
-                }
-            }
-            if (pairVal.first == "Block") {
-                if (std::holds_alternative<Expr*>(pairVal.second)) {
-                    auto& conv = std::get<Expr*>(pairVal.second);
-                    if (auto blk = dynamic_cast<Block*>(conv)) {
-                       evaluatedExpressions.push_back(std::move(std::any_cast<String>(visitBlockStmt(blk))));
-                    }   
-                }
-            }
-            if (pairVal.first == "EcoSystem") {
-                if (std::holds_alternative<Expr*>(pairVal.second)) {
-                    auto& conv = std::get<Expr*>(pairVal.second);
-                    //if (auto ecosystem = dynamic_cast<EcoSystem*>(conv))
-                        //value.push_back(std::any_cast<String>(visitEcoSystemExpr(binary)));
-                }
-            }
+        for (auto &it: stmt) {
+            if (auto conv = dynamic_cast<Statement*>(it))
+                execute(conv);
         }
-        currentEnvEle++; // Increment the value to keep track of what has been parsed or is being parsed
     } 
     catch (runtimeerror<interpreter>& e) {
         std::cout << "Logs have been updated!" << std::endl;
@@ -56,14 +26,13 @@ interpreter::interpreter(Vector<astTree<int, String, ExprVariant>>& expr) {
  */
 String interpreter::evaluate(auto conv) {
     if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
-    //else if (auto stmt = dynamic_cast<Statement*>(conv)) return conv->accept(stmt, false);
     else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
     else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
     else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
+    else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(assign, false);
     else { throw new catcher<interpreter>("Unexpected type in evaluate function"); }
     return nullptr;
 }
-
 /** ---------------------------------------------------------------------------
  * @brief visits the Binary abstraction syntax tree 
  * 
@@ -73,7 +42,7 @@ String interpreter::evaluate(auto conv) {
  * 
  * ---------------------------------------------------------------------------
 */
-Any interpreter::visitBinaryExpr(auto& expr) {
+Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     Any left = evaluate(expr->left);
     Any right = evaluate(expr->right);
     switch (expr->op.getType()) {
@@ -134,56 +103,49 @@ Any interpreter::visitBinaryExpr(auto& expr) {
     return nullptr;
 }
 
-String interpreter::executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
-    /*String res; 
+Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
+    String res;
+    if (auto conv = dynamic_cast<Expression*>(stmt))
+        res += evaluate(conv->initializer->expression);
+    return res;
+}
+
+Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
+    String res;
+    if (auto conv = dynamic_cast<Print*>(stmt))
+        res += evaluate(conv->initializer->expression);
+    return res;
+}
+Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
+    if (auto conv = dynamic_cast<Variable*>(expr))
+        return env->get(expr->op);
+    return "\0";
+}
+void interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
+    Any value = nullptr;
+    if (stmt->initializer != nullptr) {
+      value = evaluate(stmt->initializer);
+    }
+    env->define(stmt->op.getLexeme(), value);
+    return;
+}
+Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
+    Any value = evaluate(expr->expression);
+    env->assign(expr->op, value);
+    return value;
+}
+void interpreter::visitBlockStmt(ContextFreeGrammar::Block* stmt) { 
+    this->executeBlock(stmt->statements, new Environment::environment(*env));
+}
+void interpreter::executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
     Environment::environment* previous = this->env;
     try {
         this->env = environment;
         for (const auto& statement : statements) {
-            res += evaluate(statement);
+            execute(statement);
         }
     } catch(...) { this->env = previous; }
     this->env = previous;
-    return res;*/
-    return "\0";
-}
-
-String interpreter::stringify(Any object) {
-    if (!object.has_value()) return "nil";
-    /*if (instanceof<double>(object)) {
-        double value = std::any_cast<double>(object);
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(15) << value;
-        String text = oss.str();
-        
-        // Remove trailing zeros
-        while (text.find('.') != String::npos && (text.back() == '0' || text.back() == '.')) {
-            text.pop_back();
-            if (text.back() == '.') {
-                text.pop_back();
-                break;
-            }
-        }
-        return text;
-    }
-    if (instanceof<bool>(object)) {
-        return std::any_cast<bool>(object) ? "true" : "false";
-    }
-    if (instanceof<String>(object)) {
-        return std::any_cast<String>(object);
-    }
-    if (instanceof<int>(object)) {
-        return std::to_string(std::any_cast<int>(object));
-    }*/
-    
-    // Add more type checks as needed here!
-    
-    // Try to convert object to string if there was no match
-    try {
-        return std::any_cast<String>(object);
-    } catch (const std::bad_any_cast&) {
-        return "<?>";  // Unknown type
-    }
 }
 /** ---------------------------------------------------------------
  * @brief A simple method that checks the instance using generics methods inside of it

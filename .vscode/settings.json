@@ -1,6 +1,8 @@
 {
     "files.associations": {
-      "any": "cpp"
+      "any": "cpp",
+      "typeindex": "cpp",
+      "type_traits": "cpp"
     },
     "C_Cpp_Runner.cCompilerPath": "gcc",
     "C_Cpp_Runner.cppCompilerPath": "g++",

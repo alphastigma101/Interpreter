@@ -22,11 +22,12 @@ static void run(std::string& source) {
     std::thread build([&stmt]() {
         return ast(stmt);
     });
-    interpreter interp(cTree);
+    if (hadError) return;
+    interpreter interp(stmt);
     if (build.joinable()) {
         build.join();
     }
-   cTree.clear();
+   //cTree.clear();
 
 }
 /** ------------------------------------------------------------------------- 

@@ -26,7 +26,7 @@ namespace ContextFreeGrammar {
             inline Any compute(Any& a, Any& b, auto& expr) { return static_cast<Derived*>(this)->compute(a, b, expr);};
     };
     //template<class Derived>
-    class Expr /*: public Visitor<Derived>*/ {
+    class Expr {
         /** ------------------------------------------------------------------------------------------
          * @brief A representation of an abstraction classs which is also considered as a disoriented object
          *
@@ -39,6 +39,7 @@ namespace ContextFreeGrammar {
          * ------------------------------------------------------------------------------------------
         */
         public:
+            Visitor<Interpreter::interpreter>* interp;
             virtual ~Expr() noexcept = default;
             /** --------------------------------------------------------
              * @brief left represents the left binary node.
@@ -70,7 +71,7 @@ namespace ContextFreeGrammar {
         protected:
             int idx = 0;
     };
-    class Binary: public Expr, public catcher<Binary>, public Evaluation<Binary>, protected runtimeerror<Binary> {
+    class Binary: public Expr, public catcher<Binary>, protected runtimeerror<Binary> {
         /** --------------------------------------------------------------------
              * @brief A class that represents a binary abstraction syntax tree
              * 
@@ -94,61 +95,11 @@ namespace ContextFreeGrammar {
             friend class Evaluation<Binary>;
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
-            inline String visit(Expr* expr, bool tree = true) override { 
-                String result;
-                if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr->left, expr->right);
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        Any res = eval.compute(leftResult, rightResult, expr);
-                        if (!res.has_value()) 
-                            throw new runtimeerror<Binary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        else
-                            result = std::any_cast<String>(res);
-                    }
-                    catch(...) {
-                        try {
-                            Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
-        private:
-            inline static Evaluation<Binary> eval{};
-            static Any compute(Any& a, Any& b, auto& expr);
-            /** --------------------------------------------
-             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
-             * 
-             * @param value Is an any container that will always have a string value inside of it
-             * 
-             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
-             * 
-             * @details ...
-             * 
-             * @return Returns a complex any container that will hold two values 
-             * 
-            */
-            template<typename T>
-            inline static bool isOther(const Any value) {
-                return false;
-            };
-            template<class T>
-            static bool instanceof(const Any& object);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
-            template<class T>
-            static bool isNumeric(const Any value);
-            static Any toNumeric(Any& value);
-            static Any toOther(Any& lhs, Any& rhs);
+            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            String acceptHelper(Expr* visitor, bool tree = true);
+            inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
+        protected:
+            explicit Binary() = default;
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Binary>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -204,9 +155,7 @@ namespace ContextFreeGrammar {
                 }
                 return output.c_str();
             };
-            String parenthesize(String name, Expr* left, Expr* right);
-       
-           
+            String parenthesize(String name, Expr* left, Expr* right);     
     };
     class Unary: public Expr, public catcher<Unary>, public logging<Unary>, public Evaluation<Unary>, protected runtimeerror<Unary> {
         public:
@@ -219,6 +168,7 @@ namespace ContextFreeGrammar {
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            //String acceptHelper(Expr* visitor, bool tree = true);
         private:
             inline static Evaluation<Unary> eval{};
             static Any compute(Any& a, Any& b, auto& expr);
@@ -339,6 +289,7 @@ namespace ContextFreeGrammar {
             explicit Grouping(Expr* expression);
             ~Grouping() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            //String acceptHelper(Expr* visitor, bool tree = true);
         private:
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
@@ -366,6 +317,7 @@ namespace ContextFreeGrammar {
             explicit Literal(const Token&& oP);
             ~Literal() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            //String acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true) {
                     if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
@@ -391,7 +343,7 @@ namespace ContextFreeGrammar {
         protected:
             Literal() = default; 
     };
-    class Assign: public Expr, public catcher<Assign>, public Evaluation<Assign>, protected runtimeerror<Assign> {
+    class Assign: public Expr, public catcher<Assign>, protected runtimeerror<Assign> {
         public:
             friend class catcher<Assign>; // Use to output a message
             friend class runtimeerror<Assign>;
@@ -402,6 +354,7 @@ namespace ContextFreeGrammar {
             explicit Assign(const Token &op, Expr* expr);
             ~Assign() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            String acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { 
                 String result;
                 if (tree == true)
@@ -430,32 +383,8 @@ namespace ContextFreeGrammar {
                 }
                 return result;
             };
-        private:
-            inline static Evaluation<Functions> eval{};
-            //static Any compute(Any& a, Any& b, auto& expr);
-            /** --------------------------------------------
-             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
-             * 
-             * @param value Is an any container that will always have a string value inside of it
-             * 
-             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
-             * 
-             * @details ...
-             * 
-             * @return Returns a complex any container that will hold two values 
-             * 
-            */
-            template<typename T>
-            inline static bool isOther(const Any value) {
-                return false;
-            };
-            /*template<class T>
-            static bool instanceof(const Any& object);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
-            template<class T>
-            static bool isNumeric(const Any value);
-            static Any toNumeric(Any& value);
-            static Any toOther(Any& lhs, Any& rhs);*/
+        protected:
+            explicit Assign() = default;
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Assign>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -520,6 +449,7 @@ namespace ContextFreeGrammar {
             Variable(const Token&& oP);
             ~Variable() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            String acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { 
                 if (tree == true) {
                     if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
@@ -529,6 +459,7 @@ namespace ContextFreeGrammar {
                     return expr->op.getLexeme();
             };
         protected:
+            explicit Variable() = default;
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -544,7 +475,7 @@ namespace ContextFreeGrammar {
             inline static const char* what(const char* msg = catcher<Variable>::getMsg()) throw() { return msg;};
     };
     //template<class Derived>
-    class Statement /*: public Visitor<Derived>*/ {
+    class Statement {
         /** ------------------------------------------------------------------------------------------
          * @brief A representation of an abstraction classs which is also considered as a disoriented object
          *
@@ -557,6 +488,7 @@ namespace ContextFreeGrammar {
          * ------------------------------------------------------------------------------------------
         */
         public:
+            Visitor<Interpreter::interpreter>* interp;
             virtual ~Statement() noexcept = default;
             /** --------------------------------------------------------
              * @brief initializer represents the value.
@@ -584,38 +516,12 @@ namespace ContextFreeGrammar {
             friend class Visitor<Print>;
             Print(Expr* initalizer);
             ~Print() noexcept = default;
-            inline String accept(Statement* visitor, bool tree = true) override { return visit(this, tree); };
-            inline String visit(Statement* stmt, bool tree = true) override {
-                String result;
-                if (tree == true)
-                    return parenthesize("Print", stmt
-                    );
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        /*Any res = eval.compute(leftResult, rightResult, expr);
-                        if (!res.has_value()) 
-                            throw new runtimeerror<Statement>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        else
-                            result = std::any_cast<String>(res);*/
-                    }
-                    catch(...) {
-                        try {
-                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
+            String acceptHelper(Statement* visitor, bool tree = true);
+            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("Print", stmt); };
             String parenthesize(String name, Statement* stmt);
         protected:
+            Print() = default;
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -629,46 +535,18 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Print>::getMsg()) throw() { return msg;};
-        private:
-            //
     };
     class Var: public Statement, public catcher<Var> {
         public:
             friend class catcher<Var>; // Use to output a message
-            friend class Visitor<Var>;
             Var(const Token& op, Expr* initalizer);
             ~Var() noexcept = default;
-            inline String accept(Statement* visitor, bool tree = true) override { return visit(this, tree); };
-            inline String visit(Statement* stmt, bool tree = true) override {
-                String result;
-                if (tree == true)
-                    return parenthesize(stmt->op.getLexeme(), stmt);
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        /*Any res = eval.compute(leftResult, rightResult, expr);
-                        if (!res.has_value()) 
-                            throw new runtimeerror<Statement>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        else
-                            result = std::any_cast<String>(res);*/
-                    }
-                    catch(...) {
-                        try {
-                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
+            String acceptHelper(Statement* visitor, bool tree = true);
+            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("Var", stmt); };
             String parenthesize(String name, Statement* left);
         protected:
+            explicit Var() = default;
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
                  * @brief A method that is overloaded by this class 
@@ -682,8 +560,6 @@ namespace ContextFreeGrammar {
                  * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Var>::getMsg()) throw() { return msg;};
-        private:
-            //
     };
     class Expression: public Statement, public catcher<Expression> {
         public:
@@ -691,37 +567,12 @@ namespace ContextFreeGrammar {
             friend class Visitor<Expression>;
             Expression(Expr* initalizer);
             ~Expression() noexcept = default;
-            inline String accept(Statement* visitor, bool tree = true) override { return visit(this, tree); };
-            inline String visit(Statement* stmt, bool tree = true) override {
-                String result;
-                if (tree == true)
-                    return parenthesize(stmt->op.getLexeme(), stmt);
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        /*Any res = eval.compute(leftResult, rightResult, expr);
-                        if (!res.has_value()) 
-                            throw new runtimeerror<Statement>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        else
-                            result = std::any_cast<String>(res);*/
-                    }
-                    catch(...) {
-                        try {
-                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
+            String acceptHelper(Statement* visitor, bool tree = true);
+            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            inline String visit(Statement* stmt, bool tree = true) override { return parenthesize(stmt->op.getLexeme(), stmt); };
             String parenthesize(String name, Statement* stmt);
         protected:
+            explicit Expression() = default;
             inline static logTable<Map<String, Vector<String>>> logs_{};
             /** --------------------------------------
                  * @brief A method that is overloaded by this class 
@@ -735,10 +586,8 @@ namespace ContextFreeGrammar {
                  * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<Expression>::getMsg()) throw() { return msg;};
-        private:
-            //
     };
-    class Block: public Statement, public catcher<Block>, public Evaluation<Block>, protected runtimeerror<Block> {
+    class Block: public Statement, public catcher<Block>, protected runtimeerror<Block> {
         public:
             friend class catcher<Block>; // Use to output a message
             friend class runtimeerror<Block>;
@@ -748,61 +597,11 @@ namespace ContextFreeGrammar {
             friend class Evaluation<Block>;
             explicit Block(Vector<ContextFreeGrammar::Statement*>&& statements);
             ~Block() noexcept = default;
-            String accept(Statement* visitor, bool tree = true) override { return visit(this, tree); };
-            inline String visit(Statement* stmt, bool tree = true) override { 
-                String result;
-                if (tree == true)
-                    return parenthesize(std::move(stmt->statements));
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        //Any res = eval.compute(leftResult, rightResult, expr);
-                        //if (!res.has_value()) 
-                            //throw new runtimeerror<Binary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        //else
-                            //result = std::any_cast<String>(res);
-                    }
-                    catch(...) {
-                        try {
-                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
-        private:
-            inline static Evaluation<Block> eval{};
-            //static Any compute(Any& a, Any& b, auto& expr);
-            /** --------------------------------------------
-             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
-             * 
-             * @param value Is an any container that will always have a string value inside of it
-             * 
-             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
-             * 
-             * @details ...
-             * 
-             * @return Returns a complex any container that will hold two values 
-             * 
-            */
-            template<typename T>
-            inline static bool isOther(const Any value) {
-                return false;
-            };
-            /*template<class T>
-            static bool instanceof(const Any& object);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
-            template<class T>
-            static bool isNumeric(const Any value);
-            static Any toNumeric(Any& value);
-            static Any toOther(Any& lhs, Any& rhs);*/
+            String acceptHelper(Statement* visitor, bool tree = true);
+            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            inline String visit(Statement* stmt, bool tree = true) override {  return parenthesize(std::move(stmt->statements)); };
+        protected:
+            explicit Block() = default;
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Block>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -962,32 +761,8 @@ namespace ContextFreeGrammar {
                 }
                 return result;
             };
-        private:
-            inline static Evaluation<Functions> eval{};
-            //static Any compute(Any& a, Any& b, auto& expr);
-            /** --------------------------------------------
-             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
-             * 
-             * @param value Is an any container that will always have a string value inside of it
-             * 
-             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
-             * 
-             * @details ...
-             * 
-             * @return Returns a complex any container that will hold two values 
-             * 
-            */
-            template<typename T>
-            inline static bool isOther(const Any value) {
-                return false;
-            };
-            /*template<class T>
-            static bool instanceof(const Any& object);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
-            template<class T>
-            static bool isNumeric(const Any value);
-            static Any toNumeric(Any& value);
-            static Any toOther(Any& lhs, Any& rhs);*/
+        protected:
+            explicit Functions() = default;
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Functions>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};

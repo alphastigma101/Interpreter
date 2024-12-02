@@ -1,8 +1,14 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
+#include <abstraction_tree_syntax.h>
 namespace Interpreter {
-    class interpreter: protected truthyOperations, protected binaryOperations, protected unaryOperations, public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
+    class interpreter: protected ContextFreeGrammar::Binary,
+                    protected ContextFreeGrammar::Variable, protected ContextFreeGrammar::Assign, protected ContextFreeGrammar::Var, 
+                    protected ContextFreeGrammar::Block, 
+                    protected ContextFreeGrammar::Print,  public Visitor<interpreter>, protected truthyOperations, 
+                    protected binaryOperations, protected unaryOperations, public logging<interpreter>, 
+                    protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
             friend class catcher<interpreter>; // Useful for one error
             friend class runtimeerror<interpreter>; 
@@ -10,20 +16,30 @@ namespace Interpreter {
              * @brief A constructor that handles the traversing of the ast
              * ------------------------------------------------
             */
-            explicit interpreter(Vector<astTree<int, String, ExprVariant>>& expr);
+            explicit interpreter(Vector<ContextFreeGrammar::Statement*>& stmt);
             ~interpreter() noexcept = default;
-            static Any visitBinaryExpr(auto& expr);
-            inline Any visitBlockStmt(auto& stmt) { return executeBlock(stmt->statements, new Environment::environment(*env));};
-            String executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment);
+            //truthyOperations* tO = new truthyOperations();
+            //binaryOperations* bO = new binaryOperations();
+            //unaryOperations* uO = new unaryOperations();
+            static Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
+            void visitBlockStmt(ContextFreeGrammar::Block* stmt);
+            static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
+            static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
+            static Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
+            static void visitVarStmt(ContextFreeGrammar::Var* stmt);
+            static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
+            void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment);
         private:
+            inline void execute(ContextFreeGrammar::Statement* stmt) {
+                stmt->accept(stmt, false);
+            };
             inline static Check<interpreter> check{};
             inline static logTable<Map<String, Vector<String>>> logs_{};
-            Environment::environment* env = new Environment::environment();
+            static Environment::environment* env;
             template<typename T>
             static bool instanceof(const Any& object);
         protected:
             static String evaluate(auto conv);
-            static String stringify(Any object);
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 

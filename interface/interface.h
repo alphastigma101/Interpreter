@@ -8,8 +8,9 @@ class Conv {
     // An abstract class is used to convert types of a class object into a string 
     public:
         ~Conv() noexcept = default;
-        inline Any toString() { return static_cast<Type*>(this)->toString();};
-        inline Any toNumeric(Any& value) { return static_cast<Type*>(this)->toNumeric(value); };
+        template<typename Sig>
+        inline Sig toString() { return static_cast<Type*>(this)->toString();};
+        inline Any toNumeric(Any& value) { return static_cast<Type*>(this)->toNumeric(value);};
         inline Any toOther(Any& lhs, Any& rhs) { return static_cast<Type*>(this)->toOther(lhs, rhs); };
 };
 template<class Type>
@@ -26,14 +27,17 @@ class Check {
         inline bool instanceof(const Any& object) { return static_cast<Type*>(this)->template instanceof<T>(object);};
 };
 
-template<class Type>
+template <typename Derived>
 class Visitor {
     public:
-        template<typename... Args>
-        inline String visit(Args&&... args) {  return static_cast<Type*>(this)->visit(std::forward<Args>(args)...); };
-        template<typename... Args>
-        inline String accept(Args&&... args) {  return static_cast<Type*>(this)->accept(std::forward<Args>(args)...);  };
+        // Visit Binary Expression
+        inline Any visitBinaryExpr(ContextFreeGrammar::Binary* expr) { return static_cast<Derived*>(this)->visitBinaryExpr(expr); };
+        // Visit Block Statement
+        inline void visitBlockStmt(ContextFreeGrammar::Block* stmt) { return static_cast<Derived*>(this)->visitBlockStmt(stmt); };
+        inline Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt) { return static_cast<Derived*>(this)->visitExpressionStmt(stmt); };
+        inline Any visitPrintStmt(ContextFreeGrammar::Print* stmt) { return static_cast<Derived*>(this)->visitPrintStmt(stmt); };
+        inline Any visitVariableExpr(ContextFreeGrammar::Variable* expr) { return static_cast<Derived*>(this)->visitVariableExpr(expr); };
+        inline void visitVarStmt(ContextFreeGrammar::Var* stmt) { return static_cast<Derived*>(this)->visitVarStmt(stmt); };
+        inline Any visitAssignExpr(ContextFreeGrammar::Assign* expr) { return static_cast<Derived*>(this)->visitAssignExpr(expr); };
 };
-      
-
 #endif 

@@ -1,4 +1,5 @@
 #include <context_free_grammar.h>
+#include <interpreter.h>
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
  *
@@ -21,261 +22,7 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     auto binary = compressedAstTree(idx + 1, String("Binary"), this);
     cTree.push_back(std::move(binary));
 }
-//===============================================================================
-//
-//                              BINARY CRTP UTILITY SECTION
-//
-//===============================================================================
-// 
-// ┌─────────────────────────────────────────────────────────────────────────────┐
-// │                                                                             │
-// │  Purpose: Implements type checking and conversion functionality for the      │
-// │           Binary expression type using CRTP (Curiously Recurring Template    │
-// │           Pattern).                                                         │
-// │                                                                             │
-// │  Design Pattern: CRTP enables:                                             │
-// │    - Static polymorphism                                                   │
-// │    - Zero-overhead abstractions                                            │
-// │    - Compile-time binding                                                  │
-// │                                                                             │
-// │  Usage: These utilities are inherited by the Unary expression class to      │
-// │         provide type-safe operations without virtual function overhead.      │
-// │                                                                             │
-// └─────────────────────────────────────────────────────────────────────────────┘
-//
-//===============================================================================
 
-/** --------------------------
- * @brief Used for evaluating nested expressions 
- * 
- * @param a Can be an object that represents the left side of the expression
- * @param b Can be an object that represents the right side of the expression
- *
- * @details Returns a implicity converted object 
-*/
-Any Binary::compute(Any& a, Any& b, auto& expr) { 
-    switch (expr->op.getType()) {
-        case TokenType::GREATER:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) > std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) > std::any_cast<int>(eval.toNumeric(b)));
-            if (eval.instanceof<String>(a) && eval.instanceof<String>(b))
-                return std::any_cast<String>(a) > std::any_cast<String>(b);
-            return nullptr;
-        case TokenType::GREATER_EQUAL:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) >= std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) >= std::any_cast<int>(eval.toNumeric(b)));
-            if (eval.instanceof<String>(a) && eval.instanceof<String>(b)) 
-                return std::any_cast<String>(a) >= std::any_cast<String>(b);
-            return nullptr;
-        case TokenType::LESS:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) < std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) < std::any_cast<int>(eval.toNumeric(b)));
-            if (eval.instanceof<String>(a) && eval.instanceof<String>(b)) 
-                return std::any_cast<String>(a) < std::any_cast<String>(b);
-            return nullptr;
-        case TokenType::LESS_EQUAL:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) <= std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) <= std::any_cast<int>(eval.toNumeric(b)));
-            if (eval.instanceof<String>(a) && eval.instanceof<String>(b)) 
-                return std::any_cast<String>(a) <= std::any_cast<String>(b);
-            return nullptr;
-        case TokenType::MINUS:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) - std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) - std::any_cast<int>(eval.toNumeric(b)));
-            return nullptr;
-        case TokenType::PLUS:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) + std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) + std::any_cast<int>(eval.toNumeric(b)));
-            if (eval.instanceof<String>(a) && eval.instanceof<String>(b)) 
-                return std::any_cast<String>(a) + std::any_cast<String>(b);
-            return nullptr;
-        case TokenType::SLASH:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) / std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) / std::any_cast<int>(eval.toNumeric(b)));
-            return nullptr;
-        case TokenType::STAR:
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) * std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) * std::any_cast<int>(eval.toNumeric(b)));
-            return nullptr;
-        case TokenType::BANG_EQUAL: 
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) != std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) != std::any_cast<int>(eval.toNumeric(b)));
-            return nullptr;
-        case TokenType::EQUAL_EQUAL: 
-            if (eval.instanceof<double>(a) && eval.instanceof<double>(b))  
-                return std::to_string(std::any_cast<double>(eval.toNumeric(a)) == std::any_cast<double>(eval.toNumeric(b)));
-            if (eval.instanceof<int>(a) && eval.instanceof<int>(b))
-                return std::to_string(std::any_cast<int>(eval.toNumeric(a)) == std::any_cast<int>(eval.toNumeric(b)));
-            return nullptr;
-
-    }
-    return nullptr;
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that checks the instance using generics methods inside of it
- *
- * @param object Is an any container that always stores a String value.
- *               
- *
- * @details The parameter object will go through a series of generic methods to check and see if it is a supported type
- * ----------------------------------------------------------------
-*/
-template<class T>
-bool Binary::instanceof(const Any& object) {
-    try {
-        if (isNumeric<T>(object)) return true;
-        else if (isOther<T>(object)) return true;
-    } catch (...) {
-        return false;
-    }
-    return false;
-}
-/** --------------------------
- * @brief A generic method that, for now, checks for double and integer types
- * 
- * @param value Is an any container that will always hold a string value.
- * 
- * @details In order to support more types in the near future especially if it is numeric values,
- *          it should be iplemented in this method or in the isOther and toOther methods
-*/
-template<class T>
-bool Binary::isNumeric(const Any value) {
-    try {
-        String temp = std::move(std::any_cast<String>(value));
-        for (int i = 0; i < temp.length() - 1; i++) {
-            if (temp[i] == '.') {
-                try {
-                    if (typeid(std::stod(temp)) == typeid(T)) return true;
-                    return false;
-                }
-                catch(...) { return false; }
-                return true;
-            }
-        }
-        try {
-            if (typeid(std::stoi(temp)) == typeid(T)) return true;
-            return false;
-        }
-        catch(...) { return false; }
-    } catch (...) { return false; }
-    return false;    
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that converts the parameter object into a supported type
- *
- * @param value Some kind of value that must be a supported type
- *
- * @details The supported types are double for more precision and integer. 
- * ----------------------------------------------------------------
-*/
-Any Binary::toNumeric(Any& value) {
-    try {
-        String temp = std::any_cast<String>(value);
-        for (int i = 0; i < temp.length() - 1; i++) {
-            if (temp[i] == '.') {
-                try {
-                    return std::stod(temp);
-                }
-                catch(...) { return nullptr; }
-            }
-        }
-        try {
-            return std::stoi(temp);
-        }
-        catch(...) { return nullptr; }
-    } catch (...) { return nullptr; }
-    return nullptr;
-}
-/** --------------------------------------------
- * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
- * 
- * @param lhs Is an any container that will always have a string value inside of it
- * @param rhs Is an any container that will always have a string value inside of it
- * 
- * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
- * 
- * @details ...
- * 
- * @return Returns a complex any container that will hold two values 
- * 
-*/
-Any Binary::toOther(Any& lhs, Any& rhs) {
-    /*auto toList = [](String& temp) -> Any {
-        try {
-            if (temp.front() == '[' && temp.back() == ']') {
-                // Remove brackets and trim whitespace
-                String content = temp.substr(1, temp.length() - 2);
-                content.erase(0, content.find_first_not_of(" \t\n\r"));
-                content.erase(content.find_last_not_of(" \t\n\r") + 1);
-            
-                // Remove quotes from content if they exist
-                if (content.front() == '"' && content.back() == '"') {
-                    content = content.substr(1, content.length() - 2);
-                }
-            
-                // Dynamically allocate new list with the processed content
-                return new Nuke::core::list{content};
-            }
-            else 
-                return nullptr;
-        }
-        catch(...) { return nullptr; }
-        return nullptr; 
-    };
-    try {
-        Any res = std::make_any<String>(std::any_cast<String>(toList(lhs)), std::any_cast<String>(toList(rhs)));
-        if (res.has_value()) return std::any_cast<String>(res);
-        return nullptr; 
-    }
-    catch(...) { return nullptr; }
-    auto toMap = [](String& temp) -> Any {
-        try {
-            if (temp.front() == '{' && temp.back() == '}') {
-                // Remove brackets and trim whitespace
-                String content = temp.substr(1, temp.length() - 2);
-                content.erase(0, content.find_first_not_of(" \t\n\r"));
-                content.erase(content.find_last_not_of(" \t\n\r") + 1);
-            
-                // Remove quotes from content if they exist
-                if (content.front() == '"' && content.back() == '"') {
-                    content = content.substr(1, content.length() - 2);
-                }
-            
-                // Dynamically allocate new list with the processed content
-                return new Nuke::core::dict{content};
-            }
-            else 
-                return nullptr;
-        }
-        catch(...) { return nullptr; }
-        return nullptr; 
-    };
-    try {  
-        Any res = std::make_any<String>(std::any_cast<String>(toMap(lhs)), std::any_cast<String>(toMap(rhs)));
-        if (res.has_value()) return std::any_cast<String>(res);
-        return nullptr; 
-    }
-    catch(...) { return nullptr; }*/
-    return nullptr;
-}
    
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
@@ -750,6 +497,12 @@ String Binary::parenthesize(String name, Expr* left, Expr* right) {
     }
     return result + ")";
 }
+String Binary::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitBinaryExpr(this));
+}
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -794,6 +547,12 @@ String Print::parenthesize(String name, Statement* stmt) {
         result += initializer->accept(initializer);
     return result + ")";
 }
+String Print::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitPrintStmt(this));
+}
 /** -----------------------------
  * @brief .....
  * 
@@ -806,6 +565,13 @@ String Var::parenthesize(String name, Statement* stmt) {
     String result = "(Var" + String("(") + name + " ";
     if (initializer) result += initializer->accept(initializer);
     return result + "))";
+}
+String Var::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitVarStmt(this);
+    return "\0";
 }
 /** -----------------------------
  * @brief .....
@@ -820,6 +586,12 @@ String Expression::parenthesize(String name, Statement* stmt) {
     if (initializer) result += initializer->accept(initializer);
     return result + "))";
 }
+String Expression::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitExpressionStmt(this));
+}
 /** -----------------------------
  * @brief .....
  * 
@@ -832,6 +604,12 @@ String Assign::parenthesize(String name, Expr* expr) {
     String result = "(" + name + " ";
     if (expr) result += expr->accept(this);
     return result + ")";
+}
+String Assign::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitAssignExpr(this));
 }
 
 /** ---------------------------------------------------------------
@@ -852,6 +630,13 @@ String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
         else continue;
     }
     return result;
+}
+String Block::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitBlockStmt(this);
+    return "\0";
 }
 /** ---------------------------------------------------------------
  * @brief ...
