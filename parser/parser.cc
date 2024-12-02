@@ -128,8 +128,7 @@ Expr* parser::primary() {
         Token&& op = previous();
         return new Variable(std::move(op));
     }
-    std::cout << "Throwing!" << std::endl;
-    throw new parseError<parser>(peek(), "Expect expression.");
+    throw parseError<parser>(peek(), "Expect expression.");
 }
 /** --------------------------------------------------------------------------
  * @brief Expands into equality to start the recrusion
@@ -159,12 +158,12 @@ Statement* parser::statement() {
 }
 Statement* parser::printStatement() {
     auto value = expression();
-    consume(SEMICOLON, "Expect ';' after value.");
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
     return new Print(std::move(value));
 }
 Statement* parser::expressionStatement() {
     auto expr = expression();
-    consume(SEMICOLON, "Expect ';' after expression.");
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     return new Expression(std::move(expr));
 }
 Vector<ContextFreeGrammar::Statement*> parser::block() {
@@ -182,14 +181,16 @@ Statement* parser::declarations() {
         // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
-                TokenType::CONTAINMENT)) return varDeclaration();
+                TokenType::CONTAINMENT)) return varDeclaration(); /* return new Types(varDeclaration());*/
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
         std::cout << "Logs have been updated!" << std::endl;
-        logging<parser> logs(logs_, e.what());
-        logs.update();
+        auto err = String(error() + String(" Got '") + String(previous().getLexeme()) + String("' instead."));
+        logging<parser> logs(std::move(err));
+        std::cout << err << std::endl;
         logs.rotate();
+        logs_ = logs.getLogs();
         return nullptr;
     }
 }
@@ -278,9 +279,9 @@ Vector<Statement*> parser::parse() {
     }
     catch (parseError<parser>& e) { 
         std::cout << "Logs have been updated!" << std::endl;
-        logging<parser> logs(logs_, e.what());
-        logs.update();
+        logging<parser> logs(error());
         logs.rotate();
+        logs_ = logs.getLogs();
         return statements; 
     }
 }
@@ -312,10 +313,10 @@ String parser::error() {
 */            
 String parser::report(int line, const String where, const String message) throw() {
     String err = "[line " + std::to_string(line) + "] Error" + where +  ": " + message;
-    logging<parser> logs(logs_, err); // Keep the logs updated throughout the whole codebase
-    logs.update();
+    logging<parser> logs(err);
     logs.write();
     logs.rotate();
+    logs_ = logs.getLogs();
     return err;
 }
 void parser::printNodes() {

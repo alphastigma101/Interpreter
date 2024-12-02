@@ -6,7 +6,7 @@ class catcher {
         explicit catcher() = default;
         inline static char* getMsg() { return message_; };
         explicit catcher(const char* message) { message_ = const_cast<char*>(message); };
-        inline const char* what(const char* msg = getMsg()) throw() { return static_cast<Type*>(this)->what(msg); };
+        inline const char* what(const char* msg = getMsg()) throw() { return msg; };
         ~catcher() = default;
     private:
         static char* message_;

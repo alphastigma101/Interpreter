@@ -137,8 +137,8 @@ namespace ContextFreeGrammar {
                 }
                 catch(catcher<Binary>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<Binary> logs(logs_, e.what());
-                    logs.update();
+                    logging<Binary> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();
@@ -204,8 +204,8 @@ namespace ContextFreeGrammar {
                 }
                 catch(catcher<Unary>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<Unary> logs(logs_, e.what());
-                    logs.update();
+                    logging<Unary> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();
@@ -368,8 +368,8 @@ namespace ContextFreeGrammar {
                 }
                 catch(catcher<Assign>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<Assign> logs(logs_, e.what());
-                    logs.update();
+                    logging<Assign> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();
@@ -580,8 +580,8 @@ namespace ContextFreeGrammar {
                 }
                 catch(catcher<Block>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<Block> logs(logs_, e.what());
-                    logs.update();
+                    logging<Block> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();
@@ -737,8 +737,8 @@ namespace ContextFreeGrammar {
                 }
                 catch(catcher<Functions>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<Functions> logs(logs_, e.what());
-                    logs.update();
+                    logging<Functions> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();

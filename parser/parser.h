@@ -3,19 +3,12 @@
 #include <abstraction_tree_syntax.h>
 namespace Parser {
     template<class Derived>
-    class parseError: public catcher<Derived> {
+    class parseError {
         public:
             friend class parser;
-            // TODO: This constructor is not needed because it is a abstracted class 
             explicit parseError<Derived>(const Token& t, const String& msg) {
-                try {
-                    token = std::move(t);
-                    message = std::move(msg);
-                }
-                catch(...) {
-                    std::cout << "Logs have been updated!" << std::endl;
-
-                }
+                token = std::move(t);
+                message = std::move(msg);
             };
             ~parseError() = default;
             /** --------------------------------------------------------------------------------------
@@ -40,7 +33,7 @@ namespace Parser {
             inline static Token token;
             inline static std::string message;
     };
-    class parser: public parseError<parser>, public logging<parser> {
+    class parser: protected parseError<parser>, public logging<parser> {
         /** ----------------------------------------------------------------------------------------------------------------------------
          * @brief  object that represents a parser. 
          * @details To add more to the parser, you need to add the new rules to the existing grammar, and define it them inside the class field 
@@ -48,6 +41,7 @@ namespace Parser {
         */
         public:
             friend class parseError;
+            friend class ParserTest;
             /** ----------------------------------------------------------------------------------------------------------
              * @brief Copy constructor. You will need a default constructor if you want to inherit from this constructor
              * 
@@ -163,13 +157,12 @@ namespace Parser {
                     }
                 };
                 clear();*/
-                throw new parseError<parser>(peek(), message);
+                throw parseError<parser>(peek(), message);
             };
         private:
             Vector<Token> tokens_;
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static logTable<Map<String, Vector<String>>> logs_{};
             int current = 0;
-            int idx = 0;
             static String error();
             static String report(int line, const String where, const String message) throw();
     };

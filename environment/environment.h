@@ -21,6 +21,7 @@ namespace Environment {
             static String get(Token name);
             static void define(String name, Any value);
             static void assign(Token name, Any value);
+            inline static Map<String, Any> getMap() { return env; };
         private:
             /** --------------------------------------------------------------------------
                 * @brief A map that holds a map and a vector 

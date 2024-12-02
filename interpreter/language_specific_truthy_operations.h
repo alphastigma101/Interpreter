@@ -52,8 +52,8 @@ namespace TruthyOperations {
                 }
                 catch(catcher<truthyOperations>& e) {
                     std::cout << "A new log entry has been added." << std::endl;
-                    logging<unaryOperations> logs(logs_, e.what());
-                    logs.update();
+                    logging<unaryOperations> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
             };

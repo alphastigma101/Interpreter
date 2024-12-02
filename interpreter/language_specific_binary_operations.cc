@@ -122,9 +122,9 @@ bool binaryOperations::is_registered(const Any& a) {
     catch(catcher<binaryOperations>& e) {
         std::cout << e.getMsg() << std::endl;
         std::cout << "Logs have been updated! will Atempt to regiester type..." << std::endl;
-        logging<binaryOperations> logs(logs_, e.what(e.getMsg()));
-        logs.update();
+        logging<binaryOperations> logs(e.what(e.getMsg()));
         logs.rotate();
+        logs_ = logs.getLogs();
     }
     return false;
 }

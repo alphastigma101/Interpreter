@@ -43,9 +43,10 @@ namespace UnaryOperations {
                 }
                 catch(catcher<unaryOperations>& e) {
                     std::cout << "A new log entry has been added." << std::endl;
-                    logging<unaryOperations> logs(logs_, e.what());
-                    logs.update();
+                    logging<unaryOperations> logs(e.what());
                     logs.rotate();
+                    logs_ = logs.getLogs();
+                    
                 }
             };
         protected:

@@ -13,9 +13,9 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt) {
     } 
     catch (runtimeerror<interpreter>& e) {
         std::cout << "Logs have been updated!" << std::endl;
-        logging<interpreter> logs(logs_, e.what(e.getType<TokenType>(), e.getMsg()));
-        logs.update();
+        logging<interpreter> logs(e.what(e.getType<TokenType>(), e.getMsg()));
         logs.rotate();
+        logs_ = logs.getLogs();
     }                              
 }
 /** ------------------------------------------------
@@ -30,7 +30,7 @@ String interpreter::evaluate(auto conv) {
     else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
     else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
     else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(assign, false);
-    else { throw new catcher<interpreter>("Unexpected type in evaluate function"); }
+    else { throw catcher<interpreter>("Unexpected type in evaluate function"); }
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ bool interpreter::instanceof(const Any& object) {
         else if (isOther<T>(object)) return true;
         return false;
     } catch (...) {
-        throw new catcher<interpreter>("Unknown Type!");
+        throw catcher<interpreter>("Unknown Type!");
     }
     return false;
 }

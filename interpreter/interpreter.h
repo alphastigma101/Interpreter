@@ -30,6 +30,7 @@ namespace Interpreter {
             static void visitVarStmt(ContextFreeGrammar::Var* stmt);
             static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
             void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment);
+            inline Environment::environment* getEnv() { return env; };
         private:
             inline void execute(ContextFreeGrammar::Statement* stmt) {
                 stmt->accept(stmt, false);
@@ -75,12 +76,12 @@ namespace Interpreter {
                         return output.c_str();
                     }
                     else 
-                        throw new catcher<interpreter>("In interpreter class: Error! conversion has failed!");
+                        throw catcher<interpreter>("In interpreter class: Error! conversion has failed!");
                 }
                 catch(catcher<interpreter>& e) {
                     std::cout << "Logs have been updated!" << std::endl;
-                    logging<interpreter> logs(logs_, e.what());
-                    logs.update();
+                    logging<interpreter> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
                 return output.c_str();

@@ -53,8 +53,8 @@ namespace BinaryOperations {
                 }
                 catch(catcher<binaryOperations>& e) {
                     std::cout << "A new log entry has been added." << std::endl;
-                    logging<binaryOperations> logs(logs_, e.what());
-                    logs.update();
+                    logging<binaryOperations> logs(e.what());
+                    logs_ = logs.getLogs();
                     logs.rotate();
                 }
             };
