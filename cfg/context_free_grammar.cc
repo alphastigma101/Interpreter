@@ -19,8 +19,6 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
-    auto binary = compressedAstTree(idx + 1, String("Binary"), this);
-    cTree.push_back(std::move(binary));
 }
 
    
@@ -40,224 +38,7 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
 Unary::Unary(Expr* right_, const Token& op_)  {
    this->right = std::move(right_);
    this->op = std::move(op_);
-   auto unary = compressedAstTree(idx + 1, String("Unary"), this);
-   cTree.push_back(std::move(unary));
-}
-//===============================================================================
-//
-//                             UNARY CRTP UTILITY SECTION
-//
-//===============================================================================
-// 
-// ┌─────────────────────────────────────────────────────────────────────────────┐
-// │                                                                             │
-// │  Purpose: Implements type checking and conversion functionality for the      │
-// │           Unary expression type using CRTP (Curiously Recurring Template    │
-// │           Pattern).                                                         │
-// │                                                                             │
-// │  Design Pattern: CRTP enables:                                             │
-// │    - Static polymorphism                                                   │
-// │    - Zero-overhead abstractions                                            │
-// │    - Compile-time binding                                                  │
-// │                                                                             │
-// │  Usage: These utilities are inherited by the Unary expression class to      │
-// │         provide type-safe operations without virtual function overhead.      │
-// │                                                                             │
-// └─────────────────────────────────────────────────────────────────────────────┘
-//
-//===============================================================================
-/** -----------------------------
- * @brief A method that will evaluate the nested expressions within the expression
- * 
- * @param a Is an any container that will always hold a string value.
- *          But, because this is unary, the value will always be "\0"
- * @param b Is an any container that will always hold a string value.
- * 
- * @param expr Is the abstracted class called Expr that will visit the Literal class tree and return a value 
- * 
- * @details .....
- * 
- * @return A simple any container holding a string value that is not null
- * 
-*/
-Any Unary::compute(Any& a, Any& b, auto& expr) {
-    try { 
-        switch (expr->op.getType()) {
-            case TokenType::BANG:
-                //return !isTruthy(right);
-                break;
-            case TokenType::MINUS:
-                if (eval.instanceof<double>(b))
-                    return std::to_string(-std::any_cast<double>(eval.toNumeric(b)));
-                if (eval.instanceof<int>(b)) return std::to_string(-std::any_cast<int>(eval.toNumeric(b)));
-            auto& [intVal, pairVal] = cTree.at(currentEnvEle);
-            if (std::holds_alternative<Expr*>(pairVal.second)) {
-                auto& conv = std::get<Expr*>(pairVal.second);
-                throw new runtimeerror<Unary>(
-                    expr->op.getType(), String("In Unary compute method: " + String("\n\t") + 
-                    String("Invalid type detected during evaluations: ")  + String("\n\t") + String(conv->op.getLexeme())).c_str()
-                );
-            }
-        }
-    }
-    catch(runtimeerror<Unary>& e) {
-        std:: cout << "Logs have been updated!" << std::endl;
-        logging<Unary> logs(logs_, e.what(e.getType<TokenType>(), e.getMsg()));
-        logs.update();
-        logs.rotate();
-    }
-    return nullptr;
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that checks the instance using generics methods inside of it
- *
- * @param object Is an any container that always stores a String value.
- *               
- *
- * @details The parameter object will go through a series of generic methods to check and see if it is a supported type
- * ----------------------------------------------------------------
-*/
-template<class T>
-bool Unary::instanceof(const Any& object) {
-    try {
-        if (isNumeric<T>(object)) return true;
-        else if (isOther<T>(object)) return true;
-    } catch (...) {
-        return false;
-    }
-    return false;
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that converts the parameter object into a supported type
- *
- * @param value Some kind of value that must be a supported type
- *
- * @details The supported types are double for more precision and integer. 
- * ----------------------------------------------------------------
-*/
-template<class T>
-bool Unary::isNumeric(const Any value) {
-    try {
-        String temp = std::move(std::any_cast<String>(value));
-        for (int i = 0; i < temp.length() - 1; i++) {
-            // TODO: Here is a bug. Both float and double both have . in it 
-            // Need to absolutely make sure it is a double or a float
-            if (temp[i] == '.') {
-                try {
-                    if (typeid(std::stod(temp)) == typeid(T)) return true;
-                    return false;
-                }
-                catch(...) { return false; }
-                return true;
-            }
-        }
-        try {
-            if (typeid(std::stoi(temp)) == typeid(T)) return true;
-            return false;
-        }
-        catch(...) { return false; }
-    } catch (...) { return false; }
-    return false;    
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that converts the parameter object into a supported type
- *
- * @param value Some kind of value that must be a supported type
- *
- * @details The supported types are double for more precision and integer. 
- * ----------------------------------------------------------------
-*/
-Any Unary::toNumeric(Any& value) {
-    try {
-        String temp = std::any_cast<String>(value);
-        for (int i = 0; i < temp.length() - 1; i++) {
-            if (temp[i] == '.') {
-                try {
-                    return std::stod(temp);
-                }
-                catch(...) { return nullptr; }
-            }
-        }
-        try {
-            return std::stoi(temp);
-        }
-        catch(...) { return nullptr; }
-    } catch (...) { return nullptr; }
-    return nullptr;
-}
-/** --------------------------------------------
- * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
- * 
- * @param lhs Is an any container that will always have a string value inside of it.
- *            However, because it is unary expressions, the 'lhs' will be "\0"
- * @param rhs Is an any container that will always have a string value inside of it.
- *            However, this will not contain "\0"
- * 
- * @cond lhs holds "\0" while rhs container does not. So it shall return an any container.
- * 
- * @details ...
- * 
- * @return Returns a complex any container that will hold two values 
- * 
-*/
-Any Unary::toOther(Any& lhs, Any& rhs) {
-    /*auto toList = [](String& temp) -> Any {
-        try {
-            if (temp.front() == '[' && temp.back() == ']') {
-                // Remove brackets and trim whitespace
-                String content = temp.substr(1, temp.length() - 2);
-                content.erase(0, content.find_first_not_of(" \t\n\r"));
-                content.erase(content.find_last_not_of(" \t\n\r") + 1);
-            
-                // Remove quotes from content if they exist
-                if (content.front() == '"' && content.back() == '"') {
-                    content = content.substr(1, content.length() - 2);
-                }
-            
-                // Dynamically allocate new list with the processed content
-                return new Nuke::core::list{content};
-            }
-            else 
-                return nullptr;
-        }
-        catch(...) { return nullptr; }
-        return nullptr; 
-    };
-    try {
-        Any res = std::make_any<String>(std::any_cast<String>(toList(lhs)), std::any_cast<String>(toList(rhs)));
-        if (res.has_value()) return std::any_cast<String>(res);
-        return nullptr; 
-    }
-    catch(...) { return nullptr; }
-    auto toMap = [](String& temp) -> Any {
-        try {
-            if (temp.front() == '{' && temp.back() == '}') {
-                // Remove brackets and trim whitespace
-                String content = temp.substr(1, temp.length() - 2);
-                content.erase(0, content.find_first_not_of(" \t\n\r"));
-                content.erase(content.find_last_not_of(" \t\n\r") + 1);
-            
-                // Remove quotes from content if they exist
-                if (content.front() == '"' && content.back() == '"') {
-                    content = content.substr(1, content.length() - 2);
-                }
-            
-                // Dynamically allocate new list with the processed content
-                return new Nuke::core::dict{content};
-            }
-            else 
-                return nullptr;
-        }
-        catch(...) { return nullptr; }
-        return nullptr; 
-    };
-    try {  
-        Any res = std::make_any<String>(std::any_cast<String>(toMap(lhs)), std::any_cast<String>(toMap(rhs)));
-        if (res.has_value()) return std::any_cast<String>(res);
-        return nullptr; 
-    }
-    catch(...) { return nullptr; }*/
-    return nullptr;
+   
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the expression_ and moves the resources into it 
@@ -270,8 +51,6 @@ Any Unary::toOther(Any& lhs, Any& rhs) {
 */
 Grouping::Grouping(Expr* expression) {
     this->expression = std::move(expression);
-    auto grouping = compressedAstTree(idx + 1, String("Grouping"), this);
-    cTree.push_back(std::move(grouping));
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the op and constructs a node that gets pushed to a vector
@@ -284,8 +63,7 @@ Grouping::Grouping(Expr* expression) {
 Literal::Literal(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
-        auto literal = compressedAstTree(idx + 1, String("Literal"), this);
-        cTree.push_back(std::move(literal));
+       
     }
     catch(...) {
         catcher<Literal> cl("Undefined behavior occurred in Class Literal!");
@@ -303,8 +81,6 @@ Literal::Literal(const Token&& oP) {
 Variable::Variable(const Token&& oP) {
     try { 
         this->op = std::move(oP); 
-        auto var = compressedAstTree(idx + 1, String("Variable"), this);
-        cTree.push_back(std::move(var));
     }
     catch(...) {
         catcher<Variable> cl("Undefined behavior occurred in Class Variable!");
@@ -322,8 +98,7 @@ Variable::Variable(const Token&& oP) {
 Print::Print(Expr* initalizer) {
     try { 
         this->initializer = std::move(initalizer); 
-        //auto stmt = compressedAstTree(idx + 1, String("Print"), this);
-        //cTree.push_back(std::move(stmt));
+
     }
     catch(...) {
         catcher<Print> cl("Undefined behavior occurred in Class Statement!");
@@ -341,8 +116,6 @@ Var::Var(const Token& op, Expr* initalizer) {
     try { 
         this->initializer = std::move(initalizer);
         this->op = std::move(op); 
-        //auto stmt = compressedAstTree(idx + 1, String("Var"), this);
-        //cTree.push_back(std::move(stmt));
     }
     catch(...) {
         catcher<Print> cl("Undefined behavior occurred in Class Statement!");
@@ -359,8 +132,7 @@ Var::Var(const Token& op, Expr* initalizer) {
 Expression::Expression(Expr* initalizer) {
     try { 
         this->initializer = std::move(initalizer); 
-        //auto stmt = compressedAstTree(idx + 1, String("Expression"), this);
-        //cTree.push_back(std::move(stmt));
+
     }
     catch(...) {
         catcher<Print> cl("Undefined behavior occurred in Class Statement!");
@@ -378,8 +150,6 @@ Assign::Assign(const Token& op_, Expr* right) {
     try { 
         this->right = std::move(right);
         this->op = std::move(op_); 
-        auto assign = compressedAstTree(idx + 1, String("Assign"), this);
-        cTree.push_back(std::move(assign));
     }
     catch(...) {
         throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
@@ -419,8 +189,7 @@ Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
-    auto functions = compressedAstTree(idx + 1, String("Functions"), this);
-    cTree.push_back(std::move(functions));
+
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -434,8 +203,6 @@ Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
 Methods::Methods(Expr* method, const Token& op_) {
     try { 
         this->op = std::move(op_); 
-        auto literal = compressedAstTree(idx + 1, String("Methods"), this);
-        cTree.push_back(std::move(literal));
     }
     catch(...) {
         catcher<Methods> cl("Undefined behavior occurred in Class Methods!");
@@ -457,8 +224,6 @@ Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
         this->left = std::move(left);
         this->right = std::move(right);
         this->op = std::move(op_); 
-        auto stmt = compressedAstTree(idx + 1, String("Arguments"), this);
-        cTree.push_back(std::move(stmt));
     }
     catch(...) {
         throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
@@ -517,6 +282,12 @@ String Unary::parenthesize(String name, Expr* expr) {
     String result = "(" + name + " ";
     if (expr) result += expr->accept(this);
     return result + ")";
+}
+String Unary::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitUnaryExpr(this));
 }
 /** ---------------------------------------------------------------
  * @brief ...

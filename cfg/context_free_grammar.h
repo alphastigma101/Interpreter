@@ -17,14 +17,6 @@
     * Lowercase letters that are  "nonterminal"
 */
 namespace ContextFreeGrammar {
-    template<class Derived>
-    class Evaluation: public Conv<Derived>, public Check<Derived> {
-        // An abstract class that is used for converting strings into targeted types during interpretation
-        // This class offers methods that should not be directly implemented into the Derived class, but are still needed
-        public:
-            ~Evaluation() = default;
-            inline Any compute(Any& a, Any& b, auto& expr) { return static_cast<Derived*>(this)->compute(a, b, expr);};
-    };
     //template<class Derived>
     class Expr {
         /** ------------------------------------------------------------------------------------------
@@ -89,10 +81,6 @@ namespace ContextFreeGrammar {
         public:
             friend class catcher<Binary>; // Use to output a message
             friend class runtimeerror<Binary>;
-            friend class Visitor<Binary>;
-            friend class Check<Binary>;
-            friend class Conv<Binary>;
-            friend class Evaluation<Binary>;
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
@@ -136,14 +124,14 @@ namespace ContextFreeGrammar {
                         return output.c_str();
                     }
                     else {
-                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
                         if (std::holds_alternative<Expr*>(pairVal.second)) {
                             auto& conv = std::get<Expr*>(pairVal.second);
                             throw new catcher<Binary>(
                                 String(String("From Binary what() method, TokenType is not supported!")+ String("\n\t") + 
                                 String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
                             );
-                        }
+                        }*/
                         // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                     }
                 }
@@ -157,45 +145,16 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* left, Expr* right);     
     };
-    class Unary: public Expr, public catcher<Unary>, public logging<Unary>, public Evaluation<Unary>, protected runtimeerror<Unary> {
+    class Unary: public Expr, public catcher<Unary>, public logging<Unary>, protected runtimeerror<Unary> {
         public:
             friend class catcher<Unary>; // Use to output a message
             friend class runtimeerror<Unary>;
-            friend class Visitor<Unary>;
-            friend class Check<Unary>;
-            friend class Conv<Unary>;
-            friend class Evaluation<Unary>;
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
-            //String acceptHelper(Expr* visitor, bool tree = true);
-        private:
-            inline static Evaluation<Unary> eval{};
-            static Any compute(Any& a, Any& b, auto& expr);
-            /** --------------------------------------------
-             * @brief A simple but yet, complex method that accesses Tatical Nuke's struct for conversion
-             * 
-             * @param value Is an any container that will always have a string value inside of it
-             * 
-             * @cond If lhs and rhs are either a list or map, it will be stored in one any container.
-             * 
-             * @details ...
-             * 
-             * @return Returns a complex any container that will hold two values 
-             * 
-            */
-            template<typename T>
-            inline static bool isOther(const Any value) {
-                // TODO: This needs to be implemented when creating the environment later on
-                return false;
-            };
-            template<typename T>
-            static bool instanceof(const Any& object);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
-            template<typename T>
-            static bool isNumeric(const Any value);
-            static Any toNumeric(Any& value);
-            static Any toOther(Any& lhs, Any& rhs);
+            String acceptHelper(Expr* visitor, bool tree = true);
+            inline String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+        protected:
+            explicit Unary() = default;
         private:
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Unary>::type));};
             inline static logTable<Map<String, Vector<String>>> logs_{};
@@ -232,14 +191,14 @@ namespace ContextFreeGrammar {
                         return output.c_str();
                     }
                     else {
-                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
                         if (std::holds_alternative<Expr*>(pairVal.second)) {
                             auto& conv = std::get<Expr*>(pairVal.second);
                             throw new catcher<Unary>(
                                 String(String("From Unary what() method, TokenType is not supported!")+ String("\n\t") + 
                                 String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
                             );
-                        }
+                        }*/
                         // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                     }
                 }
@@ -252,31 +211,11 @@ namespace ContextFreeGrammar {
                 return output.c_str();
             };
             String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr, bool tree = true) override {
-                String result; 
-                if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr->right); 
-                else {
-                    try {
-                        Any right = std::make_any<String>(expr->right->accept(this, tree));
-                        auto temp = std::make_any<String>("\0");
-                        Any res = eval.compute(temp, right, expr);
-                        if (!res.has_value()) 
-                            throw new runtimeerror<Unary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        else
-                            result = std::any_cast<String>(res);
-                    }
-                    catch(...) {
-                        std::cout << "Invalid Type!" << std::endl;
-                    }
-                }
-                return result;
-            };
+            inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->right); };
     };
     class Grouping: public Expr, public catcher<Grouping> {
         public:
             friend class catcher<Grouping>; // Use to output a message
-            friend class Visitor<Grouping>;
             /** ----------------------------------------------------------------------------------------------------------
              * @brief constructor for creating the memory addresses that will later on be accessed by a vector 
              *
@@ -306,14 +245,13 @@ namespace ContextFreeGrammar {
             inline static const char* what(const char* msg = catcher<Grouping>::getMsg()) throw() { return msg;};
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true) return parenthesize("group", expr->expression);
-                else  return expr->expression->accept(this, false);
+                else return expr->expression->accept(this, false);
             };
             String parenthesize(String name, Expr* expr);
     };
     class Literal: public Expr, public catcher<Literal> {
         public:
             friend class catcher<Literal>; // Use to output a message
-            friend class Visitor<Literal>;
             explicit Literal(const Token&& oP);
             ~Literal() noexcept = default;
             inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
@@ -347,10 +285,6 @@ namespace ContextFreeGrammar {
         public:
             friend class catcher<Assign>; // Use to output a message
             friend class runtimeerror<Assign>;
-            friend class Visitor<Assign>;
-            friend class Check<Assign>;
-            friend class Conv<Assign>;
-            friend class Evaluation<Assign>;
             explicit Assign(const Token &op, Expr* expr);
             ~Assign() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
@@ -421,14 +355,14 @@ namespace ContextFreeGrammar {
                         return output.c_str();
                     }
                     else {
-                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
                         if (std::holds_alternative<Expr*>(pairVal.second)) {
                             auto& conv = std::get<Expr*>(pairVal.second);
                             throw new catcher<Assign>(
                                 String(String("From Assign what() method, TokenType is not supported!")+ String("\n\t") + 
                                 String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
                             );
-                        }
+                        }*/
                         // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                     }
                 }
@@ -564,7 +498,6 @@ namespace ContextFreeGrammar {
     class Expression: public Statement, public catcher<Expression> {
         public:
             friend class catcher<Expression>; // Use to output a message
-            friend class Visitor<Expression>;
             Expression(Expr* initalizer);
             ~Expression() noexcept = default;
             String acceptHelper(Statement* visitor, bool tree = true);
@@ -591,10 +524,6 @@ namespace ContextFreeGrammar {
         public:
             friend class catcher<Block>; // Use to output a message
             friend class runtimeerror<Block>;
-            friend class Visitor<Block>;
-            friend class Check<Block>;
-            friend class Conv<Block>;
-            friend class Evaluation<Block>;
             explicit Block(Vector<ContextFreeGrammar::Statement*>&& statements);
             ~Block() noexcept = default;
             String acceptHelper(Statement* visitor, bool tree = true);
@@ -638,14 +567,14 @@ namespace ContextFreeGrammar {
                         return output.c_str();
                     }
                     else {
-                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
                         if (std::holds_alternative<Expr*>(pairVal.second)) {
                             auto& conv = std::get<Expr*>(pairVal.second);
                             throw new catcher<Block>(
                                 String(String("From Block what() method, TokenType is not supported!")+ String("\n\t") + 
                                 String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
                             );
-                        }
+                        }*/
                         // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                     }
                 }
@@ -721,14 +650,10 @@ namespace ContextFreeGrammar {
         protected:
             Arguments() = default;
     };
-    class Functions: public Expr, public catcher<Functions>, public Evaluation<Functions>, protected runtimeerror<Functions> {
+    class Functions: public Expr, public catcher<Functions>, protected runtimeerror<Functions> {
         public:
             friend class catcher<Functions>; // Use to output a message
             friend class runtimeerror<Functions>;
-            friend class Visitor<Functions>;
-            friend class Check<Functions>;
-            friend class Conv<Functions>;
-            friend class Evaluation<Functions>;
             explicit Functions(Expr* left_, const Token& op_, Expr* right_);
             ~Functions() noexcept = default;
             String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
@@ -799,14 +724,14 @@ namespace ContextFreeGrammar {
                         return output.c_str();
                     }
                     else {
-                        auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
                         if (std::holds_alternative<Expr*>(pairVal.second)) {
                             auto& conv = std::get<Expr*>(pairVal.second);
                             throw new catcher<Binary>(
                                 String(String("From Binary what() method, TokenType is not supported!")+ String("\n\t") + 
                                 String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
                             );
-                        }
+                        }*/
                         // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
                     }
                 }
@@ -819,7 +744,6 @@ namespace ContextFreeGrammar {
                 return output.c_str();
             };
             //String parenthesize(String name, Expr* left, Expr* right);
-           
     };
     class EcoSystem: public Expr, public catcher<EcoSystem> {
         public:

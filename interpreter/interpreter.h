@@ -22,6 +22,7 @@ namespace Interpreter {
             //binaryOperations* bO = new binaryOperations();
             //unaryOperations* uO = new unaryOperations();
             static Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
+            static Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
             void visitBlockStmt(ContextFreeGrammar::Block* stmt);
             static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
             static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);

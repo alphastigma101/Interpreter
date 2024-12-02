@@ -12,13 +12,7 @@
     logTable<Map<String, Vector<String>>> logEntries;
 #endif
 
-#if ENABLE_TREE_BUILD
-   Vector<astTree<int, String, ExprVariant>> cTree;
-#endif
 
-#if ENABLE_EVALUATED_EXPRESSIONS
-    Vector<String> evaluatedExpressions;
-#endif 
 #if ENABLE_TESTING
     String file_name, user_choice;
 #endif
@@ -26,29 +20,6 @@
     //Nuke::core tatical_nuke;
     int currentEnvEle = 0;
 #endif
-/** ---------------------------------------------------------------------------
- * @brief Custom function that creates a tuple for later use.
- * ----------------Generic Arguments------------------------------------------
- * @param T: Is a type int to indicate the position of the tree (first)
- * @param U: The name of the node which is paired with a initializer_list (second)
- * @param V: Object type variants  (third)
- * --------------------Detials-------------------------------------------------
- * @details The arguments are generic, therefore they can be reused with other types. Templates are more flexible than any
- *
- * @return tuple(int, string, shared_ptr(initializer_list(variant)))
- *
- * ---------------------------------------------------------------------------
-*/
-template<typename T, typename U, typename V>
-inline astTree<T, U, V> compressedAstTree(T first, U second, V third) {
-    return std::make_tuple(
-        std::move(first),
-        std::make_pair(
-            std::move(second),
-            std::forward<V>(third)
-        )
-    );
-};
 /** ---------------------------------------------------------------------------
  * @brief Uses atomic to prevent 'data races'/sync. It also uses threading.
  *

@@ -166,7 +166,6 @@ namespace Parser {
                 throw new parseError<parser>(peek(), message);
             };
         private:
-            Vector<astTree<int, String, ExprVariant>> nodes;
             Vector<Token> tokens_;
             inline static logTable<Map<String, Vector<String>>> logs_;
             int current = 0;

@@ -27,7 +27,6 @@ namespace AbstractionTreeSyntax {
             static String codeStr;
             String compactedTreeStr;
             inline static logTable<Map<String, Vector<String>>> logs_;
-            Set<astTree<int, String, ExprVariant>> compactedTreeNodes;
             static String ext;
             inline static std::string nameOfFile = std::move(file_name);
            

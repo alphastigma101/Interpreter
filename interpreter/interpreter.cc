@@ -102,7 +102,22 @@ Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     // Unreachable.
     return nullptr;
 }
+Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
+    Any right = evaluate(expr->right);
+    switch (expr->op.getType()) {
+        case BANG:
+            return !isTruthy(right);
+        case TokenType::MINUS:
+            checkNumberOperand(expr->op, right);
+            if (instanceof<double>(right))
+                return std::to_string(-std::any_cast<double>(toNumeric(right)));
+            if (instanceof<int>(right))
+                return std::to_string(-std::any_cast<int>(toNumeric(right)));
+    }
 
+    // Unreachable.
+    return nullptr;
+}
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
     String res;
     if (auto conv = dynamic_cast<Expression*>(stmt))
