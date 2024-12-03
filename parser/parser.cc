@@ -152,6 +152,7 @@ Expr* parser::expression() { return assignment(); }
  * --------------------------------------------------------------------------
 */
 Statement* parser::statement() {
+    //if (match(IF)) return ifStatement();
     if (match(TokenType::RADIATE)) return printStatement();
     if (match(TokenType::LEFT_BRACE)) return new Block(block());
     return expressionStatement();

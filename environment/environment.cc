@@ -57,6 +57,6 @@ void Environment::environment::assign(Token name, Any value) {
       enclosing->assign(name, value);
       return;
     }
-    throw new runtimeerror<Environment::environment>(name.getType(),
+    throw runtimeerror<Environment::environment>(name.getType(),
         String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }

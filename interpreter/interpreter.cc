@@ -128,7 +128,8 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     String res;
     if (auto conv = dynamic_cast<Print*>(stmt))
-        res += evaluate(conv->initializer->expression);
+        res += evaluate(conv->initializer);
+    env->define(stmt->initializer->op.getTypeStr(), res);
     return res;
 }
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {

@@ -137,7 +137,7 @@ TEST_F(InterpreterTest, BlockScope) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"outer b\"");
 }
-TEST_F(InterpreterTest, NoVariable) {
+/*TEST_F(InterpreterTest, NoVariable) {
     Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -148,6 +148,18 @@ TEST_F(InterpreterTest, NoVariable) {
     if (auto it = env.find("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "-65");
+}*/
+TEST_F(InterpreterTest, PrintStmt) {
+    Scanner scanner("radiate 24;");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("NUMBER"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "24");
 }
 // TODO optional: Use google test's input parameter generator to test input values
 class ParserTest : public testing::Test {

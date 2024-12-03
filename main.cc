@@ -24,6 +24,10 @@ static void run(std::string& source) {
     });
     if (hadError) return;
     interpreter interp(stmt);
+    auto env = interp.getEnv()->getMap();
+    for (const auto& it: env) {
+        std::cout << std::any_cast<String>(it.second) << std::endl;
+    } 
     if (build.joinable()) {
         build.join();
     }
@@ -104,10 +108,11 @@ static void runFile(const std::string& filePath) {
 
 // This is the driver code
 int main(int argc, char **argv) {
-    if (argc > 1) {
+    if (argc > 2) {
         std::cerr << "Usage: [script]";
         exit(1); 
     }
+    else if (argc == 2) runFile(argv[1]);
     else { runPrompt(); }
     return 0;
 }
