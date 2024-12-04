@@ -66,14 +66,13 @@ namespace BinaryOperations {
              *               The vector takes in a String type
              * ------------------------------------
             */
-            inline static logTable<Map<String, Vector<String>>> logs_{};
+            inline static Map<String, Vector<String>> logs_{};
             template<class T, class F>
             static std::pair<const std::type_index, std::function<void(Any const&)>> to_any_visitor(F const& f); 
             static Unordered<std::type_index, std::function<void(Any const&)>>any_visitor;
             template<class T, class F>
             inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
             inline static bool is_registered(const Any& a);
-            Nuke::core tatical_nuke;
             template<typename T>
             static bool instanceof(const Any& object);
         protected:

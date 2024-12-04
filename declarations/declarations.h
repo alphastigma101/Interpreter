@@ -1,24 +1,23 @@
 #pragma once
 #ifndef _DECLARATIONS_H_
 #define _DECLARATIONS_H_
-#include <any>
 #include <variant>
 #include <set>
 #include <tuple>
 #include <list>
 #include <memory>
 #include <unordered_map>
-#include <map>
 #include <iostream>
 #include <type_traits>
 #include <typeindex>
 #include <typeinfo>
 #include <functional>
-#include <iomanip>
 #include <atomic>
 #include <mutex>
 #include <thread>
 #include <addon.h>
+#include <interface.h>
+#include <logging.h>
 /** --------------------------------------------------------------------------
  * @brief All this alias templates are needed to avoid 
  *        using namespace std repetiviely which will make the code look more cleaner.
@@ -66,18 +65,23 @@ namespace ContextFreeGrammar {
     class Expr;
     class Binary;
     class Unary;
+    class Logical;
     class Grouping;
     class Literal;
+    class Assign;
+    class Variable;
+    class Functions;
+    class Call;
     class Statement;
     class Print;
     class Expression;
+    class If;
+    class Return;
     class Var;
-    class Variable;
+    class While;
     class Block;
-    class Assign;
     class Methods;
     class Arguments;
-    class Functions;
     class EcoSystem;
 };
 /** ---------------------------------------------------------------------------
@@ -161,32 +165,19 @@ namespace Logging {
     template<typename Derived>
     class logging;
 };
-/** ---------------------------------------------------------------------------
- * @brief static logger. It is used by every single concrete class that is avialable
- *
- * @details Use grep -R 'logEntries' <root-path> replace root-path that will search through all the files that have logEntries  
- * ---------------------------------------------------------------------------
-*/
-template<typename T>
-using logTable = T;
-extern logTable<std::map<std::string, std::vector<std::string>>> logEntries; 
-/**---------------------------------------------------------------------------
- * @brief Used to create a specific file with a specific extension. Is used  by interpreter.cc 
- * ---------------------------------------------------------------------------
-*/
-typedef std::map<String, std::pair<String, String>> Table;
-static Table initTable(const Unordered<String, Vector<String>> languageExtensions, const Unordered<std::string, String> downloads);
-
 
 /** ---------------------------------------
  * @brief This is my custom language that I am supporting called Tatical Nuke
  * 
  * -----------------------------------------
 */
-namespace Nuke {
-    struct core;
+namespace NuclearLang {
+    template<class Derived>
+    class Nuke;
 };
-//extern Nuke::core tatical_nuke;
-#include <enum_types.h>
-
+struct Node {
+    Node* next;
+    String id;
+    String value;
+};
 #endif 

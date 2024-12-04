@@ -19,9 +19,7 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
-}
-
-   
+}  
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
  *
@@ -37,8 +35,7 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
 */
 Unary::Unary(Expr* right_, const Token& op_)  {
    this->right = std::move(right_);
-   this->op = std::move(op_);
-   
+   this->op = std::move(op_);   
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the expression_ and moves the resources into it 
@@ -88,6 +85,58 @@ Variable::Variable(const Token&& oP) {
     }
 }
 /** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Assign::Assign(const Token& op_, Expr* right) {
+    try { 
+        this->right = std::move(right);
+        this->op = std::move(op_); 
+    }
+    catch(...) {
+        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Logical::Logical(Expr* left_, const Token& op_, Expr* right_) {
+    this->left = std::move(left_);
+    this->right = std::move(right_);
+    this->op = std::move(op_);
+}  
+/** --------------------------------------------------------------------------
+ * @brief This class will represent the Function node tree in a absraction syntax tree
+ *
+ * @details it moves the left and right resources and the token resources that were passed into it 
+ *          to it's own data members 
+ *
+ * @param left_ A raw pointer that holds a memory address to an object it points too
+ * @param right_  A raw pointer that holds a memory address to an object it points too
+ * @param op_ is an instance of the token class 
+ * 
+ * @details A custom garbage collector is implemented to cleanup the raw pointers
+ *
+ *
+ * ---------------------------------------------------------------------------
+*/
+Call::Call(Expr* callee, Token& paren, Vector<Expr*> arguments) {
+    this->callee = std::move(callee);
+    // Now create a thread that will run the for loop concurrently 
+    for (auto& arg : arguments) {
+        this->arguments.push_back(std::move(Any(arg)));
+    }
+    this->op = std::move(paren);
+
+}
+/** -----------------------------
  * @brief Creates a node called Print
  * 
  * @param initalizer A raw pointer that gets initalized with some kind of object
@@ -99,6 +148,23 @@ Print::Print(Expr* initalizer) {
     try { 
         this->initializer = std::move(initalizer); 
 
+    }
+    catch(...) {
+        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
+        throw cl;
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+Return::Return(const Token& keyword, Expr* value) {
+    try { 
+        this->initializer = std::move(value);
+        this->op = std::move(keyword); 
     }
     catch(...) {
         catcher<Print> cl("Undefined behavior occurred in Class Statement!");
@@ -129,6 +195,22 @@ Var::Var(const Token& op, Expr* initalizer) {
  * 
  * -------------------------------
 */
+While::While(Expr* condition, Statement* body) {
+    try { 
+        this->condition = std::move(condition);
+        this->body = std::move(body); 
+    }
+    catch(...) {
+        throw catcher<While>("Undefined behavior occurred in Class Statement!");
+    }
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
 Expression::Expression(Expr* initalizer) {
     try { 
         this->initializer = std::move(initalizer); 
@@ -146,13 +228,12 @@ Expression::Expression(Expr* initalizer) {
  * 
  * -------------------------------
 */
-Assign::Assign(const Token& op_, Expr* right) {
+Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
     try { 
-        this->right = std::move(right);
-        this->op = std::move(op_); 
+        this->statements = std::move(left);
     }
     catch(...) {
-        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
+        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
     }
 }
 /** -----------------------------
@@ -162,13 +243,10 @@ Assign::Assign(const Token& op_, Expr* right) {
  * 
  * -------------------------------
 */
-Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
-    try { 
-        this->statements = std::move(left);
-    }
-    catch(...) {
-        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
-    }
+If::If(Expr* cond, Statement* thenbranch, Statement* elsebranch) {
+    this->condition = std::move(cond);
+    this->thenBranch = std::move(thenbranch);
+    this->elseBranch = std::move(elsebranch);
 }
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Function node tree in a absraction syntax tree
@@ -185,11 +263,10 @@ Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
  *
  * ---------------------------------------------------------------------------
 */
-Functions::Functions(Expr* left_, const Token& op_, Expr* right_) {
-    this->left = std::move(left_);
-    this->right = std::move(right_);
-    this->op = std::move(op_);
-
+Functions::Functions(Token& name, Vector<Token> params, Vector<Statement*>& body) {
+    this->op = std::move(name);
+    this->params = std::move(params);
+    this->statements = std::move(body);
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -210,25 +287,7 @@ Methods::Methods(Expr* method, const Token& op_) {
     }
 
 }
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param meth ...
- * @param op_ is a indexed element from a vector of Token instances
- *
- * @details  A custom garbage collector is implemented to cleanup the raw pointers
- * ----------------------------------------------------------------
-*/
-Arguments::Arguments(Expr* left, const Token& op_, Expr* right) {
-    try { 
-        this->left = std::move(left);
-        this->right = std::move(right);
-        this->op = std::move(op_); 
-    }
-    catch(...) {
-        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
-    }
-}
+
 
 /** ---------------------------------------------------------------
  * @brief ...
@@ -311,6 +370,76 @@ String Grouping::parenthesize(String name, Expr* expr) {
  * 
  * -------------------------------
 */
+String Assign::parenthesize(String name, Expr* expr) {
+    if (!expr) return "(null)";
+    String result = "(" + name + " ";
+    if (expr) result += expr->accept(this);
+    return result + ")";
+}
+String Assign::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitAssignExpr(this));
+}
+
+String Variable::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitVariableExpr(this));
+    return "\0";
+}
+/** ---------------------------------------------------------------
+ * @brief ...
+ *
+ * @param name ...
+ * @param left ...
+ * @param right ...
+ *
+ * @details .....
+ * ----------------------------------------------------------------
+*/
+String Logical::parenthesize(String name, Expr* left, Expr* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + left->accept(this);
+    }
+    if (right) {
+        result += " " + right->accept(this);
+    }
+    return result + ")";
+}
+String Logical::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        return std::any_cast<String>(interp->visitLogicalExpr(this));
+}
+String Call::parenthesize(String name, Expr* left, Expr* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + left->accept(this);
+    }
+    if (right) {
+        result += " " + right->accept(this);
+    }
+    return result + ")";
+}
+String Call::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitCallExpr(this);
+    return "\0";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
 String Print::parenthesize(String name, Statement* stmt) {
     String result = "(" + name;
     if (!stmt) return "(null)";
@@ -322,7 +451,8 @@ String Print::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
-        return std::any_cast<String>(interp->visitPrintStmt(this));
+        interp->visitPrintStmt(this);
+    return "\0";
 }
 /** -----------------------------
  * @brief .....
@@ -363,26 +493,6 @@ String Expression::acceptHelper(Statement* visitor, bool tree) {
     else 
         return std::any_cast<String>(interp->visitExpressionStmt(this));
 }
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Assign::parenthesize(String name, Expr* expr) {
-    if (!expr) return "(null)";
-    String result = "(" + name + " ";
-    if (expr) result += expr->accept(this);
-    return result + ")";
-}
-String Assign::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitAssignExpr(this));
-}
-
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -409,6 +519,90 @@ String Block::acceptHelper(Statement* visitor, bool tree) {
         interp->visitBlockStmt(this);
     return "\0";
 }
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String If::parenthesize(String name, Statement* stmt) {
+    String result = "(" + name;
+    if (!stmt) return "(null)";
+    if (initializer)
+        result += initializer->accept(initializer);
+    return result + ")";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String If::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitIfStmt(this);
+    return "\0";
+}
+String While::parenthesize(String name, Statement* left) {
+    /*String result = "(" + name;
+    if (left) {
+        result += " " + left->accept(this);
+    }
+    if (right) {
+        result += " " + right->accept(this);
+    }
+    return result + ")";*/
+    return "\0";
+}
+String While::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitWhileStmt(this);
+    return "\0";
+}
+String Functions::parenthesize(String name, Statement* left, Statement* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + left->accept(this);
+    }
+    if (right) {
+        result += " " + right->accept(this);
+    }
+    return result + ")";
+}
+String Functions::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitFunctionStmt(this);
+    return "\0";
+}
+/** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+String Return::parenthesize(String name, Statement* stmt) {
+    if (!stmt) return "(null)";
+    String result = "(Var" + String("(") + name + " ";
+    if (initializer) result += initializer->accept(initializer);
+    return result + "))";
+}
+String Return::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    else 
+        interp->visitReturnStmt(this);
+    return "\0";
+}
+
 /** ---------------------------------------------------------------
  * @brief ...
  *

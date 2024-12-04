@@ -2,7 +2,6 @@
 #define _ENVIRONMENT_H_
 #include <token.h> // includes declarations.h 
 #include <run_time_error.h>
-#include <logging.h>
 namespace Environment {
     /** --------------------------------------
         * @brief A class that implements the environment data structure.

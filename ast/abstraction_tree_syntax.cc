@@ -6,8 +6,7 @@ template<typename Type>
 String AbstractionTreeSyntax::generateAst<Type>::codeStr = "\0";
 template<typename Type>
 Unique<Atomic<const char*>> AbstractionTreeSyntax::generateAst<Type>::accessCodeStr = nullptr;
-// Initialize the static data member types for ast 
-Table ast::table = {};
+
 /** -----------------------------------------------------------------------------------------
  * @brief The default constructor that calls in generateAst to start creating the .txt file 
  * 
@@ -17,52 +16,6 @@ Table ast::table = {};
 ast::ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept {
     String stringTree = gA.buildTree(stmt);
     gA.formatAst(stringTree);
-    /*if (user_choice.empty()) {
-        // Subject to change. Have not decided if I want to compile the custom languyage or not
-        ENABLE_COMPILER(); // set it to zero by default
-        ENABLE_INTERPRETER(); // set it to one by default
-        user_choice = "Custom";
-    }
-    else {
-        table = initTable(languageExtensions, downloads); 
-        auto getPair = table.at(user_choice);
-        ext = getPair.first;
-        if (auto search = languageTypes.find(user_choice); search != languageTypes.end()) {
-            if (search->first == "Compiled") {
-                settings = ENABLE_COMPILER(1); // Set it to true 
-                ENABLE_INTERPRETER(0); // Set it to false
-            }
-            else {
-                ENABLE_COMPILER(); // Set it to false
-                ENABLE_INTERPRETER(); // Set it to true
-            }
-        }
-    }
-    compactedTreeNodes = std::move(cTree);
-    try {
-        //ThreadTracker<generateAst<ast>> createTree;
-        if (settings) { 
-            ThreadTracker<generateAst<ast>> createTree([&]() { gA.tree_(std::move(gA)); });
-            createTree.detach(); // detach main
-            analyzeSemantics aS(Shared<ast>(this)); // Create thread one
-            analyzeSemantics* rawAS = &aS;
-            intermediateRepresentation iR(Weak<analyzeSemantics>(Shared<analyzeSemantics>(rawAS,  [](analyzeSemantics*){}))); // Create thread two
-            aS.detach(); // Detach one
-            iR.detach(); // Detach two
-            createTree.join(); // TODO: Haven't decided if I should detach or not... 
-        }
-        else {
-            //createTree = std::thread(gA.tree_(std::move(gA)));
-        }
-    }
-    catch(catcher<ast>& e) {
-        std::cout << "Logs folder has been updated!" << std::endl;
-        std::string temp = e.what();
-        logging<generateAst<ast>> logs(logs_, temp); // Keep the logs updated throughout the whole codebase
-        logs.update();
-        logs.write();
-        logs.rotate();
-    }*/
 }
 /** ------------------------------------
  * @brief A simple method that creates the ast tree  

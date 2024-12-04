@@ -7,7 +7,6 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-logTable<std::map<std::string, std::vector<std::string>>> logEntries;
 class LoggingTest : public testing::Test {
     protected:
         logging<std::string> logger;

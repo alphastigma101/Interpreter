@@ -26,7 +26,7 @@ namespace AbstractionTreeSyntax {
             static Unique<Atomic<const char*>> accessCodeStr;
             static String codeStr;
             String compactedTreeStr;
-            inline static logTable<Map<String, Vector<String>>> logs_;
+            inline static Map<String, Vector<String>> logs_;
             static String ext;
             inline static std::string nameOfFile = std::move(file_name);
            
@@ -40,8 +40,7 @@ namespace AbstractionTreeSyntax {
         public:
             friend class generateAst<ast>;
             ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept;
-            ~ast() noexcept = default; // TODO: This is virtual for some reason, and it needs to be not virtual
-            inline static Table getTable() { return table; };
+            ~ast() noexcept = default;
             inline static Unique<Atomic<const char*>> getCode() { return std::move(accessCodeStr); };
         protected:
             String buildTree(Vector<ContextFreeGrammar::Statement*>& stmt);
@@ -50,7 +49,6 @@ namespace AbstractionTreeSyntax {
         private:
             static void tree_(const generateAst<ast>& gA);
             static void writeFile(std::string& ext);
-            static Table table;
             generateAst<ast> gA;
     };
     class analyzeSemantics: public catcher<analyzeSemantics>, public ThreadTracker<analyzeSemantics> {

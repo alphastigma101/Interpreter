@@ -56,7 +56,6 @@ namespace Parser {
             ~parser() noexcept = default; // This shouldn't be a virtual... 
         protected:
             // Current rules that were made from a grammar 
-            
             Expr* equality();
             Expr* comparison();
             Expr* expression();
@@ -64,15 +63,23 @@ namespace Parser {
             Expr* factor();
             Expr* unary();
             Expr* primary();
-            Expr* arguments();
             Expr* methods();
             Expr* ecosystem();
             Expr* assignment();
+            Expr* logicalOr();
+            Expr* logicalAnd();
+            Expr* call();
+            Expr* finishCall(Expr* expr);
             Statement* statement();
             Statement* printStatement();
+            Statement* ifStatement();
             Statement* expressionStatement();
             Statement* declarations();
             Statement* varDeclaration();
+            Statement* whileStatement();
+            Statement* forStatement();
+            Statement* function(const char* function);
+            Statement* returnStatement();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
@@ -161,7 +168,7 @@ namespace Parser {
             };
         private:
             Vector<Token> tokens_;
-            inline static logTable<Map<String, Vector<String>>> logs_{};
+            inline static Map<String, Vector<String>> logs_{};
             int current = 0;
             static String error();
             static String report(int line, const String where, const String message) throw();

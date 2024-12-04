@@ -9,7 +9,7 @@ namespace TruthyOperations {
             truthyOperations() = default;
             ~truthyOperations() noexcept = default;
         private:
-            inline static logTable<std::map<std::string, std::vector<std::string>>> logs_{};
+            inline static Map<String, Vector<String>> logs_{};
             inline static const Token& getType() { return *static_cast<const Token*>(runtimeerror<truthyOperations>::type);};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 

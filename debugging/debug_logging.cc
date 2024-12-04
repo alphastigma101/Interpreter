@@ -5,8 +5,6 @@
 #include <any>
 #include <sstream>
 #include <fstream>
-using Any = std::any;
-logTable<std::map<std::string, std::vector<std::string>>> logEntries;
 
 void createTestLogFile(const std::string& filename, std::chrono::system_clock::time_point modTime) {
     auto now = std::chrono::system_clock::now();
@@ -41,30 +39,30 @@ void createTestLogFile(const std::string& filename, std::chrono::system_clock::t
 
 void debugRotate() {
     // Manually debug the rotate method
-    logging<Any> log(logEntries, "Testing");
+    //logging<Any> log(logEntries, "Testing");
     auto now = std::chrono::system_clock::now();
     //createTestLogFile("old_log.json", now - std::chrono::hours(24 * 31)); // 31 days old
     createTestLogFile("new_log.json", now - std::chrono::hours(24 * 29)); // 29 days old
-    log.update();
-    log.write();
-    log.rotate();
+    //log.update();
+    //log.write();
+    //log.rotate();
     return;
 }
 
 
 void debugUpdate() {
     std::string test = "Test log entry";
-    logging<Any> log(logEntries, test);
-    log.update;
+    //logging<Any> log(logEntries, test);
+    //log.update;
     return;
 }
 
 void debugWrite() {
      // Manually debug write method
     std::string text = "Test log entry";
-    logging<Any> log(logEntries, text);
-    log.update;
-    log.write;
+    //logging<Any> log(logEntries, text);
+    //log.update;
+    //log.write;
     return;
 }
 

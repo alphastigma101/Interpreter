@@ -26,7 +26,7 @@ Unordered<std::type_index, std::function<void(Any const&)>> truthyOperations::an
 */
 bool truthyOperations::isTruthy(Any& object) {
     if (!object.has_value()) return false;
-    if (is_registered(object)) return std::any_cast<bool>(object);
+    //if (is_registered(object)) return std::any_cast<bool>(object);
     return true;
 }
 /** ---------------------------------------------------------------

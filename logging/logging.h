@@ -1,7 +1,7 @@
-#pragma once
 #ifndef _LOGGING_H_
 #define _LOGGING_H_
-#include <declarations.h>
+#include <any>
+#include <map>
 #include <chrono>
 #include <ctime>
 #include <sstream>
@@ -14,15 +14,15 @@ namespace Logging {
     class logging {
         public:
             logging() = default;
-            explicit logging<T>(const String& text) {
+            explicit logging<T>(const std::string& text) {
                 this->text = text;
                 // Need to check if it is empty
-                // if not use getCurrentTimeString() as the key and see if the value is the same 
+                // if not use getCurrentTime() as the key and see if the value is the same 
                 // if not create a new entry
-                this->currentEntries[getCurrentTimeString()] = {this->text};
+                currentEntries[getCurrentTime()] = {this->text};
             };
             ~logging() noexcept = default;
-            inline static String getCurrentTimeString() {
+            inline static std::string getCurrentTime() {
                 // Get current time as time_point
                 auto now = std::chrono::system_clock::now();
 
@@ -74,9 +74,9 @@ namespace Logging {
             */                      
             inline static bool write() {
                 std::filesystem::path logDir = "logs";
-                String entryName = read();
+                std::string entryName = read();
                 if (entryName.empty()) {
-                    String filename = logDir.string() + "/" + getCurrentTimeString() + ".json";
+                    std::string filename = logDir.string() + "/" + getCurrentTime() + ".json";
                     create(filename);
                 }
                 else {
@@ -86,18 +86,18 @@ namespace Logging {
                 return true;
             };
             void printLogs();
-            inline static String getText() { return text; };
-            inline Map<String, Vector<String>> getLogs() { return currentEntries; };
+            inline static std::string getText() { return text; };
+            inline std::map<std::string, std::vector<std::string>> getLogs() { return currentEntries; };
         private:
-            logTable<Map<String, Vector<String>>> currentEntries;
-            inline static String text = "\0";
+            inline static std::map<std::string, std::vector<std::string>> currentEntries{};
+            inline static std::string text = "\0";
             /** --------------------------------------------------------
                 * @brief write to the file in JSON-like format
                 *
                 * @return returns the file back 
                 * ----------------------------------------------------------
             */
-            inline static void create(String& filename) {
+            inline static void create(std::string& filename) {
                 // Read the entire content of the input file
                 std::ifstream ifs(filename);
                 std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
@@ -130,7 +130,7 @@ namespace Logging {
 
                 // Write new entries
                 bool firstEntry = ofs.tellp() == 1;  // Check if this is the first entry after opening brace
-                for (const auto& [timestamp, entries] : logEntries) {
+                for (const auto& [timestamp, entries] : currentEntries) {
                     //if (!firstEntry) {
                         //ofs << ",\n";
                     //}
@@ -158,7 +158,7 @@ namespace Logging {
                 }   
                 return;
                 /*ofs << "{\n";
-                for (const auto& [timestamp, entries] : logEntries) {
+                for (const auto& [timestamp, entries] : currentEntries) {
                     ofs << "  \"" << timestamp << "\": [\n";
                     for (const auto& entry : entries) {
                         ofs << "    \"" << entry << "\",\n";
@@ -176,7 +176,7 @@ namespace Logging {
              * @return returns a string if there is a .json file within the hour otherwise null
              * ---------------------------------------------------------------
             */
-            inline static String read() {
+            inline static std::string read() {
                 auto now = std::chrono::system_clock::now();
                 for (auto const& dir_entry : std::filesystem::directory_iterator{"logs"}) { 
                     std::string temp = dir_entry.path().stem(); // get the file names which represent a time

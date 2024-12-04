@@ -9,8 +9,7 @@ namespace UnaryOperations {
             explicit unaryOperations() = default;
             ~unaryOperations() noexcept = default;
         private:
-            inline static logTable<std::map<std::string, std::vector<std::string>>> logs_{};
-            Nuke::core tatical_nuke;
+            inline static Map<String, Vector<String>> logs_{};
             template<class T, class F>
             static std::pair<const std::type_index, std::function<void(Any const&)>> to_any_visitor(F const& f); 
             static Unordered<std::type_index, std::function<void(Any const&)>> any_visitor;

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <scanner.h>
 #include <parser.h>
-#include <interpreter.h>
 #include <environment.h>
 
 class EnvironmentTest : public ::testing::Test {

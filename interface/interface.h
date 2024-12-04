@@ -1,6 +1,5 @@
 #ifndef _INTERFACE_H_
 #define _INTERFACE_H_
-#include <definitions.h>
 // These interfaces should be used for when the Derived class does not directly implement the methods that they offer
 // Note that some interfaces do not use the -> and define the methods
 template<class Type>
@@ -49,5 +48,35 @@ class Visitor {
         inline void visitVarStmt(T* stmt) { return static_cast<Derived*>(this)->visitVarStmt(stmt); };
         template<typename T>
         inline auto visitAssignExpr(T* expr) { return static_cast<Derived*>(this)->visitAssignExpr(expr); };
+        template<typename T>
+        inline void visitIfStmt(T* stmt) { return static_cast<Derived*>(this)->visitIfStmt(stmt);};
+        template<typename T>
+        inline auto visitLogicalExpr(T* expr) { return static_cast<Derived*>(this)->visitLogicalExpr(expr); };
+        template<typename T>
+        inline void visitWhileStmt(T* stmt) { return static_cast<Derived*>(this)->visitWhileStmt(stmt); };
+        template<typename T>
+        inline auto visitCallExpr(T* expr) { return static_cast<Derived*>(this)->visitCallExpr(expr); }; 
+        template<typename T>
+        inline auto visitFunctionStmt(T* expr) { return static_cast<Derived*>(this)->visitFunctionStmt(expr); };
+        template<typename T>
+        inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };  
+};
+namespace NuclearLang {
+    template<class Derived>
+    class Nuke {
+        public:
+            inline int arity(int argc = 0) { return static_cast<Derived*>(this)->arity(argc);};
+            template<typename T>
+            inline auto call(T& interpreter, const T& arguments) { return static_cast<Derived*>(this)->call(interpreter, arguments);};
+            ~Nuke() = default;
+            inline void moveCursor(int x, int y) { return static_cast<Derived*>(this)->moveCursor(x,y);};
+            inline void drawStickFigures() { return static_cast<Derived*>(this)->drawStickFigures();};
+            inline void drawNuke(int height) { return static_cast<Derived*>(this)->drawNuke(height);};
+            inline void drawExplosion() { return static_cast<Derived*>(this)->drawExplosion(); };
+            inline void clearScreen() { return static_cast<Derived*>(this)->clearScreen(); };
+            inline void drawMiniatureNuke(int x, int y) { return static_cast<Derived*>(this)->drawMiniatureNuke(x,y);};
+            inline void drawMiniatureNukeGrid(int numRows, int numCols) { return static_cast<Derived*>(this)->drawMiniatureNuke(numRows, numCols);};
+            inline void launch() { return static_cast<Derived*>(this)->launch(); };
+    };
 };
 #endif 
