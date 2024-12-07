@@ -324,8 +324,7 @@ String Binary::parenthesize(String name, Expr* left, Expr* right) {
 String Binary::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitBinaryExpr(this));
+    return std::any_cast<String>(interp->visitBinaryExpr(this));
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -345,8 +344,7 @@ String Unary::parenthesize(String name, Expr* expr) {
 String Unary::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitUnaryExpr(this));
+    return std::any_cast<String>(interp->visitUnaryExpr(this));
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -379,16 +377,13 @@ String Assign::parenthesize(String name, Expr* expr) {
 String Assign::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitAssignExpr(this));
+    return std::any_cast<String>(interp->visitAssignExpr(this));
 }
 
 String Variable::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitVariableExpr(this));
-    return "\0";
+    return std::any_cast<String>(interp->visitVariableExpr(this));
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -413,8 +408,7 @@ String Logical::parenthesize(String name, Expr* left, Expr* right) {
 String Logical::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return std::any_cast<String>(interp->visitLogicalExpr(this));
+    return std::any_cast<String>(interp->visitLogicalExpr(this));
 }
 String Call::parenthesize(String name, Expr* left, Expr* right) {
     String result = "(" + name;

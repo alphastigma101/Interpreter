@@ -24,10 +24,30 @@ Unordered<std::type_index, std::function<void(Any const&)>> truthyOperations::an
     Otherwise, return false
  * ---------------------------------------------------------------------------------------------------------
 */
-bool truthyOperations::isTruthy(Any& object) {
+bool truthyOperations::isTruthy(const Any& object) {
     if (!object.has_value()) return false;
-    //if (is_registered(object)) return std::any_cast<bool>(object);
-    return true;
+    try {
+        std::string value = std::any_cast<std::string>(object);
+        if (value == "true") return true;
+        if (value == "false") return false;
+        if (value == "null" || value == "nil") return false;
+        try {
+            int intValue = std::stoi(value);
+            return intValue != 0;
+        }
+        catch (const std::invalid_argument&) {
+            try {
+                double doubleValue = std::stod(value);
+                return doubleValue != 0.0;
+            }
+            catch (const std::invalid_argument&) {
+                return !value.empty();
+            }
+        }
+    }
+    catch (const std::bad_any_cast& e) {
+        return true;
+    }
 }
 /** ---------------------------------------------------------------
  * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)

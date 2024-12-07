@@ -20,7 +20,7 @@ Environment::environment::environment(Environment::environment& enclosing) {
 */
 String Environment::environment::get(Token name) {
     if (auto search = env.find(name.getLexeme()); search != env.end())
-        return name.getLexeme();
+        return std::any_cast<String>(search->second);
     if (enclosing != nullptr) return enclosing->get(name);
     throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }

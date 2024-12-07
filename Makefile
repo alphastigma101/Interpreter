@@ -6,7 +6,7 @@ LDFLAGS := -L $(HOME)/Interpreter/tests -lgtest -lgtest_main -pthread
 # Include directories
 INCLUDES := -I types/ -I logging/ -I asm/ -I catch/ -I tokens/ \
             -I interface/ -I ast/ -I cfg/ -I declarations/ -I definitions/ -I runtime/ -I interpreter/ \
-            -I scanner/ -I parser/ -I threading/ -I addon/ -I environment/
+            -I scanner/ -I parser/ -I threading/ -I addon/ -I environment/ -I tacticalNuke/
 
 ########
 # Compiler flags for specific components

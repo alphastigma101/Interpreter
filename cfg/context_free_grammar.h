@@ -367,7 +367,7 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Assign>;
             explicit Assign(const Token &op, Expr* expr);
             ~Assign() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             String acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { 
                 String result;

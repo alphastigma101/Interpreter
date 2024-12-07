@@ -159,7 +159,7 @@ Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
 }
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
     if (auto conv = dynamic_cast<Expression*>(stmt))
-        evaluate(conv->initializer->expression);
+        evaluate(conv->initializer);
     return "\0";
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
@@ -194,14 +194,13 @@ void interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     return;
 }
 void interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
-    Any res = evaluate(stmt->condition);
-    while (isTruthy(res)) {
+    while (isTruthy(evaluate(stmt->condition))) {
         execute(stmt->body);
     }
     return;
 }
 Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
-    Any value = evaluate(expr->expression);
+    Any value = evaluate(expr->right);
     globals->assign(expr->op, value);
     return value;
 }
