@@ -465,12 +465,8 @@ namespace ContextFreeGrammar {
             inline String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             String acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { 
-                if (tree == true) {
-                    if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
-                    return " " + expr->op.getTypeStr() + "(" + expr->op.getLexeme() + ")"; 
-                }
-                //else
-                    //return interp->visitVariableExpr(this);
+                if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
+                return " " + expr->op.getTypeStr() + "(" + expr->op.getLexeme() + ")"; 
             };
         protected:
             explicit Variable() = default;

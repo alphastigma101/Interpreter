@@ -174,6 +174,19 @@ TEST_F(InterpreterTest, LogicalOr) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "'hi'");
 }
+TEST_F(InterpreterTest, LogicalAnd) {
+    // Single String
+    Scanner scanner("radiate 'hi' and 2;");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "2");
+}
 TEST_F(InterpreterTest, IfStatement) {
     Scanner scanner("if (10 > 1) radiate 'hi';");
     Vector<Token> tokens = scanner.ScanTokens();

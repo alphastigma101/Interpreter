@@ -10,8 +10,8 @@ interpreter::interpreter() {
 }
 
 Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any>& arguments) {
-    //return launch();
     launch();
+    return Any(); 
 }
 
 /** -------------------------------------------------
