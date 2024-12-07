@@ -40,7 +40,7 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt): interpre
  */
 Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
     if (auto call = dynamic_cast<Call*>(conv)) return conv->accept(call, false);
-    if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
+    else if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
     else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
     else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
     else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
@@ -167,7 +167,6 @@ Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     environment->define(stmt->op.getLexeme(), function);
     return "\0";
 }
-
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     if (auto conv = dynamic_cast<Print*>(stmt))
         globals->define("radiate", evaluate(conv->initializer));

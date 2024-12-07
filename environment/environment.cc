@@ -15,13 +15,14 @@ Environment::environment::environment(Environment::environment& enclosing) {
  *  
  * @param name Is a token class instance which will be used to access the name and type of the variable
  * 
- * @return Returns the name of the variable otherwise returns null if not found. 
+ * @return Returns the variable's value if found, otherwise returns null if not found. 
  * -------------------------------------
 */
 String Environment::environment::get(Token name) {
     if (auto search = env.find(name.getLexeme()); search != env.end())
         return std::any_cast<String>(search->second);
     if (enclosing != nullptr) return enclosing->get(name);
+    
     throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }
 /** -----------------------------------
@@ -37,8 +38,6 @@ String Environment::environment::get(Token name) {
 void Environment::environment::define(String name, Any value) {
    env[name] = value;
 }
-
-
 /** -----------------------------------
  * @brief Method that updates the variables' values.
  *  
