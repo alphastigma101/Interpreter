@@ -165,8 +165,8 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NukeFunction* function = new NukeFunction(stmt, environment);
     environment->define(stmt->op.getLexeme(), std::move(function));
+    functionName = new String(stmt->op.getLexeme());
     return nullptr;
-    //return "\0";
 }
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     if (auto conv = dynamic_cast<Print*>(stmt))
@@ -179,7 +179,7 @@ void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     Any value = nullptr;
     if (stmt->value != nullptr) { 
         value = evaluate(stmt->value);
-        environment->define(stmt->op.getLexeme(), value);
+        environment->define(std::move(*((String*)functionName)), value);
     }
     throw NukeReturn(value);
 }

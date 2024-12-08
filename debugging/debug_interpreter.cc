@@ -103,17 +103,11 @@ int main(int argc, char **argv) {
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("foo"); it != env.end()) {
-        auto nukeVal = std::any_cast<NukeFunction*>(it->second);
-        auto map = nukeVal->geClosure()->getMap();
-        if (auto search = map.find("return"); search != nukeVal->geClosure()->getMap().end())
-            conv = std::any_cast<String>(search->second);
+        conv = std::any_cast<String>(it->second);
     }
     std::cout << conv << std::endl;
     if (auto it = env.find("bar"); it != env.end()) {
-        auto nukeVal = std::any_cast<NukeFunction*>(it->second);
-        auto map = nukeVal->geClosure()->getMap();
-        if (auto search = map.find("return"); search != nukeVal->geClosure()->getMap().end())
-            conv = std::any_cast<String>(search->second);
+        conv = std::any_cast<String>(it->second);
     }
     std::cout << conv << std::endl;
 

@@ -54,6 +54,7 @@ void Environment::environment::assign(Token name, Any value) {
         env.insert_or_assign(name.getLexeme(), value);
         return;  
     }
+    //if (newEnv->assign(name.getLexeme(), value)) return;
     if (enclosing != nullptr) {
       enclosing->assign(name, value);
       return;

@@ -9,7 +9,7 @@ class InterpreterTest : public ::testing::Test {
             // Setup code if needed
         }   
 };
-/*TEST_F(InterpreterTest, Adding) {
+TEST_F(InterpreterTest, Adding) {
     Scanner scanner("int d = (34.000000 + 15.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -136,7 +136,7 @@ TEST_F(InterpreterTest, BlockScope) {
     if (auto it = env.find("b"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"outer b\"");
-}*/
+}
 /*TEST_F(InterpreterTest, NoVariable) {
     Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
@@ -149,7 +149,7 @@ TEST_F(InterpreterTest, BlockScope) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "-65");
 }*/
-/*TEST_F(InterpreterTest, PrintStmt) {
+TEST_F(InterpreterTest, PrintStmt) {
     Scanner scanner("radiate 24;");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -234,7 +234,7 @@ TEST_F(InterpreterTest, WhileLoop) {
     if (auto it = env.find("i"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "10");
-}*/
+}
 TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
     Scanner scanner("int foo(int a, int b, int c) { return a + b + c; } foo(10, 20, 30);");
     Vector<Token> tokens = scanner.ScanTokens();

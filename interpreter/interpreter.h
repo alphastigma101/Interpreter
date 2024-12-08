@@ -47,6 +47,8 @@ namespace Interpreter {
             static int arity(int argc = 0) { return argc;};
             static Any call(Interpreter::interpreter* interpreter, Vector<Any>& arguments);
         private:
+            inline static void* functionName = nullptr;
+            inline static void* functionType = nullptr;
             inline static void execute(ContextFreeGrammar::Statement* stmt) {
                 stmt->accept(stmt, false);
             };
