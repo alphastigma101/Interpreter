@@ -163,7 +163,7 @@ Print::Print(Expr* initalizer) {
 */
 Return::Return(const Token& keyword, Expr* value) {
     try { 
-        this->initializer = std::move(value);
+        this->value = std::move(value);
         this->op = std::move(keyword); 
     }
     catch(...) {
@@ -314,14 +314,14 @@ EcoSystem::EcoSystem(Expr* ecoSystem, const Token& op_) {}
 String Binary::parenthesize(String name, Expr* left, Expr* right) {
     String result = "(" + name;
     if (left) {
-        result += " " + left->accept(this);
+        result += " " + std::any_cast<String>(left->accept(this));
     }
     if (right) {
-        result += " " + right->accept(this);
+        result += " " + std::any_cast<String>(right->accept(this));
     }
     return result + ")";
 }
-String Binary::acceptHelper(Expr* visitor, bool tree) {
+Any Binary::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     return std::any_cast<String>(interp->visitBinaryExpr(this));
@@ -338,10 +338,10 @@ String Binary::acceptHelper(Expr* visitor, bool tree) {
 */
 String Unary::parenthesize(String name, Expr* expr) {
     String result = "(" + name + " ";
-    if (expr) result += expr->accept(this);
+    if (expr) result += std::any_cast<String>(expr->accept(this));
     return result + ")";
 }
-String Unary::acceptHelper(Expr* visitor, bool tree) {
+Any Unary::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     return std::any_cast<String>(interp->visitUnaryExpr(this));
@@ -358,7 +358,7 @@ String Unary::acceptHelper(Expr* visitor, bool tree) {
 */
 String Grouping::parenthesize(String name, Expr* expr) {
     String result = "(" + name + " ";
-    if (expr) result += expr->accept(this);
+    if (expr) result += std::any_cast<String>(expr->accept(this));
     return result + ")";
 }
 /** -----------------------------
@@ -371,19 +371,19 @@ String Grouping::parenthesize(String name, Expr* expr) {
 String Assign::parenthesize(String name, Expr* expr) {
     if (!expr) return "(null)";
     String result = "(" + name + " ";
-    if (expr) result += expr->accept(this);
+    if (expr) result += std::any_cast<String>(expr->accept(this));
     return result + ")";
 }
-String Assign::acceptHelper(Expr* visitor, bool tree) {
+Any Assign::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     return std::any_cast<String>(interp->visitAssignExpr(this));
 }
 
-String Variable::acceptHelper(Expr* visitor, bool tree) {
+Any Variable::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    return std::any_cast<String>(interp->visitVariableExpr(this));
+    return interp->visitVariableExpr(this);
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -398,14 +398,14 @@ String Variable::acceptHelper(Expr* visitor, bool tree) {
 String Logical::parenthesize(String name, Expr* left, Expr* right) {
     String result = "(" + name;
     if (left) {
-        result += " " + left->accept(this);
+        result += " " + std::any_cast<String>(left->accept(this));
     }
     if (right) {
-        result += " " + right->accept(this);
+        result += " " + std::any_cast<String>(right->accept(this));
     }
     return result + ")";
 }
-String Logical::acceptHelper(Expr* visitor, bool tree) {
+Any Logical::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     return std::any_cast<String>(interp->visitLogicalExpr(this));
@@ -413,18 +413,18 @@ String Logical::acceptHelper(Expr* visitor, bool tree) {
 String Call::parenthesize(String name, Expr* left, Expr* right) {
     String result = "(" + name;
     if (left) {
-        result += " " + left->accept(this);
+        result += " " + std::any_cast<String>(left->accept(this));
     }
     if (right) {
-        result += " " + right->accept(this);
+        result += " " + std::any_cast<String>(right->accept(this));
     }
     return result + ")";
 }
-String Call::acceptHelper(Expr* visitor, bool tree) {
+Any Call::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
-        interp->visitCallExpr(this);
+        return interp->visitCallExpr(this);
     return "\0";
 }
 /** -----------------------------
@@ -438,10 +438,10 @@ String Print::parenthesize(String name, Statement* stmt) {
     String result = "(" + name;
     if (!stmt) return "(null)";
     if (initializer)
-        result += initializer->accept(initializer);
+        result += std::any_cast<String>(initializer->accept(initializer));
     return result + ")";
 }
-String Print::acceptHelper(Statement* visitor, bool tree) {
+Any Print::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
@@ -458,10 +458,10 @@ String Print::acceptHelper(Statement* visitor, bool tree) {
 String Var::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
     String result = "(Var" + String("(") + name + " ";
-    if (initializer) result += initializer->accept(initializer);
+    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
     return result + "))";
 }
-String Var::acceptHelper(Statement* visitor, bool tree) {
+Any Var::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
@@ -478,14 +478,14 @@ String Var::acceptHelper(Statement* visitor, bool tree) {
 String Expression::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
     String result = "(Expression" + String("(") + name + " ";
-    if (initializer) result += initializer->accept(initializer);
+    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
     return result + "))";
 }
-String Expression::acceptHelper(Statement* visitor, bool tree) {
+Any Expression::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
-        return std::any_cast<String>(interp->visitExpressionStmt(this));
+        return interp->visitExpressionStmt(this);
 }
 /** ---------------------------------------------------------------
  * @brief ...
@@ -501,12 +501,12 @@ String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
     String result;
     for (auto& it : expr) {
         if (it) 
-            result += "(Block"  + String("(") + " " + it->accept(this) + ")" + ")";
+            result += "(Block"  + String("(") + " " + std::any_cast<String>(it->accept(this)) + ")" + ")";
         else continue;
     }
     return result;
 }
-String Block::acceptHelper(Statement* visitor, bool tree) {
+Any Block::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
@@ -524,7 +524,7 @@ String If::parenthesize(String name, Statement* stmt) {
     String result = "(" + name;
     if (!stmt) return "(null)";
     if (initializer)
-        result += initializer->accept(initializer);
+        result += std::any_cast<String>(initializer->accept(initializer));
     return result + ")";
 }
 /** -----------------------------
@@ -534,7 +534,7 @@ String If::parenthesize(String name, Statement* stmt) {
  * 
  * -------------------------------
 */
-String If::acceptHelper(Statement* visitor, bool tree) {
+Any If::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
@@ -552,7 +552,7 @@ String While::parenthesize(String name, Statement* left) {
     return result + ")";*/
     return "\0";
 }
-String While::acceptHelper(Statement* visitor, bool tree) {
+Any While::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
@@ -562,19 +562,17 @@ String While::acceptHelper(Statement* visitor, bool tree) {
 String Functions::parenthesize(String name, Statement* left, Statement* right) {
     String result = "(" + name;
     if (left) {
-        result += " " + left->accept(this);
+        result += " " + std::any_cast<String>(left->accept(this));
     }
     if (right) {
-        result += " " + right->accept(this);
+        result += " " + std::any_cast<String>(right->accept(this));
     }
     return result + ")";
 }
-String Functions::acceptHelper(Statement* visitor, bool tree) {
+Any Functions::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        interp->visitFunctionStmt(this);
-    return "\0";
+    return interp->visitFunctionStmt(this);
 }
 /** -----------------------------
  * @brief .....
@@ -586,14 +584,13 @@ String Functions::acceptHelper(Statement* visitor, bool tree) {
 String Return::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
     String result = "(Var" + String("(") + name + " ";
-    if (initializer) result += initializer->accept(initializer);
+    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
     return result + "))";
 }
-String Return::acceptHelper(Statement* visitor, bool tree) {
+Any Return::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        interp->visitReturnStmt(this);
+    interp->visitReturnStmt(this);
     return "\0";
 }
 
@@ -608,27 +605,6 @@ String Return::acceptHelper(Statement* visitor, bool tree) {
  * ----------------------------------------------------------------
 */
 String Methods::parenthesize(String name, Expr* expr) {
-    /*builder.append("(").append(name);
-    for (Expr expr : exprs) {
-      builder.append(" ");
-      builder.append(expr.accept(this));
-    }
-    builder.append(")");
-
-    return builder.toString();*/
-    return "\0";
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Arguments::parenthesize(String name, Expr* expr) {
     /*builder.append("(").append(name);
     for (Expr expr : exprs) {
       builder.append(" ");

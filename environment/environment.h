@@ -1,14 +1,14 @@
 #ifndef _ENVIRONMENT_H_
 #define _ENVIRONMENT_H_
 #include <token.h> // includes declarations.h 
-#include <run_time_error.h>
+#include <linked_lists.h>
 namespace Environment {
     /** --------------------------------------
         * @brief A class that implements the environment data structure.
         *        It will map the identifier to its values.
         * ---------------------------------------- 
     */
-    class environment: protected catcher<environment>, protected runtimeerror<environment> {
+    class environment: public Lists::linkedList<environment>, protected catcher<environment>, protected runtimeerror<environment> {
         public:
             friend class catcher<environment>;
             friend class runtimeerror<environment>;
@@ -17,7 +17,7 @@ namespace Environment {
             explicit environment(environment& env);
             ~environment() noexcept = default;
             static environment* enclosing;
-            static String get(Token name);
+            static Any get(Token name);
             static void define(String name, Any value);
             static void assign(Token name, Any value);
             inline static Map<String, Any> getMap() { return env; };
@@ -33,6 +33,7 @@ namespace Environment {
                 * @param Vector: It is a container that holds a string that represents an evaluated expression, which are pulled from 'evaluatedExpressions'.
                 *                Or it can hold a specific node from 'context_free_grammar.h' that can be visited and/or converted into a string later on.
             */
+            static Lists::linkedList<environment>* newEnv;
             inline static Map<String, Any> env{};
             inline static Vector<String> types = {"int", "bool", "char", "void", "double", "string"};
     };

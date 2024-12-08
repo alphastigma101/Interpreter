@@ -1,12 +1,9 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
-#include <tactical_nuke.h>
 namespace Interpreter {
-    class interpreter: protected ContextFreeGrammar::Binary,
-                    protected ContextFreeGrammar::Variable, protected ContextFreeGrammar::Assign, protected ContextFreeGrammar::Var, 
-                    protected ContextFreeGrammar::Block, 
-                    protected ContextFreeGrammar::Print,  public Visitor<interpreter>, protected truthyOperations, 
+    class interpreter: protected ContextFreeGrammar::Binary, protected ContextFreeGrammar::Print,  
+                       public Visitor<interpreter>, protected truthyOperations, 
                     protected binaryOperations, protected unaryOperations, public NuclearLang::Nuke<interpreter>,
                     public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
@@ -38,8 +35,13 @@ namespace Interpreter {
             Any visitCallExpr(ContextFreeGrammar::Call* expr);
             Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
             static void visitReturnStmt(ContextFreeGrammar::Return* stmt);
-            inline void getExecuteBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) { 
-                executeBlock(statements, environment);
+            inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
+                Environment::environment* previous = this->globals;
+                this->globals = environment;
+                for (const auto& statement : statements) {
+                    execute(statement);
+                }
+                this->globals = previous;
             };
             inline Environment::environment* getEnv() { return globals; };
             static int arity(int argc = 0) { return argc;};
@@ -64,16 +66,7 @@ namespace Interpreter {
             static void launch();
         protected:
             static Any evaluate(ContextFreeGrammar::Expr* conv);
-            inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
-                Environment::environment* previous = this->globals;
-                try {
-                    this->globals = environment;
-                    for (const auto& statement : statements) {
-                        execute(statement);
-                    }
-                } catch(...) { this->globals = previous; }
-                this->globals = previous;
-            };
+           
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 

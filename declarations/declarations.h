@@ -1,4 +1,3 @@
-#pragma once
 #ifndef _DECLARATIONS_H_
 #define _DECLARATIONS_H_
 #include <variant>
@@ -140,6 +139,7 @@ namespace ArgumentOperations {
 namespace Environment {
     class environment;
 };
+class NukeReturn;
 /** ---------------------------------------------------------------------------
  * @details 'ExprTypes' used alot in parser.cc and context_free_grammar.h
  *                      Needed for returning multiple user defined class instances
@@ -175,9 +175,9 @@ namespace NuclearLang {
     template<class Derived>
     class Nuke;
 };
-struct Node {
-    Node* next;
-    String id;
-    String value;
+namespace Lists {
+    template<typename Derived>
+    class linkedList;
+    struct Node;
 };
 #endif 

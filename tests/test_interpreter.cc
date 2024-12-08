@@ -2,7 +2,7 @@
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h> 
-
+#include <return.h>
 class InterpreterTest : public ::testing::Test {
     protected:
         void SetUp() override {
@@ -235,17 +235,43 @@ TEST_F(InterpreterTest, WhileLoop) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "10");
 }*/
-TEST_F(InterpreterTest, InterpreterTest_Function) {
+TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
     Scanner scanner("int foo(int a, int b, int c) { return a + b + c; } foo(10, 20, 30);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
-    auto env = interp.getEnv()->getMap();
-    String conv;
-    if (auto it = env.find("radiate"); it != env.end())
-        conv = std::any_cast<String>(it->second);
-    EXPECT_EQ(conv, "60");
+    try {
+        interpreter interp(res);
+    }
+    catch(NukeReturn& e) {
+        EXPECT_EQ(e.value, "60");
+    }
+}
+TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
+    Scanner scanner("string bar(string a) { return a; } bar('hello!');");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    try {
+        interpreter interp(res);
+    }
+    catch(NukeReturn& e) {
+        EXPECT_EQ(e.value, "'hello!'");
+    }
+    
+}
+TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
+    Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int a) {return a;} foo(100);");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    try {
+        interpreter interp(res);
+    }
+    catch(NukeReturn& e) {
+        EXPECT_EQ(e.value, "'hello!'");
+    }
+    
 }
 
 // TODO optional: Use google test's input parameter generator to test input values

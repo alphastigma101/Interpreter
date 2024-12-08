@@ -358,12 +358,12 @@ Statement* parser::function(const char* kind, Token& name) {
 */
 Statement* parser::varDeclaration() {
     const Token name = consume(TokenType::IDENTIFIER, "Expect a name.");
+    Token&& op = previous();
     Expr* initializer = nullptr;
     if (match(TokenType::EQUAL)) {
       initializer = expression();
     }
     if (match(TokenType::LEFT_PAREN)) {
-        Token&& op = previous();
         return function("function", op);
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");

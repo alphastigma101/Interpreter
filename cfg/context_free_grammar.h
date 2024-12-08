@@ -71,7 +71,7 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Vector<Any> arguments{};
-            virtual String accept(Expr* visitor, bool tree = true) = 0;
+            virtual Any accept(Expr* visitor, bool tree = true) = 0;
             // TODO: Uncomment after you get your ast printer fully working
             //inline String accept(Expr* visitor) { return static_cast<Derived*>(this)->visit(*static_cast<Derived*>(this)); };
             virtual String visit(Expr* visitor, bool tree = true) = 0;
@@ -97,8 +97,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Binary>;
             explicit Binary(Expr* left_, const Token& op_, Expr* right_);
             ~Binary() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Expr* visitor, bool tree = true);
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
         protected:
             explicit Binary() = default;
@@ -165,8 +165,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Logical>;
             explicit Logical(Expr* left_, const Token& op_, Expr* right_);
             ~Logical() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Expr* visitor, bool tree = true);
+            Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
         protected:
             explicit Logical() = default;
@@ -233,8 +233,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Unary>;
             explicit Unary(Expr* right_, const Token& op_);
             ~Unary() noexcept = default;
-            String acceptHelper(Expr* visitor, bool tree = true);
-            inline String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
         protected:
             explicit Unary() = default;
         private:
@@ -309,7 +309,7 @@ namespace ContextFreeGrammar {
             */
             explicit Grouping(Expr* expression);
             ~Grouping() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline Any accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             inline static Map<String, Vector<String>> logs_{};
             /** --------------------------------------
@@ -326,7 +326,7 @@ namespace ContextFreeGrammar {
             inline static const char* what(const char* msg = catcher<Grouping>::getMsg()) throw() { return msg;};
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true) return parenthesize("group", expr->expression);
-                else return expr->expression->accept(this, false);
+                else return std::any_cast<String>(expr->expression->accept(this, false));
             };
             String parenthesize(String name, Expr* expr);
     };
@@ -335,7 +335,7 @@ namespace ContextFreeGrammar {
             friend class catcher<Literal>; // Use to output a message
             explicit Literal(const Token&& oP);
             ~Literal() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline Any accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
             inline String visit(Expr* expr, bool tree = true) override {
                 if (tree == true) {
                     if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
@@ -367,36 +367,9 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Assign>;
             explicit Assign(const Token &op, Expr* expr);
             ~Assign() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Expr* visitor, bool tree = true);
-            inline String visit(Expr* expr, bool tree = true) override { 
-                String result;
-                if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr);
-                else {
-                    try {
-                        // Check and see if leftResult and rightResult are binary
-                        //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                        //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                        //Any res = eval.compute(leftResult, rightResult, expr);
-                        //if (!res.has_value()) 
-                            //throw new runtimeerror<Binary>(expr->op.getType(), String("Failed to compute this object:" + expr->op.getLexeme()).c_str());
-                        //else
-                            //result = std::any_cast<String>(res);
-                    }
-                    catch(...) {
-                        try {
-                            //Any leftResult = std::make_any<String>(expr->left->accept(this, tree));
-                            //Any rightResult = std::make_any<String>(expr->right->accept(this, tree));
-                            //return std::any_cast<String>(eval.toOther(leftResult, rightResult));
-                        }
-                        catch(...) {
-                            std::cout << "Invalid Type!" << std::endl;
-                        }
-                    }
-                }
-                return result;
-            };
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
+            inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr); };
         protected:
             explicit Assign() = default;
         private:
@@ -462,8 +435,8 @@ namespace ContextFreeGrammar {
             friend class Visitor<Variable>;
             Variable(const Token&& oP);
             ~Variable() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Expr* visitor, bool tree = true);
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { 
                 if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
                 return " " + expr->op.getTypeStr() + "(" + expr->op.getLexeme() + ")"; 
@@ -490,8 +463,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Call>;
             explicit Call(Expr* callee, Token& paren, Vector<Expr*> arguments);
             ~Call() noexcept = default;
-            String accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Expr* visitor, bool tree = true);
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
             inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
         protected:
             explicit Call() = default;
@@ -617,7 +590,7 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Vector<Token> params{};
-            virtual String accept(Statement* visitor, bool tree = true) = 0;
+            virtual Any accept(Statement* visitor, bool tree = true) = 0;
             // TODO: Uncomment after you get your ast printer fully working
             //inline String accept(Expr* visitor) { return static_cast<Derived*>(this)->visit(*static_cast<Derived*>(this)); };
             virtual String visit(Statement* visitor, bool tree = true) = 0;
@@ -629,8 +602,8 @@ namespace ContextFreeGrammar {
             friend class Visitor<Print>;
             Print(Expr* initalizer);
             ~Print() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("Print", stmt); };
             String parenthesize(String name, Statement* stmt);
         protected:
@@ -654,8 +627,8 @@ namespace ContextFreeGrammar {
             friend class catcher<Return>; // Use to output a message
             Return(const Token& keyword, Expr* value);
             ~Return() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("Return", stmt); };
             String parenthesize(String name, Statement* left);
         protected:
@@ -679,8 +652,8 @@ namespace ContextFreeGrammar {
             friend class catcher<Var>; // Use to output a message
             Var(const Token& op, Expr* initalizer);
             ~Var() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("Var", stmt); };
             String parenthesize(String name, Statement* left);
         protected:
@@ -704,8 +677,8 @@ namespace ContextFreeGrammar {
             friend class catcher<While>; // Use to output a message
             While(Expr* condition, Statement* body);
             ~While() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("While", stmt); };
             String parenthesize(String name, Statement* left);
         protected:
@@ -729,8 +702,8 @@ namespace ContextFreeGrammar {
             friend class catcher<Expression>; // Use to output a message
             Expression(Expr* initalizer);
             ~Expression() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize(stmt->op.getLexeme(), stmt); };
             String parenthesize(String name, Statement* stmt);
         protected:
@@ -755,8 +728,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Block>;
             explicit Block(Vector<ContextFreeGrammar::Statement*>&& statements);
             ~Block() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override {  return parenthesize(std::move(stmt->statements)); };
         protected:
             explicit Block() = default;
@@ -822,8 +795,8 @@ namespace ContextFreeGrammar {
             friend class catcher<If>; // Use to output a message
             explicit If(Expr* cond, Statement* thenbranch, Statement* elsebranch);
             ~If() noexcept = default;
-            String acceptHelper(Statement* visitor, bool tree = true);
-            inline String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
             inline String visit(Statement* stmt, bool tree = true) override { return parenthesize("If", stmt); };
             String parenthesize(String name, Statement* stmt);
         protected:
@@ -848,8 +821,8 @@ namespace ContextFreeGrammar {
             friend class runtimeerror<Functions>;
             explicit Functions(Token& name, Vector<Token> params, Vector<Statement*>& body);
             ~Functions() noexcept = default;
-            String accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
-            String acceptHelper(Statement* visitor, bool tree = true);
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
             inline String visit(Statement* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), nullptr, nullptr); };
         protected:
             explicit Functions() = default;
@@ -915,7 +888,7 @@ namespace ContextFreeGrammar {
             friend class catcher<Methods>; // Use to output a message
             explicit Methods(Expr* meth, const Token& op_);
             ~Methods() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override {return visit(this, tree); };
+            inline Any accept(Expr* visitor, bool tree = true) override {return visit(this, tree); };
         protected:
             Methods() = default;
         private:
@@ -934,43 +907,8 @@ namespace ContextFreeGrammar {
             inline static const char* what(const char* msg = catcher<Methods>::getMsg()) throw() { return msg;};
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override {
-                if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr);
-                else
-                    return accept(this, tree);
+                return "\0";
             };
-    };
-    class Arguments: public Expr, public catcher<Arguments> {
-        public:
-            friend class catcher<Arguments>; // Use to output a message
-            friend class Visitor<Arguments>;
-            explicit Arguments(Expr* left, const Token& op_, Expr* right);
-            ~Arguments() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree);};
-        private:
-            inline static Map<String, Vector<String>> logs_{};
-            /** --------------------------------------
-             * @brief A method that is overloaded by this class 
-             * 
-             * @details It is a method that is defined here which gets called by the definition method inside catcher 
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output the error message
-             * 
-             * @return a string literal. Usually will be ub. Something that you do not want to get
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const char* msg = catcher<Arguments>::getMsg()) throw() { return msg;};
-            static String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr, bool tree = true) override {
-                if (tree == true)
-                    return parenthesize(expr->op.getLexeme(), expr); 
-                else
-                    return accept(this, tree);
-            };
-           
-        protected:
-            Arguments() = default;
     };
     class EcoSystem: public Expr, public catcher<EcoSystem> {
         public:
@@ -978,7 +916,7 @@ namespace ContextFreeGrammar {
             friend class Visitor<EcoSystem>;
             explicit EcoSystem(Expr* ecoSystem, const Token& op_);
             ~EcoSystem() noexcept = default;
-            inline String accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
+            inline Any accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             inline static Map<String, Vector<String>> logs_{};
             /** --------------------------------------
@@ -995,10 +933,7 @@ namespace ContextFreeGrammar {
             inline static const char* what(const char* msg = catcher<EcoSystem>::getMsg()) throw() { return msg;};
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override { 
-                if (tree == true) 
-                    return parenthesize(expr->op.getLexeme(), expr);
-                else
-                    return accept(this, tree);
+                return "\0";
             };
         protected:
             EcoSystem() = default;

@@ -95,13 +95,30 @@ static void Adding() {
 
 int main(int argc, char **argv) {
     //Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); // how would it handle this?
-    Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
+    Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int a) {return a;} foo(100);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
-    Adding();
+    String conv;
+    if (auto it = env.find("foo"); it != env.end()) {
+        auto nukeVal = std::any_cast<NukeFunction*>(it->second);
+        auto map = nukeVal->geClosure()->getMap();
+        if (auto search = map.find("return"); search != nukeVal->geClosure()->getMap().end())
+            conv = std::any_cast<String>(search->second);
+    }
+    std::cout << conv << std::endl;
+    if (auto it = env.find("bar"); it != env.end()) {
+        auto nukeVal = std::any_cast<NukeFunction*>(it->second);
+        auto map = nukeVal->geClosure()->getMap();
+        if (auto search = map.find("return"); search != nukeVal->geClosure()->getMap().end())
+            conv = std::any_cast<String>(search->second);
+    }
+    std::cout << conv << std::endl;
+
+    //auto env = interp.getEnv()->getMap();
+    //Adding();
     
     return 0;
 }

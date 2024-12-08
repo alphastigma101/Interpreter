@@ -1,6 +1,7 @@
 #ifndef _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
 #define _LANGUAGE_SPECIFIC_BINARY_OPERATIONS_H_
 #include <environment.h>
+#include <tactical_nuke.h>
 #include <stdexcept>
 namespace BinaryOperations {
     class binaryOperations: public catcher<binaryOperations>, protected runtimeerror<binaryOperations>, public logging<binaryOperations> {
@@ -104,8 +105,8 @@ namespace BinaryOperations {
                         return false;
                     }
                     catch(...) { return false; }
-                } catch (...) { throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!"); }
-                throw new catcher<binaryOperations>("Failed to convert value into a Numeric Value!");    
+                } catch (...) { return false; }
+                throw catcher<binaryOperations>("Failed to convert value into a Numeric Value!");    
             };
             static bool isEqual(Any& a, Any& b);
             inline static bool isString(const Any value) { return value.type() == typeid(String);};
@@ -122,10 +123,28 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isOther(const Any value) {
-                /*if (auto search = any_visitor.find(value); search != any_visitor.end())
+                // Check if the value is a vector
+                if (value.type() == typeid(std::vector<T>)) {
                     return true;
-                else
-                    return false;*/
+                }
+                
+                // Check if the value is a pointer
+                if (value.type() == typeid(T*)) {
+                    return true;
+                }
+                
+                // Check if the value is a reference
+                if (value.type() == typeid(std::reference_wrapper<T>)) {
+                    return true;
+                }
+
+                // Check for function types (if applicable)
+                if (value.type() == typeid(NukeFunction*)) {
+                    return true;
+                }
+                
+                // Additional custom type checks can be added here
+                
                 return false;
             };
             /** -------------------------------------------------------------

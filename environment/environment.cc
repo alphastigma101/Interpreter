@@ -1,5 +1,6 @@
 #include <environment.h>
 Environment::environment* Environment::environment::enclosing = nullptr;
+Lists::linkedList<Environment::environment>* Environment::environment::newEnv = new Lists::linkedList<Environment::environment>();
 /** -----------------------------------
  * @brief This is a default constructor for environment
  * 
@@ -18,9 +19,9 @@ Environment::environment::environment(Environment::environment& enclosing) {
  * @return Returns the variable's value if found, otherwise returns null if not found. 
  * -------------------------------------
 */
-String Environment::environment::get(Token name) {
+Any Environment::environment::get(Token name) {
     if (auto search = env.find(name.getLexeme()); search != env.end())
-        return std::any_cast<String>(search->second);
+        return search->second;
     if (enclosing != nullptr) return enclosing->get(name);
     
     throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
@@ -37,6 +38,7 @@ String Environment::environment::get(Token name) {
 */
 void Environment::environment::define(String name, Any value) {
    env[name] = value;
+   //newEnv->insert(name, value);
 }
 /** -----------------------------------
  * @brief Method that updates the variables' values.

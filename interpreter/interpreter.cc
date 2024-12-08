@@ -129,18 +129,18 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             throw runtimeerror<interpreter>(expr->op, "Failed to convert one of the elements in arguments into Expr*");
         }
     }
-    if (!(instanceof<NuclearLang::Nuke<interpreter>>(callee))) {
+    if (!(instanceof<NuclearLang::Nuke<NukeFunction>*>(callee))) {
       throw runtimeerror<interpreter>(expr->paren,
           "Can only call functions and classes.");
     }
-    auto function = std::any_cast<NuclearLang::Nuke<interpreter>*>(callee);
+    auto temp = std::any_cast<NukeFunction*>(callee);
+    NuclearLang::Nuke<NukeFunction>* function = dynamic_cast<NuclearLang::Nuke<NukeFunction>*>(std::move(temp));
     if (arguments.size() != function->arity()) {
       throw runtimeerror<interpreter>(expr->paren, String("Expected " +
           std::to_string(function->arity()) + " arguments but got " +
           std::to_string(arguments.size()) + ".").c_str());
     }
-    //return function->call(this, arguments);
-    return "\0";
+    return function->call(this, arguments);
 }
 Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
     Any right = evaluate(expr->right);
@@ -164,8 +164,9 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NukeFunction* function = new NukeFunction(stmt, environment);
-    environment->define(stmt->op.getLexeme(), function);
-    return "\0";
+    environment->define(stmt->op.getLexeme(), std::move(function));
+    return nullptr;
+    //return "\0";
 }
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     if (auto conv = dynamic_cast<Print*>(stmt))
@@ -176,8 +177,11 @@ Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
 }
 void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     Any value = nullptr;
-    if (stmt->value != nullptr) value = evaluate(stmt->value);
-    throw new NukeReturn(value);
+    if (stmt->value != nullptr) { 
+        value = evaluate(stmt->value);
+        environment->define(stmt->op.getLexeme(), value);
+    }
+    throw NukeReturn(value);
 }
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     if (auto conv = dynamic_cast<Variable*>(expr))

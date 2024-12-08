@@ -66,8 +66,8 @@ namespace NuclearLang {
     class Nuke {
         public:
             inline int arity(int argc = 0) { return static_cast<Derived*>(this)->arity(argc);};
-            template<typename T>
-            inline auto call(T& interpreter, const T& arguments) { return static_cast<Derived*>(this)->call(interpreter, arguments);};
+            template<typename T, typename Y>
+            inline auto call(T* interp, const Y& arguments) { return static_cast<Derived*>(this)->call(interp, arguments);};
             ~Nuke() = default;
             inline void moveCursor(int x, int y) { return static_cast<Derived*>(this)->moveCursor(x,y);};
             inline void drawStickFigures() { return static_cast<Derived*>(this)->drawStickFigures();};

@@ -27,7 +27,7 @@ ast::ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept {
 String ast::buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) {
     for (auto &it: stmt) {
         if (auto stmt = dynamic_cast<Statement*>(it))
-            outputDir_ += it->accept(stmt);
+            outputDir_ += std::any_cast<String>(it->accept(stmt));
     }
     return outputDir_;
 }
