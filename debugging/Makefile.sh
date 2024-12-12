@@ -28,10 +28,10 @@ g++ -g -std=c++17 -fconcepts $INCLUDE -c ../scanner/scanner.cc -o scanner.o
 #g++ -g -std=c++17 test_scanner.o token.o scanner.o -o test_scanner $LDFLAGS
 
 echo "Building the expression types object files"
-g++ -g -std=c++17 -fconcepts $INCLUDE -DENABLE_TREE_BUILD=1  -DENABLE_TATICAL_NUKE=1  -c ../cfg/context_free_grammar.cc -o context_free_grammar.o
+g++ -g -std=c++17 -fconcepts $INCLUDE  -c ../cfg/context_free_grammar.cc -o context_free_grammar.o
 
 echo "Build object file for parser.cc"
-g++ -w -g -std=c++17 -fconcepts $INCLUDE -c ../parser/parser.cc -o parser.o
+g++ -w -g -std=c++17 -fconcepts $INCLUDE -DENABLE_LOGGING=1 -c ../parser/parser.cc -o parser.o
 
 echo "Creating object files and executables for ast"
 g++ -g -std=c++17 -fconcepts $INCLUDE -c ../ast/abstraction_tree_syntax.cc -o abstraction_tree_syntax.o 
@@ -62,18 +62,18 @@ g++ -g -std=c++17 -fconcepts $INCLUDE -c ../interpreter/language_specific_binary
 
 echo "Creating debugging object files and executables for environment"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../environment/environment.cc -o environment.o
-g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1  -c ../debugging/debug_environment.cc -o debug_environment.o
+g++ -g -std=c++17 -fconcepts $INCLUDE   -c ../debugging/debug_environment.cc -o debug_environment.o
 g++ -g -std=c++17 -fconcepts debug_environment.o -o exec_debug_environment
-g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_environment.cc -o test_environment.o
+g++ -g -std=c++17 -fconcepts $INCLUDE  -c ../tests/test_environment.cc -o test_environment.o
 g++ -g -std=c++17 -fconcepts test_environment.o -o test_environment $LDFLAGS
 
 echo "Creating debugging object files and executables for tactical nuke"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../tacticalNuke/tactical_nuke.cc -o nuke.o 
 echo "Creating debugging object files and executables for interpreter"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../interpreter/interpreter.cc -o interpreter.o 
-g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1  -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
+g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING=1  -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
 g++ -g -std=c++17 -fconcepts nuke.o scanner.o parser.o interpreter.o context_free_grammar.o abstraction_tree_syntax.o environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  debug_interpreter.o -o exec_debug_interpreter
-g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
+g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++17 -fconcepts nuke.o interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 
 echo "Compiling main.cc!"

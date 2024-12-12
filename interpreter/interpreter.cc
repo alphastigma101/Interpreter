@@ -1,14 +1,24 @@
 #include <interpreter.h>
 #include <return.h>
 Environment::environment* interpreter::globals = new Environment::environment();
-
+/** ------------------------------------------------
+ * @brief Default constructor that calls in native functions 
+ * 
+ * @details Native functions are built in and come with the language  
+ * 
+*/
 interpreter::interpreter() {
-    globals->define("launch", new NuclearLang::Nuke<interpreter>());
-    // TODO Need to also add other functions like fussion and fission
-    // One is for concating and the other is for splitting
-
+    globals->define("launch", new NuclearLang::Nuke<NukeFunction>());
+    globals->define("fussion", new NuclearLang::Nuke<NukeFunction>());
+    globals->define("fission", new NuclearLang::Nuke<NukeFunction>());
 }
-
+/** ------------------------------------------------
+ * @brief Returns the value that the call expression produces.
+ * 
+ * @param interpreter A pointer to the interpreter class
+ * @param arguments A vector that contains a list of arguments of user-defined function 
+ * 
+ */
 Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any>& arguments) {
     launch();
     return Any(); 
@@ -26,10 +36,15 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt): interpre
         }
     } 
     catch (runtimeerror<interpreter>& e) {
-        std::cout << "Logs have been updated!" << std::endl;
-        logging<interpreter> logs(e.what(e.getType<TokenType>(), e.getMsg()));
-        logs.rotate();
-        logs_ = logs.getLogs();
+        String error = e.what(e.getType<TokenType>(), e.getMsg());
+        #if ENABLE_LOGGING
+            std::cout << "Logs have been updated!" << std::endl;
+            logging<interpreter> logs(error);
+            logs.rotate();
+            logs_ = logs.getLogs();
+        #else
+            std::cout << error << std::endl;
+        #endif
     }                              
 }
 /** ------------------------------------------------
@@ -129,12 +144,11 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             throw runtimeerror<interpreter>(expr->op, "Failed to convert one of the elements in arguments into Expr*");
         }
     }
-    if (!(instanceof<NuclearLang::Nuke<NukeFunction>*>(callee))) {
+    if (!(instanceof<NukeFunction*>(callee))) {
       throw runtimeerror<interpreter>(expr->paren,
           "Can only call functions and classes.");
     }
-    auto temp = std::any_cast<NukeFunction*>(callee);
-    NuclearLang::Nuke<NukeFunction>* function = dynamic_cast<NuclearLang::Nuke<NukeFunction>*>(std::move(temp));
+    auto function = std::any_cast<NukeFunction*>(callee);
     if (arguments.size() != function->arity()) {
       throw runtimeerror<interpreter>(expr->paren, String("Expected " +
           std::to_string(function->arity()) + " arguments but got " +
@@ -168,20 +182,36 @@ Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     functionName = new String(stmt->op.getLexeme());
     return nullptr;
 }
+/** ---------------------------------------------------------------------------
+ * @brief visits the Print class from context_free_grammar.cc and evaluates the value 
+ * 
+ * @param stmt: Is a raw pointer that points to the class called Return. 
+ * 
+ * @return Returns an any type.
+ * 
+ * ---------------------------------------------------------------------------
+*/
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     if (auto conv = dynamic_cast<Print*>(stmt))
         globals->define("radiate", evaluate(conv->initializer));
-    //TODO: It should be returning nullptr, but accept needs specifier needs to be changed to Any 
-    //return nullptr;
-    return "\0";
+    return nullptr;
 }
+/** ---------------------------------------------------------------------------
+ * @brief visits the Return class from context_free_grammar.cc and evaluates the value 
+ * 
+ * @param stmt: Is a raw pointer that points to the class called Return. 
+ * 
+ * @return Returns nothing.
+ * 
+ * ---------------------------------------------------------------------------
+*/
 void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     Any value = nullptr;
     if (stmt->value != nullptr) { 
         value = evaluate(stmt->value);
-        environment->define(std::move(*((String*)functionName)), value);
+        //environment->define(std::move(*((String*)functionName)), value);
     }
-    throw NukeReturn(value);
+    throw NuclearLang::NukeReturn(value);
 }
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     if (auto conv = dynamic_cast<Variable*>(expr))
@@ -245,119 +275,4 @@ bool interpreter::instanceof(const Any& object) {
         throw catcher<interpreter>("Unknown Type!");
     }
     return false;
-}
-void interpreter::moveCursor(int x, int y) {
-    std::cout << "\033[" << y << ";" << x << "H";
-}
-
-void interpreter::drawStickFigures() {
-    std::cout << "   O   O   \n";
-    std::cout << "   |   |   \n";
-    std::cout << "   |   |   \n";
-    std::cout << "  / \\ / \\  \n";
-    std::cout << "-------------\n";
-}
-
-void interpreter::drawNuke(int height) {
-    // Print spaces to position the nuke
-    for (int i = 0; i < height; i++) {
-        std::cout << std::endl;
-    }
-    std::cout << "            '--' \n";
-    std::cout << "           /_____\\\n";
-    std::cout << "           |     |\n";
-    std::cout << "           |     |\n";
-    std::cout << "           |_____|\n";
-    std::cout << "           |     |\n";
-    std::cout << "           |     |\n";
-    std::cout << "            \\   /\n";
-    std::cout << "             | |\n";
-    std::cout << "             | |\n";
-    std::cout << "             | |\n";
-    std::cout << "             | |\n";
-    std::cout << "           /     \\\n";
-    std::cout << "          |_______|\n";
-    std::cout << "          |       |\n";
-    std::cout << "           \\_|__/ \n";
-    std::cout << "            \\ | /\n";
-    std::cout << "             \\|/ \n";
-}
-
-void interpreter::drawExplosion() {
-    std::cout << "       . . .      \n";
-    std::cout << "     . . . . .    \n";
-    std::cout << "   . . . . . . .  \n";
-    std::cout << " . . . . . . . . .\n";
-    std::cout << "     . . . . .    \n";
-    std::cout << "       . . .      \n";
-}
-
-void interpreter::clearScreen() {
-    std::cout << "\033[2J\033[1;1H"; // ANSI escape code to clear the screen
-}
-void interpreter::drawMiniatureNuke(int x, int y) {
-    moveCursor(x, y);
-    std::cout << "  '--'  \n";
-    std::cout << " /_____\\\n";
-    std::cout << " |     |\n";
-    std::cout << " |     |\n";
-    std::cout << " |_____|\n";
-    std::cout << " |     |\n";
-    std::cout << " |     |\n";
-    std::cout << "  \\   /\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << " /     \\\n";
-    std::cout << "|_______|\n";
-    std::cout << "|       |\n";
-    std::cout << " \\_|__/ \n";
-    std::cout << "  \\ | /\n";
-    std::cout << "   \\|/ \n";
-}
-
-void interpreter::drawMiniatureNukeGrid(int numRows, int numCols) {
-    int spacing = 6; // Space between each nuke
-
-    for (int y = 0; y < numRows; y++) {
-        for (int x = 0; x < numCols; x++) {
-            drawMiniatureNuke(x * spacing, y * spacing);
-        }
-    }
-}
-
-void interpreter::launch() {
-    int nukeDropHeight = 20;  // Increased height for better visibility
-    int groundLevel = 25;     // Position where stick figures will be drawn
-
-    clearScreen();
-    
-    // Draw stick figures at fixed position
-    moveCursor(0, groundLevel);
-    drawStickFigures();
-
-    // Simulate dropping
-    for (int i = 0; i < 15; i++) {
-        // Clear previous position of falling object
-        moveCursor(0, i - 1);
-        std::cout << String(20, ' ') << std::endl;  // Clear previous position, this is not working!
-        
-        // Draw falling object at new position
-        moveCursor(0, i);
-        drawNuke(0);
-        //drawMiniatureNukeGrid(i, i);
-        
-        
-        // Redraw stick figures (they stay in place)
-        moveCursor(0, groundLevel);
-        drawStickFigures();
-        if (i == groundLevel) break;
-        
-        //this_thread::sleep_for(chrono::milliseconds(500));
-    }
-    // Draw explosion where the stick figures were
-    clearScreen();
-    drawExplosion();
-    return;
 }

@@ -312,12 +312,15 @@ Statement* parser::declarations() {
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
-        std::cout << "Logs have been updated!" << std::endl;
         auto err = String(error() + String(" Got '") + String(previous().getLexeme()) + String("' instead."));
-        logging<parser> logs(std::move(err));
-        std::cout << err << std::endl;
-        logs.rotate();
-        logs_ = logs.getLogs();
+        #if ENABLE_LOGGING
+            std::cout << "Logs have been updated!" << std::endl;
+            logging<parser> logs(std::move(err));
+            logs.rotate();
+            logs_ = logs.getLogs();
+        #else 
+            std::cout << err << std::endl;
+        #endif
         return nullptr;
     }
 }
@@ -424,11 +427,15 @@ Vector<Statement*> parser::parse() {
         }
         return statements; 
     }
-    catch (parseError<parser>& e) { 
-        std::cout << "Logs have been updated!" << std::endl;
-        logging<parser> logs(error());
-        logs.rotate();
-        logs_ = logs.getLogs();
+    catch (parseError<parser>& e) {
+        #if ENABLE_LOGGING
+            std::cout << "Logs have been updated!" << std::endl;
+            logging<parser> logs(error());
+            logs.rotate();
+            logs_ = logs.getLogs();
+        #else 
+            std::cout << e.error() << std::endl;
+        #endif
         return statements; 
     }
 }
@@ -460,10 +467,12 @@ String parser::error() {
 */            
 String parser::report(int line, const String where, const String message) throw() {
     String err = "[line " + std::to_string(line) + "] Error" + where +  ": " + message;
-    logging<parser> logs(err);
-    logs.write();
-    logs.rotate();
-    logs_ = logs.getLogs();
+    #if ENABLE_LOGGING
+        logging<parser> logs(err);
+        logs.write();
+        logs.rotate();
+        logs_ = logs.getLogs();
+    #endif
     return err;
 }
 void parser::printNodes() {

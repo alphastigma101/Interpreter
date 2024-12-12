@@ -61,22 +61,5 @@ class Visitor {
         template<typename T>
         inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };  
 };
-namespace NuclearLang {
-    template<class Derived>
-    class Nuke {
-        public:
-            inline int arity(int argc = 0) { return static_cast<Derived*>(this)->arity(argc);};
-            template<typename T, typename Y>
-            inline auto call(T* interp, const Y& arguments) { return static_cast<Derived*>(this)->call(interp, arguments);};
-            ~Nuke() = default;
-            inline void moveCursor(int x, int y) { return static_cast<Derived*>(this)->moveCursor(x,y);};
-            inline void drawStickFigures() { return static_cast<Derived*>(this)->drawStickFigures();};
-            inline void drawNuke(int height) { return static_cast<Derived*>(this)->drawNuke(height);};
-            inline void drawExplosion() { return static_cast<Derived*>(this)->drawExplosion(); };
-            inline void clearScreen() { return static_cast<Derived*>(this)->clearScreen(); };
-            inline void drawMiniatureNuke(int x, int y) { return static_cast<Derived*>(this)->drawMiniatureNuke(x,y);};
-            inline void drawMiniatureNukeGrid(int numRows, int numCols) { return static_cast<Derived*>(this)->drawMiniatureNuke(numRows, numCols);};
-            inline void launch() { return static_cast<Derived*>(this)->launch(); };
-    };
-};
+
 #endif 

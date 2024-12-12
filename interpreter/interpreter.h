@@ -4,7 +4,7 @@
 namespace Interpreter {
     class interpreter: protected ContextFreeGrammar::Binary, protected ContextFreeGrammar::Print,  
                        public Visitor<interpreter>, protected truthyOperations, 
-                    protected binaryOperations, protected unaryOperations, public NuclearLang::Nuke<interpreter>,
+                    protected binaryOperations, protected unaryOperations, protected NuclearLang::NukeFunction,
                     public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
             friend class catcher<interpreter>; // Useful for one error
@@ -58,14 +58,6 @@ namespace Interpreter {
             inline static Environment::environment* environment = globals;
             template<typename T>
             static bool instanceof(const Any& object);
-            static void moveCursor(int x, int y);
-            static void drawStickFigures();
-            static void drawNuke(int height);
-            static void drawExplosion();
-            static void clearScreen();
-            static void drawMiniatureNuke(int x, int y);
-            static void drawMiniatureNukeGrid(int numRows, int numCols);
-            static void launch();
         protected:
             static Any evaluate(ContextFreeGrammar::Expr* conv);
            

@@ -165,16 +165,6 @@ namespace Logging {
     template<typename Derived>
     class logging;
 };
-
-/** ---------------------------------------
- * @brief This is my custom language that I am supporting called Tatical Nuke
- * 
- * -----------------------------------------
-*/
-namespace NuclearLang {
-    template<class Derived>
-    class Nuke;
-};
 namespace Lists {
     template<typename Derived>
     class linkedList;

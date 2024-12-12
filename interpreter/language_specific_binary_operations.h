@@ -139,7 +139,7 @@ namespace BinaryOperations {
                 }
 
                 // Check for function types (if applicable)
-                if (value.type() == typeid(NukeFunction*)) {
+                if (value.type() == typeid(NuclearLang::NukeFunction*)) {
                     return true;
                 }
                 

@@ -445,8 +445,7 @@ Any Print::acceptHelper(Statement* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
     else 
-        interp->visitPrintStmt(this);
-    return "\0";
+        return interp->visitPrintStmt(this);
 }
 /** -----------------------------
  * @brief .....

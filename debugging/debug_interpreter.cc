@@ -95,7 +95,7 @@ static void Adding() {
 
 int main(int argc, char **argv) {
     //Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); // how would it handle this?
-    Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int a) {return a;} foo(100);");
+    Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int b) {return b;} foo(100);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
@@ -103,11 +103,15 @@ int main(int argc, char **argv) {
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("foo"); it != env.end()) {
-        conv = std::any_cast<String>(it->second);
+        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
+        auto res = *(Any*)nuclear->returnVal->value;
+        conv = std::any_cast<String>(res);
     }
     std::cout << conv << std::endl;
     if (auto it = env.find("bar"); it != env.end()) {
-        conv = std::any_cast<String>(it->second);
+        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
+        auto res = *(Any*)nuclear->returnVal->value;
+        conv = std::any_cast<String>(res);
     }
     std::cout << conv << std::endl;
 
