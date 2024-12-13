@@ -8,9 +8,9 @@ Environment::environment* interpreter::globals = new Environment::environment();
  * 
 */
 interpreter::interpreter() {
-    globals->define("launch", new NuclearLang::Nuke<NukeFunction>());
-    globals->define("fussion", new NuclearLang::Nuke<NukeFunction>());
-    globals->define("fission", new NuclearLang::Nuke<NukeFunction>());
+    globals->define(String("launch"), new NuclearLang::Nuke<NukeFunction>());
+    globals->define(String("fussion"), new NuclearLang::Nuke<NukeFunction>());
+    globals->define(String("fission"), new NuclearLang::Nuke<NukeFunction>());
 }
 /** ------------------------------------------------
  * @brief Returns the value that the call expression produces.
@@ -179,7 +179,7 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NukeFunction* function = new NukeFunction(stmt, environment);
     environment->define(stmt->op.getLexeme(), std::move(function));
-    functionName = new String(stmt->op.getLexeme());
+    //functionName = new String(stmt->op.getLexeme());
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
         value = evaluate(stmt->value);
         //environment->define(std::move(*((String*)functionName)), value);
     }
-    throw NuclearLang::NukeReturn(value);
+    throw new NuclearLang::NukeReturn(value);
 }
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     if (auto conv = dynamic_cast<Variable*>(expr))

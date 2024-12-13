@@ -166,7 +166,6 @@ namespace Logging {
     class logging;
 };
 namespace Lists {
-    template<typename Derived>
     class linkedList;
     struct Node;
 };

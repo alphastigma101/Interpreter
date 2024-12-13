@@ -8,51 +8,83 @@ namespace Lists {
         void* key;
         Node* next; 
     };
-    template<typename Derived>
     class linkedList {
         inline static Node* head = nullptr;
         public:
-            explicit linkedList() = default;
+            explicit linkedList() noexcept = default;
             ~linkedList() noexcept = default;
             template<typename T, typename Z, typename Y>
-            inline void insert(T& key, Z& value, Y& type = nullptr) {
-                if (searchValue(key))  return; /*throw runtimeerror<linkedList<Derived>>();*/
+            inline static void insert(T& key, Z& value, Y type = nullptr) {
+                if (search(key) == true) return;
                 Node* newNode = new Lists::Node(); 
-                T(newNode->key) = key;
-                T(newNode->value) = value;
-                if (type != nullptr) Y(newNode->id) = type;      
+                newNode->key =  new T(key);
+                newNode->value = new Z(value);
+                if (type != nullptr) newNode->id = new Y(type);      
                 newNode->next = head;      
                 head = newNode;    
             };
             template<typename T>
-            inline static auto searchValue(T& key) {
+            inline static auto get(T& key) {
                 Node* temp = head;
-                while (temp->next) {
-                    if (temp->key == key) return temp->value;
+                if (temp != nullptr) {
+                    while (temp->next) {
+                    if (temp->key != nullptr && *static_cast<T*>(temp->key) == key) return static_cast<T*>(temp->value);
                     else temp = temp->next;
+                    }
                 }
-                // Throw an exception
+                throw;
             };
             template<typename T>
-            inline static auto searchId(T& key) {
+            inline static bool search(T& key) {
+                Node* temp = head;
+                if (temp != nullptr) {
+                    while (temp->next) {
+                        if (temp->key != nullptr && *static_cast<T*>(temp->key) == key) return true;
+                        else temp = temp->next;
+                    }
+                }
+                return false;
+            };
+            template<typename T>
+            inline static Node* find(T key) {
                 Node* temp = head;
                 while (temp->next) {
-                    if (temp->key == key) return temp->id;
+                    if (temp->key != nullptr && *static_cast<T*>(temp->key) == key) return temp;
                     else temp = temp->next;
                 }
-                // Throw an exception
+                return nullptr;
             };
             template<typename T, typename Z, typename Y>
-            inline static void assign(T& key, Z& value, Y& type = nullptr) {
+            inline static bool assign(T key, Z& value, Y type = nullptr) {
                 Node* temp = head;
                 while (temp->next) {
-                    if (temp->key) {
-                        temp->value = value;
-                        if (type != nullptr) temp->id = type;
+                    if (temp->key != nullptr && *static_cast<T*>(temp->key) == key) {
+                        temp->value = new Z(value);
+                        if (type != nullptr) temp->id =  new T(type);
+                        return true;
                     }
                     else temp = temp->next;
                 }
-                return;
+                return false;
+            };
+            template<typename T>
+            inline static void display() {
+                if (!head) {
+                    std::cout << "List is empty." << std::endl;
+                    return;
+                }
+                Node* temp = head;
+                while (temp) {
+                    // Safely convert and dereference the key
+                    if (temp->key != nullptr) {
+                        T* typedKey = static_cast<T*>(temp->key);
+                        if (typedKey) {
+                            std::cout << *typedKey << " -> ";
+                        }
+                    }
+                    temp = temp->next;
+                }
+                std::cout << "NULL" << std::endl;
             };
     };
    

@@ -7,10 +7,10 @@ Any NuclearLang::NukeFunction::call(Interpreter::interpreter* interp, const Vect
   }
   try {
     interp->executeBlock(declaration->statements, environment);
-  } catch (NuclearLang::NukeReturn& returnValue) {
-    this->returnVal = std::move(&returnValue);
-    interp->getEnv()->assign(declaration->op, this);
-    return returnValue.value;
+  } catch (NuclearLang::NukeReturn* returnValue) {
+    environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
+    closure = std::move(environment);
+    return returnValue->value;
   }
   return nullptr;
 }

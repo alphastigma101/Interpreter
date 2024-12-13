@@ -123,27 +123,27 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isOther(const Any value) {
-                // Check if the value is a vector
+               
                 if (value.type() == typeid(std::vector<T>)) {
                     return true;
                 }
                 
-                // Check if the value is a pointer
+            
                 if (value.type() == typeid(T*)) {
                     return true;
                 }
                 
-                // Check if the value is a reference
+                
                 if (value.type() == typeid(std::reference_wrapper<T>)) {
                     return true;
                 }
 
-                // Check for function types (if applicable)
+                
                 if (value.type() == typeid(NuclearLang::NukeFunction*)) {
                     return true;
                 }
                 
-                // Additional custom type checks can be added here
+                
                 
                 return false;
             };

@@ -423,9 +423,8 @@ String Call::parenthesize(String name, Expr* left, Expr* right) {
 Any Call::acceptHelper(Expr* visitor, bool tree) {
     if (tree) 
         return visit(this, true);
-    else 
-        return interp->visitCallExpr(this);
-    return "\0";
+    return interp->visitCallExpr(this);
+    
 }
 /** -----------------------------
  * @brief .....

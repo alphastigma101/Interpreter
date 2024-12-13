@@ -104,17 +104,24 @@ int main(int argc, char **argv) {
     String conv;
     if (auto it = env.find("foo"); it != env.end()) {
         auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
-        auto res = *(Any*)nuclear->returnVal->value;
+        auto res = *(Any*)nuclear->value;
         conv = std::any_cast<String>(res);
     }
     std::cout << conv << std::endl;
     if (auto it = env.find("bar"); it != env.end()) {
         auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
-        auto res = *(Any*)nuclear->returnVal->value;
+        auto res = *(Any*)nuclear->value;
         conv = std::any_cast<String>(res);
     }
+    /*newEnv->display<String>();
+    if (auto search = newEnv->find(String("bar")); search != nullptr) {
+        auto temp = *(Any*)search->value;
+        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(temp);
+        conv = std::any_cast<String>(*(Any*)nuclear->returnVal->value);
+        //std::cout << "Working!" << std::endl;
+    }*/
     std::cout << conv << std::endl;
-
+    //std::cout << newEnv->find("bar"); 
     //auto env = interp.getEnv()->getMap();
     //Adding();
     
