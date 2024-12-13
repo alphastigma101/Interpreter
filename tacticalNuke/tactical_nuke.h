@@ -54,6 +54,10 @@ namespace NuclearLang {
       static String fusion(String& lhs, String& rhs);
     private:
       // TODO: Parameter needs to be a template type instead of the user type
+      /** -------------------------------------------------------
+       * @brief A constructor that is allocated on the heap dynamically that stores the return value of the function.
+       * --------------------------------------------------------
+       */
       explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue){
         this->closure = std::move(closure);
         this->declaration = std::move(declaration);

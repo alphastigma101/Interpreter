@@ -2,7 +2,6 @@
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h> 
-#include <return.h>
 class InterpreterTest : public ::testing::Test {
     protected:
         void SetUp() override {
@@ -137,6 +136,75 @@ TEST_F(InterpreterTest, BlockScope) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"outer b\"");
 }
+TEST_F(InterpreterTest, InterpreterTest_BlockScopePrint) {
+    Scanner scanner(
+        "string a = \"outer a\";\n"
+        "string b = \"outer b\";\n""\
+        {\n"
+            "string a = \"inner a\";\n"
+            "string b = \"inner b\";\n"
+        "}\n"
+            "radiate a;"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"inner a\"");
+    if (auto it = env.find("b"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"inner b\"");
+}
+TEST_F(InterpreterTest, InterpreterTest_Initializers) {
+    Scanner scanner(
+        "string a;\n"
+        "string b;\n""\
+        {\n"
+            "a = \"inner a\";\n"
+            "b = \"inner b\";\n"
+        "}\n"
+            "radiate a;"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"inner a\"");
+    if (auto it = env.find("b"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"inner b\"");
+}
+TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
+    Scanner scanner(
+        "int a = 4;\n"
+        "string b;\n""\
+        {\n"
+            "a = a + 5;\n"
+            "b = \"inner b\";\n"
+        "}\n"
+            "radiate a;"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "9");
+    if (auto it = env.find("b"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"inner b\"");
+}
 /*TEST_F(InterpreterTest, NoVariable) {
     Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
@@ -243,7 +311,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
     try {
         interpreter interp(res);
     }
-    catch(NukeReturn& e) {
+    catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "60");
     }
 }
@@ -255,7 +323,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
     try {
         interpreter interp(res);
     }
-    catch(NukeReturn& e) {
+    catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "'hello!'");
     }
     
@@ -268,7 +336,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     try {
         interpreter interp(res);
     }
-    catch(NukeReturn& e) {
+    catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "'hello!'");
     }
     

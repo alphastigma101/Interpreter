@@ -1,5 +1,4 @@
 #include <interpreter.h>
-#include <return.h>
 Environment::environment* interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
  * @brief Default constructor that calls in native functions 

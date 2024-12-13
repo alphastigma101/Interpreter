@@ -1,4 +1,3 @@
-#include <return.h>
 #include <interpreter.h>
 Any NuclearLang::NukeFunction::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
   Environment::environment* environment = new Environment::environment(*closure);
