@@ -137,6 +137,53 @@ Call::Call(Expr* callee, Token& paren, Vector<Expr*> arguments) {
 
 }
 /** -----------------------------
+ * @brief .....
+ * 
+ * 
+ * 
+ * -------------------------------
+*/
+ContextFreeGrammar::Set::Set(Expr* object_, const Token& op_, Expr* value_) {
+    this->object = std::move(object_);
+    this->value = std::move(value_);
+    this->op = std::move(op_);
+}  
+/** --------------------------------------------------------------------------
+ * @brief This class will represent the Binary node tree in a absraction syntax tree
+ *
+ * @details it moves the right resources and the token resources that were passed into it 
+ *          to it's own data members 
+ *
+ * @param right_ A raw pointer that holds a memory address to an object it points too
+ * @param op_ is a indexed element from a vector of token instances 
+ *
+ * @details A custom garbage collector is implemented to cleanup the raw pointers
+ *
+ * ---------------------------------------------------------------------------
+*/
+Get::Get(Expr* object_, const Token& op_)  {
+   this->object = std::move(object_);
+   this->op = std::move(op_);   
+}
+/** ---------------------------------------------------------------
+ * @brief Initializes the op and constructs a node that gets pushed to a vector
+ *
+ * @param oP is a indexed element from a vector of Token instances
+ *
+ * @details  A custom garbage collector is implemented to cleanup the raw pointers
+ * ----------------------------------------------------------------
+*/
+This::This(const Token&& oP) {
+    try { 
+        this->op = std::move(oP); 
+       
+    }
+    catch(...) {
+        catcher<This> cl("Undefined behavior occurred in Class This!");
+        throw cl;
+    }
+}
+/** -----------------------------
  * @brief Creates a node called Print
  * 
  * @param initalizer A raw pointer that gets initalized with some kind of object
@@ -268,27 +315,26 @@ Functions::Functions(Token& name, Vector<Token> params, Vector<Statement*>& body
     this->params = std::move(params);
     this->statements = std::move(body);
 }
-/** ---------------------------------------------------------------
- * @brief ...
+/** --------------------------------------------------------------------------
+ * @brief This class will represent the Function node tree in a absraction syntax tree
  *
- * @param meth ...
- * @param op_ is a indexed element from a vector of Token instances
+ * @details it moves the left and right resources and the token resources that were passed into it 
+ *          to it's own data members 
  *
- * @details  A custom garbage collector is implemented to cleanup the raw pointers
- * ----------------------------------------------------------------
+ * @param left_ A raw pointer that holds a memory address to an object it points too
+ * @param right_  A raw pointer that holds a memory address to an object it points too
+ * @param op_ is an instance of the token class 
+ * 
+ * @details A custom garbage collector is implemented to cleanup the raw pointers
+ *
+ *
+ * ---------------------------------------------------------------------------
 */
-Methods::Methods(Expr* method, const Token& op_) {
-    try { 
-        this->op = std::move(op_); 
-    }
-    catch(...) {
-        catcher<Methods> cl("Undefined behavior occurred in Class Methods!");
-        throw cl;
-    }
-
+Class::Class(Token name, Vector<Functions*> methods) {
+    this->op = std::move(name);
+    this->methods = std::move(methods);
 }
 
-
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -298,7 +344,7 @@ Methods::Methods(Expr* method, const Token& op_) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-EcoSystem::EcoSystem(Expr* ecoSystem, const Token& op_) {}
+Import::Import(Expr* ecoSystem, const Token& op_) {}
 // Helper methods for constructing the AST
 //
 /** ---------------------------------------------------------------
@@ -425,6 +471,46 @@ Any Call::acceptHelper(Expr* visitor, bool tree) {
         return visit(this, true);
     return interp->visitCallExpr(this);
     
+}
+/** ---------------------------------------------------------------
+ * @brief ...
+ *
+ * @param name ...
+ * @param left ...
+ * @param right ...
+ *
+ * @details .....
+ * ----------------------------------------------------------------
+*/
+String ContextFreeGrammar::Set::parenthesize(String name, Expr* left, Expr* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + std::any_cast<String>(left->accept(this));
+    }
+    if (right) {
+        result += " " + std::any_cast<String>(right->accept(this));
+    }
+    return result + ")";
+}
+Any ContextFreeGrammar::Set::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    return std::any_cast<String>(interp->visitSetExpr(this));
+}
+String Get::parenthesize(String name, Expr* expr) {
+    String result = "(" + name + " ";
+    if (expr) result += std::any_cast<String>(expr->accept(this));
+    return result + ")";
+}
+Any Get::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    return std::any_cast<String>(interp->visitGetExpr(this));
+}
+Any This::acceptHelper(Expr* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    return std::any_cast<String>(interp->visitThisExpr(this));
 }
 /** -----------------------------
  * @brief .....
@@ -572,6 +658,21 @@ Any Functions::acceptHelper(Statement* visitor, bool tree) {
         return visit(this, true);
     return interp->visitFunctionStmt(this);
 }
+String Class::parenthesize(String name, Statement* left, Statement* right) {
+    String result = "(" + name;
+    if (left) {
+        result += " " + std::any_cast<String>(left->accept(this));
+    }
+    if (right) {
+        result += " " + std::any_cast<String>(right->accept(this));
+    }
+    return result + ")";
+}
+Any Class::acceptHelper(Statement* visitor, bool tree) {
+    if (tree) 
+        return visit(this, true);
+    return interp->visitClassStmt(this);
+}
 /** -----------------------------
  * @brief .....
  * 
@@ -591,7 +692,6 @@ Any Return::acceptHelper(Statement* visitor, bool tree) {
     interp->visitReturnStmt(this);
     return "\0";
 }
-
 /** ---------------------------------------------------------------
  * @brief ...
  *
@@ -602,28 +702,7 @@ Any Return::acceptHelper(Statement* visitor, bool tree) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Methods::parenthesize(String name, Expr* expr) {
-    /*builder.append("(").append(name);
-    for (Expr expr : exprs) {
-      builder.append(" ");
-      builder.append(expr.accept(this));
-    }
-    builder.append(")");
-
-    return builder.toString();*/
-    return "\0";
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String EcoSystem::parenthesize(String name, Expr* expr) {
+String Import::parenthesize(String name, Expr* expr) {
     /*builder.append("(").append(name);
     for (Expr expr : exprs) {
       builder.append(" ");

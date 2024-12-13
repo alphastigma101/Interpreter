@@ -52,10 +52,12 @@ namespace NuclearLang {
   };
   class NukeFunction: public Nuke<NukeFunction>, public NukeReturn {
     public:
-      explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure) {
+      explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, bool isInitializer) {
         this->closure = std::move(closure);
         this->declaration = std::move(declaration);
+        this->isInitializer = isInitializer;
       };
+      static NukeFunction* bind(NukeInstance* instance);
       static Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
       inline static int arity(int argc = 0) { return declaration->params.size(); };
       ~NukeFunction() noexcept = default;
@@ -77,6 +79,7 @@ namespace NuclearLang {
       //template<typename A, typename B>
       static String fusion(String& lhs, String& rhs);
     private:
+      inline static bool isInitializer = false;
       // TODO: Parameter needs to be a template type instead of the user type
       /** -------------------------------------------------------
        * @brief A constructor that is allocated on the heap dynamically that stores the return value of the function.
@@ -91,6 +94,32 @@ namespace NuclearLang {
       inline static ContextFreeGrammar::Functions* declaration = nullptr;
       inline static  Environment::environment* closure = nullptr;  
     };
-    
+    class NukeClass: public Nuke<NukeClass> {
+        public:
+          template<typename A, typename B>
+          explicit NukeClass(A name, B methods) noexcept {
+            this->name = new A(name);
+            this->methods = new B(methods);
+          };
+          ~NukeClass() noexcept = default;
+          Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
+          static int arity(int argc = 0);
+          static NukeFunction findMethod(void* name);
+          void* name = nullptr;
+        private:
+          inline static void* methods = nullptr;
+    };
+    class NukeInstance {
+      public:
+        explicit NukeInstance(NukeClass* klass) noexcept {
+          this->klass = std::move(klass);
+        };
+        ~NukeInstance() noexcept = default;
+        static void set(Token name, Any value);
+        Any get(Token name);
+      private:
+        inline static NukeClass* klass = nullptr;
+        inline static Map<String, Any>* fields = new Map<String, Any>();
+    };
 };
 #endif 

@@ -70,6 +70,13 @@ namespace ContextFreeGrammar {
              *        It does not represent its own nodes. Used with Grouping class
              * ---------------------------------------------------------
             */
+            Expr* object = nullptr;
+            /** --------------------------------------------------------
+             * @brief expression represents the left/right binary nodes.
+             *        It does not represent its own nodes. Used with Grouping class
+             * ---------------------------------------------------------
+            */
+            Expr* value = nullptr;
             Vector<Any> arguments{};
             virtual Any accept(Expr* visitor, bool tree = true) = 0;
             // TODO: Uncomment after you get your ast printer fully working
@@ -227,6 +234,102 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Expr* left, Expr* right);     
     };
+    class Set: public Expr, public catcher<Set>, protected runtimeerror<Set> {
+        public:
+            friend class catcher<Set>; // Use to output a message
+            friend class runtimeerror<Set>;
+            explicit Set(Expr* left_, const Token& op_, Expr* right_);
+            ~Set() noexcept = default;
+            Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
+            inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->left, expr->right); };
+        protected:
+            explicit Set() = default;
+        private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Set>::type));};
+            inline static Map<String, Vector<String>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Set>::getMsg()) throw() { return msg;};
+            /** --------------------------------------
+             * @brief A method that is overloaded here from this class 
+             * 
+             * @details The runtimeerror class will call this method and it will output something to the temrinal
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output error message
+             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
+             *             It also calls in a statically inlined method to get the TokenType
+             * 
+             * @return a concated string back to the caller method
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Set>::getMsg()) throw() {
+                static String output;
+                try {
+                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                        output = search->second.c_str() + String(msg);
+                        return output.c_str();
+                    }
+                    else {
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        if (std::holds_alternative<Expr*>(pairVal.second)) {
+                            auto& conv = std::get<Expr*>(pairVal.second);
+                            throw new catcher<Binary>(
+                                String(String("From Binary what() method, TokenType is not supported!")+ String("\n\t") + 
+                                String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
+                            );
+                        }*/
+                        // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
+                    }
+                }
+                catch(catcher<Binary>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<Binary> logs(e.what());
+                    logs_ = logs.getLogs();
+                    logs.rotate();
+                }
+                return output.c_str();
+            };
+            String parenthesize(String name, Expr* left, Expr* right);     
+    };
+     class This: public Expr, public catcher<This> {
+        public:
+            friend class catcher<This>; // Use to output a message
+            explicit This(const Token&& oP);
+            ~This() noexcept = default;
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Expr* visitor, bool tree = true);
+            inline String visit(Expr* expr, bool tree = true) override { 
+                if (expr->op.getTypeStr() == "NULL" || expr->op.getTypeStr() == "NIL") return "null";
+                    return " " + expr->op.getLiteral(); 
+            };
+        private:
+            inline static Map<String, Vector<String>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Literal>::getMsg()) throw() { return msg;};
+        protected:
+            This() = default; 
+    };
     class Unary: public Expr, public catcher<Unary>, public logging<Unary>, protected runtimeerror<Unary> {
         public:
             friend class catcher<Unary>; // Use to output a message
@@ -266,6 +369,74 @@ namespace ContextFreeGrammar {
              * ---------------------------------------
             */
             inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Unary>::getMsg()) throw() {
+                static String output;
+                try {
+                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                        output = search->second.c_str() + String(msg);
+                        return output.c_str();
+                    }
+                    else {
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        if (std::holds_alternative<Expr*>(pairVal.second)) {
+                            auto& conv = std::get<Expr*>(pairVal.second);
+                            throw new catcher<Unary>(
+                                String(String("From Unary what() method, TokenType is not supported!")+ String("\n\t") + 
+                                String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
+                            );
+                        }*/
+                        // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
+                    }
+                }
+                catch(catcher<Unary>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<Unary> logs(e.what());
+                    logs_ = logs.getLogs();
+                    logs.rotate();
+                }
+                return output.c_str();
+            };
+            String parenthesize(String name, Expr* expr);
+            inline String visit(Expr* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), expr->right); };
+    };
+    class Get: public Expr, public catcher<Get>, public logging<Get>, protected runtimeerror<Get> {
+        public:
+            friend class catcher<Get>; // Use to output a message
+            friend class runtimeerror<Get>;
+            explicit Get(Expr* object_, const Token& op_);
+            ~Get() noexcept = default;
+            Any acceptHelper(Expr* visitor, bool tree = true);
+            inline Any accept(Expr* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+        protected:
+            explicit Get() = default;
+        private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Get>::type));};
+            inline static Map<String, Vector<String>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Get>::getMsg()) throw() { return msg;};
+            /** --------------------------------------
+             * @brief A method that is overloaded here from this class 
+             * 
+             * @details The runtimeerror class will call this method and it will output something to the temrinal
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output error message
+             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
+             *             It also calls in a statically inlined method to get the TokenType
+             * 
+             * @return a concated string back to the caller method
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Get>::getMsg()) throw() {
                 static String output;
                 try {
                     if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
@@ -590,6 +761,11 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Vector<Token> params{};
+            /** --------------------------------------------------------
+             * @brief initializer represents the value.
+             * ---------------------------------------------------------
+            */
+            Vector<Functions*> methods{};
             virtual Any accept(Statement* visitor, bool tree = true) = 0;
             // TODO: Uncomment after you get your ast printer fully working
             //inline String accept(Expr* visitor) { return static_cast<Derived*>(this)->visit(*static_cast<Derived*>(this)); };
@@ -790,6 +966,74 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr);  
     };
+    class Class: public Statement, public catcher<Class>, protected runtimeerror<Class> {
+        public:
+            friend class catcher<Class>; // Use to output a message
+            friend class runtimeerror<Class>;
+            explicit Class(Token name, Vector<Functions*> methods);
+            ~Class() noexcept = default;
+            inline Any accept(Statement* visitor, bool tree = true) override { return acceptHelper(this, tree); };
+            Any acceptHelper(Statement* visitor, bool tree = true);
+            inline String visit(Statement* expr, bool tree = true) override { return parenthesize(expr->op.getLexeme(), nullptr, nullptr); };
+        protected:
+            explicit Class() noexcept = default;
+        private:
+            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<Class>::type));};
+            inline static Map<String, Vector<String>> logs_{};
+            /** --------------------------------------
+             * @brief A method that is overloaded by this class 
+             * 
+             * @details It is a method that is defined here which gets called by the definition method inside catcher 
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output the error message
+             * 
+             * @return a string literal. Usually will be ub. Something that you do not want to get
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const char* msg = catcher<Class>::getMsg()) throw() { return msg;};
+            /** --------------------------------------
+             * @brief A method that is overloaded here from this class 
+             * 
+             * @details The runtimeerror class will call this method and it will output something to the temrinal
+             * 
+             * @param msg A default argument that calls in a statically inlined method to output error message
+             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
+             *             It also calls in a statically inlined method to get the TokenType
+             * 
+             * @return a concated string back to the caller method
+             * 
+             * ---------------------------------------
+            */
+            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<Class>::getMsg()) throw() {
+                static String output;
+                try {
+                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
+                        output = search->second.c_str() + String(msg);
+                        return output.c_str();
+                    }
+                    else {
+                        /*auto& [intVal, pairVal] = cTree.at(currentEnvEle);
+                        if (std::holds_alternative<Expr*>(pairVal.second)) {
+                            auto& conv = std::get<Expr*>(pairVal.second);
+                            throw new catcher<Binary>(
+                                String(String("From Binary what() method, TokenType is not supported!")+ String("\n\t") + 
+                                String("Could not find targeted type in map: ")  +   String("\n\t") + String(conv->op.getLexeme())).c_str()
+                            );
+                        }*/
+                        // TODO: Eventually, an if statement will be going down here to support a smart pointer of some sort
+                    }
+                }
+                catch(catcher<Functions>& e) {
+                    std::cout << "Logs have been updated!" << std::endl;
+                    logging<Functions> logs(e.what());
+                    logs_ = logs.getLogs();
+                    logs.rotate();
+                }
+                return output.c_str();
+            };
+            String parenthesize(String name, Statement* left, Statement* right);
+    };
     class If: public Statement, public catcher<Print> {
         public:
             friend class catcher<If>; // Use to output a message
@@ -883,39 +1127,12 @@ namespace ContextFreeGrammar {
             };
             String parenthesize(String name, Statement* left, Statement* right);
     };
-    class Methods: public Expr, public catcher<Methods> {
+    class Import: public Expr, public catcher<Import> {
         public:
-            friend class catcher<Methods>; // Use to output a message
-            explicit Methods(Expr* meth, const Token& op_);
-            ~Methods() noexcept = default;
-            inline Any accept(Expr* visitor, bool tree = true) override {return visit(this, tree); };
-        protected:
-            Methods() = default;
-        private:
-            inline static Map<String, Vector<String>> logs_{};
-            /** --------------------------------------
-             * @brief A method that is overloaded by this class 
-             * 
-             * @details It is a method that is defined here which gets called by the definition method inside catcher 
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output the error message
-             * 
-             * @return a string literal. Usually will be ub. Something that you do not want to get
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const char* msg = catcher<Methods>::getMsg()) throw() { return msg;};
-            static String parenthesize(String name, Expr* expr);
-            inline String visit(Expr* expr, bool tree = true) override {
-                return "\0";
-            };
-    };
-    class EcoSystem: public Expr, public catcher<EcoSystem> {
-        public:
-            friend class catcher<EcoSystem>; // Use to output a message
-            friend class Visitor<EcoSystem>;
-            explicit EcoSystem(Expr* ecoSystem, const Token& op_);
-            ~EcoSystem() noexcept = default;
+            friend class catcher<Import>; // Use to output a message
+            friend class Visitor<Import>;
+            explicit Import(Expr* ecoSystem, const Token& op_);
+            ~Import() noexcept = default;
             inline Any accept(Expr* visitor, bool tree = true) override { return visit(this, tree); };
         private:
             inline static Map<String, Vector<String>> logs_{};
@@ -930,13 +1147,13 @@ namespace ContextFreeGrammar {
              * 
              * ---------------------------------------
             */
-            inline static const char* what(const char* msg = catcher<EcoSystem>::getMsg()) throw() { return msg;};
+            inline static const char* what(const char* msg = catcher<Import>::getMsg()) throw() { return msg;};
             static String parenthesize(String name, Expr* expr);
             inline String visit(Expr* expr, bool tree = true) override { 
                 return "\0";
             };
         protected:
-            EcoSystem() = default;
+            Import() = default;
     };
 };
 using namespace ContextFreeGrammar;

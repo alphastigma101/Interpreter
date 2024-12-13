@@ -15,7 +15,7 @@ enum TokenType {
     BANG, BANG_EQUAL, EQUAL,
     EQUAL_EQUAL, GREATER, GREATER_EQUAL,
     LESS, LESS_EQUAL, IDENTIFIER, STRING,
-    NUMBER, EQUALS,
+    NUMBER, EQUALS, THIS,
     // KeyWords
     FALSE, TRUE, RETURN, BREAK,
     STATIC, CATCH, THROW, CONST, TRY, EXCEPT,
@@ -82,6 +82,7 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::BOOL, "BOOL"},
     {TokenType::AND, "AND"},
     {TokenType::CONTAINMENT, "CONTAINMENT"}, // these are classes
+    {TokenType::THIS, "THIS"}, 
     {TokenType::ELSE, "ELSE"},
     {TokenType::FALSE, "FALSE"},
     {TokenType::FOR, "FOR"},

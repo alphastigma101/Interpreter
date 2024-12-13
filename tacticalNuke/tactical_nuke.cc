@@ -1,18 +1,68 @@
 #include <interpreter.h>
-Any NuclearLang::NukeFunction::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
-  Environment::environment* environment = new Environment::environment(*closure);
-  for (int i = 0; i < declaration->params.size(); i++) {
-    environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
-  }
-  try {
-    interp->executeBlock(declaration->statements, environment);
-  } catch (NuclearLang::NukeReturn* returnValue) {
-    environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
-    closure = std::move(environment);
-    return returnValue->value;
-  }
+#include "tactical_nuke.h"
+Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> &arguments) {
+    Environment::environment *environment = new Environment::environment(*closure);
+    for (int i = 0; i < declaration->params.size(); i++) {
+        environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
+    }
+    try {
+      interp->executeBlock(declaration->statements, environment);
+    } 
+    catch (NuclearLang::NukeReturn* returnValue) {
+      int zero = 0;
+      if (isInitializer) return closure->getAt(zero, "this");
+      environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
+      closure = std::move(environment);
+      return returnValue->value;
+    }
+  int zero = 0;
+  if (isInitializer) return closure->getAt(zero, "this");
   return nullptr;
 }
+NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instance) {
+  Environment::environment* environment = new Environment::environment(*closure);
+  environment->define("this", instance);
+  return new NuclearLang::NukeFunction(declaration, environment, isInitializer);
+}
+Any NuclearLang::NukeClass::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
+  NuclearLang::NukeInstance* instance = new NuclearLang::NukeInstance(this);
+  NuclearLang::NukeFunction initializer = findMethod(new String("init"));
+    if (&initializer != nullptr) {
+      initializer.bind(instance)->call(interp, arguments);
+    }
+  return std::move(instance);
+}
+
+int NuclearLang::NukeClass::arity(int argc) {
+  NuclearLang::NukeFunction initializer = findMethod(new String("init"));
+  if (&initializer == nullptr) return 0;
+  return initializer.arity();
+}
+
+void NuclearLang::NukeInstance::set(Token name, Any value) {
+  fields->insert_or_assign(name.getLexeme(), value);
+}
+
+Any NuclearLang::NukeInstance::get(Token name) {
+  if (auto search = fields->find(name.getLexeme()); search != fields->end()) {
+    return search->second;
+  }
+  NuclearLang::NukeFunction method = klass->findMethod(new String(name.getLexeme()));
+  if (&method != nullptr) return method.bind(this);
+  /*throw runtimeerror(name, 
+      "Undefined property '" + name.getLexeme() + "'.");*/
+}
+NuclearLang::NukeFunction NuclearLang::NukeClass::findMethod(void* name) {
+  auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
+  auto* nameStr = reinterpret_cast<String*>(name);
+  if (methodMap->find(*nameStr) != methodMap->end()) {
+    return methodMap->at(*nameStr);
+  }
+  throw;
+  //return nullptr;
+
+}
+
 void NuclearLang::NukeFunction::moveCursor(int x, int y) {
   std::cout << "\033[" << y << ";" << x << "H";
 }

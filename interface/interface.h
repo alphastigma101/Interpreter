@@ -37,7 +37,11 @@ class Visitor {
         template<typename T>
         inline auto visitUnaryExpr(T* expr) { return static_cast<Derived*>(this)->visitUnaryExpr(expr); };
         template<typename T>
+        inline auto visitThisExpr(T* expr) { return static_cast<Derived*>(this)->visitThisExpr(expr); };
+        template<typename T>
         inline auto visitLiteralExpr(T* expr) { return static_cast<Derived*>(this)->visitLiteralExpr(expr); };
+        template<typename T>
+        inline auto visitGetExpr(T* expr) { return static_cast<Derived*>(this)->visitGetExpr(expr); };
         template<typename T>
         inline void visitBlockStmt(T* stmt) { return static_cast<Derived*>(this)->visitBlockStmt(stmt); };
         template<typename T>
@@ -55,13 +59,17 @@ class Visitor {
         template<typename T>
         inline auto visitLogicalExpr(T* expr) { return static_cast<Derived*>(this)->visitLogicalExpr(expr); };
         template<typename T>
+        inline auto visitSetExpr(T* expr) { return static_cast<Derived*>(this)->visitSetExpr(expr); };
+        template<typename T>
         inline void visitWhileStmt(T* stmt) { return static_cast<Derived*>(this)->visitWhileStmt(stmt); };
         template<typename T>
         inline auto visitCallExpr(T* expr) { return static_cast<Derived*>(this)->visitCallExpr(expr); }; 
         template<typename T>
         inline auto visitFunctionStmt(T* expr) { return static_cast<Derived*>(this)->visitFunctionStmt(expr); };
         template<typename T>
-        inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };  
-};
+        inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };
+        template<typename T>
+        inline auto visitClassStmt(T* expr) { return static_cast<Derived*>(this)->visitClassStmt(expr); };  
+};      
 
 #endif 

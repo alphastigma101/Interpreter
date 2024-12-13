@@ -80,6 +80,7 @@ namespace Parser {
             Statement* forStatement();
             Statement* function(const char* function, Token& name);
             Statement* returnStatement();
+            Statement* classDeclaration();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------

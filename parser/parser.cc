@@ -1,5 +1,5 @@
 #include <parser.h>
-template struct std::shared_ptr<Variant<Binary, Unary, Grouping, Literal, Methods, EcoSystem>>; // define the underlying of ExprTypes
+template struct std::shared_ptr<Variant<Binary, Unary, Grouping, Literal, Import>>; // define the underlying of ExprTypes
 Expr* parser::assignment() {
     auto expr = logicalOr();
     if (match(TokenType::EQUAL)) {
@@ -8,6 +8,10 @@ Expr* parser::assignment() {
       if (auto conv = dynamic_cast<Variable*>(expr)) {
         Token name = conv->op;
         return new Assign(name, value);
+      }
+      else if (auto conv = dynamic_cast<ContextFreeGrammar::Set*>(expr)) {
+        auto get = (ContextFreeGrammar::Get*)expr;
+        return new ContextFreeGrammar::Set(get->object, get->op, value);
       }
       error(); 
     }
@@ -142,7 +146,11 @@ Expr* parser::call() {
     while (true) { 
         if (match(TokenType::LEFT_PAREN)) {
             expr = finishCall(expr);
-        } 
+        }
+        else if (match(TokenType::DOT)) {
+            Token name = consume(TokenType::IDENTIFIER, "Expect property name after '.'.");
+            expr = new ContextFreeGrammar::Get(expr, name);
+        }
         else break;
     }
     return expr;
@@ -165,6 +173,7 @@ Expr* parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return new Grouping(expr);
     }
+    if (match(TokenType::THIS)) return new This(previous());
     if (match(TokenType::IDENTIFIER)) {
         Token&& op = previous();
         return new Variable(std::move(op));
@@ -194,6 +203,7 @@ Expr* parser::expression() { return assignment(); }
 Statement* parser::statement() {
     if (match(TokenType::FOR)) return forStatement();
     if (match(TokenType::IF)) return ifStatement();
+    if (match(TokenType::CONTAINMENT)) return classDeclaration();
     if (match(TokenType::RADIATE)) return printStatement();
     if (match(TokenType::RETURN)) return returnStatement();
     if (match(WHILE)) return whileStatement();
@@ -307,8 +317,7 @@ Statement* parser::declarations() {
         // NOTE: the if statement
         // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
-                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR,
-                TokenType::CONTAINMENT)) return varDeclaration(); /* return new Types(varDeclaration());*/
+                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR)) return varDeclaration(); /* return new Types(varDeclaration());*/
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -323,6 +332,19 @@ Statement* parser::declarations() {
         #endif
         return nullptr;
     }
+}
+Statement* parser::classDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+    //consume(TokenType::PUBLIC, "Expect '{' before class body.");
+
+    Vector<ContextFreeGrammar::Functions*> methods;
+    while (!check(RIGHT_BRACE) && !isAtEnd()) {
+        Token&& op = previous();
+        methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method", op)));
+    }
+    consume(RIGHT_BRACE, "Expect '}' after class body.");
+    return new ContextFreeGrammar::Class(name, methods);
 }
 Statement* parser::function(const char* kind, Token& name) {
     Vector<Token> parameters;

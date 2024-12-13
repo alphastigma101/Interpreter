@@ -24,6 +24,7 @@ namespace Interpreter {
             inline void visitBlockStmt(ContextFreeGrammar::Block* stmt) {
                 executeBlock(stmt->statements, new Environment::environment(*globals));
             };
+            static Any visitClassStmt(ContextFreeGrammar::Class* stmt);
             static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
             static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
             static Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
@@ -32,8 +33,11 @@ namespace Interpreter {
             static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
             static void visitIfStmt(ContextFreeGrammar::If* stmt);
             static Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
+            static Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            static Any visitThisExpr(ContextFreeGrammar::This* expr);
             static void visitWhileStmt(ContextFreeGrammar::While* stmt);
             Any visitCallExpr(ContextFreeGrammar::Call* expr);
+            static Any visitGetExpr(ContextFreeGrammar::Get* expr);
             Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
             static void visitReturnStmt(ContextFreeGrammar::Return* stmt);
             inline static void resolve(ContextFreeGrammar::Expr* expr, int depth) {

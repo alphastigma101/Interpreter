@@ -117,26 +117,21 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isOther(const Any value) {
-               
                 if (value.type() == typeid(std::vector<T>)) {
                     return true;
                 }
-                
-            
                 if (value.type() == typeid(T*)) {
                     return true;
                 }
-                
-                
                 if (value.type() == typeid(std::reference_wrapper<T>)) {
                     return true;
                 }
-
-                
                 if (value.type() == typeid(NuclearLang::NukeFunction*)) {
                     return true;
                 }
-                
+                if (value.type() == typeid(NuclearLang::NukeInstance*)) {
+                    return true;
+                }
                 
                 
                 return false;

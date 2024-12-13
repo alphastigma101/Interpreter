@@ -116,6 +116,26 @@ Any Resolver::resolver::visitBlockStmt(ContextFreeGrammar::Block* stmt) {
     endScope();
     return nullptr;
 }
+
+Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
+    ClassType enclosingClass = currentClass;
+    currentClass = ClassType::CLASS;
+    declare(stmt->op);
+    define(stmt->op);
+    beginScope();
+    scopes->peek()->insert_or_assign("this", true);
+    for (auto& method : stmt->methods) {
+      FunctionType declaration = FunctionType::METHOD;
+      if (method->op.getLexeme() == String("init")) {
+        declaration = FunctionType::INITIALIZER;
+      }
+      resolveFunction(method, declaration); 
+    }
+    currentClass = enclosingClass;
+    endScope();
+    return nullptr;
+}
+
 Any Resolver::resolver::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
     resolve(stmt->initializer);
     return nullptr;
@@ -142,6 +162,12 @@ Any Resolver::resolver::visitReturnStmt(ContextFreeGrammar::Return *stmt) {
       //Lox.error(stmt.keyword, "Can't return from top-level code.");
     }
     if (stmt->value != nullptr) {
+        if (currentFunction == FunctionType::INITIALIZER) {
+        /*Lox.error(stmt->op,
+            "Can't return a value from an initializer.");*/
+      }
+
+
       resolve(stmt->value);
     }
     return nullptr;
@@ -206,6 +232,24 @@ Any Resolver::resolver::visitLogicalExpr(ContextFreeGrammar::Logical *expr)
 {
     resolve(expr->left);
     resolve(expr->right);
+    return nullptr;
+}
+
+Any Resolver::resolver::visitSetExpr(ContextFreeGrammar::Set *expr)
+{
+    resolve(expr->value);
+    resolve(expr->object);
+    return nullptr;
+}
+
+Any Resolver::resolver::visitThisExpr(ContextFreeGrammar::This *expr)
+{
+    if (currentClass == ClassType::EMPTY) {
+      /*Lox.error(expr.keyword,
+          "Can't use 'this' outside of a class.");*/
+      return nullptr;
+    }
+    resolveLocal(expr, expr->op);
     return nullptr;
 }
 

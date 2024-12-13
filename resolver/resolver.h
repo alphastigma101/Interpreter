@@ -9,6 +9,7 @@ namespace Resolver {
             explicit resolver(Interpreter::interpreter* interp) noexcept;
             ~resolver() noexcept = default;
             static Any visitBlockStmt(ContextFreeGrammar::Block* stmt);
+            static Any visitClassStmt(ContextFreeGrammar::Class* stmt);
             static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
             static Any visitVarStmt(ContextFreeGrammar::Statement* stmt);
             static Any visitWhileStmt(ContextFreeGrammar::While* stmt);
@@ -19,6 +20,8 @@ namespace Resolver {
             static Any visitGroupingExpr(ContextFreeGrammar::Grouping* expr);
             static Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
             static Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
+            static Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            static Any visitThisExpr(ContextFreeGrammar::This* expr);
             static Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
             static Any visitFunctionStmt(ContextFreeGrammar::Functions* stmt);
             static Any visitIfStmt(ContextFreeGrammar::If* stmt);
@@ -30,7 +33,13 @@ namespace Resolver {
         private:
             enum FunctionType {
                 NONE,
-                FUNCTION
+                FUNCTION,
+                METHOD,
+                INITIALIZER
+            };
+            enum ClassType {
+                EMPTY,
+                CLASS
             };
             inline static Interpreter::interpreter* interp = nullptr;
             static void resolve(ContextFreeGrammar::Statement* stmt);
@@ -43,6 +52,7 @@ namespace Resolver {
             static void resolveLocal(ContextFreeGrammar::Expr* expr, Token& name);
             inline static Stack::stack* scopes = new Stack::stack(new Map<String, bool>);
             inline static FunctionType currentFunction = FunctionType::NONE;
+            inline static ClassType currentClass = ClassType::EMPTY;
             
 
     };

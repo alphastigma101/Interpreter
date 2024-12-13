@@ -78,8 +78,11 @@ namespace ContextFreeGrammar {
     class Var;
     class While;
     class Block;
-    class Methods;
-    class EcoSystem;
+    class Class;
+    class Get;
+    class Set;
+    class This;
+    class Import;
 };
 /** ---------------------------------------------------------------------------
  * @brief defined in parser.h 
@@ -130,6 +133,14 @@ namespace BinaryOperations {
 };
 namespace Environment {
     class environment;
+};
+namespace NuclearLang {
+    template<class Derived>
+    class Nuke;
+    class NukeReturn;
+    class NukeFunction;
+    class NukeClass;
+    class NukeInstance;
 };
 /** ---------------------------------------------------------------------------
  * @details 'ExprTypes' used alot in parser.cc and context_free_grammar.h

@@ -155,6 +155,18 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
     }
     return function->call(this, arguments);
 }
+
+Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
+    Any object = evaluate(expr->object);
+    if (instanceof<NuclearLang::NukeInstance>(object)) {
+        auto res = std::any_cast<NuclearLang::NukeInstance>(object);
+      return res.get(expr->op);
+    }
+
+    throw runtimeerror<Interpreter::interpreter>(expr->op,
+        "Only instances have properties.");
+}
+
 Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
     Any right = evaluate(expr->right);
     switch (expr->op.getType()) {
@@ -170,13 +182,33 @@ Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
     // Unreachable.
     return nullptr;
 }
-Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression* stmt) {
+
+Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
+    environment->define(stmt->op.getLexeme(), nullptr);
+    Map<String, NuclearLang::NukeFunction>* methods = new Map<String, NuclearLang::NukeFunction>();
+    for (auto& method : stmt->methods) {
+        bool temp;
+        if (method->op.getLexeme() == String("init")) temp = true;
+        else temp = false;
+      NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(
+            method, 
+            environment, 
+            temp
+        );
+      methods->insert_or_assign(method->op.getLexeme(), std::move(*function));
+    }
+    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods);
+    environment->assign(stmt->op, klass);
+    return nullptr;
+}
+Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt)
+{
     if (auto conv = dynamic_cast<Expression*>(stmt))
         evaluate(conv->initializer);
     return "\0";
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
-    NukeFunction* function = new NukeFunction(stmt, environment);
+    NukeFunction* function = new NukeFunction(stmt, environment, false);
     environment->define(stmt->op.getLexeme(), std::move(function));
     //functionName = new String(stmt->op.getLexeme());
     return nullptr;
@@ -212,6 +244,7 @@ void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     }
     throw new NuclearLang::NukeReturn(value);
 }
+
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     return lookUpVariable(expr->op, expr);
     /*if (auto conv = dynamic_cast<Variable*>(expr))
@@ -267,6 +300,24 @@ Any interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
       if (!isTruthy(left)) return left;
     }
     return evaluate(expr->right);
+}
+
+Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr)
+{
+    Any object = evaluate(expr->object);
+
+    if (!instanceof<NuclearLang::NukeInstance>(object)) {
+        throw  runtimeerror<Interpreter::interpreter>(expr->op, "Only instances have fields.");
+    }
+
+    Any value = evaluate(expr->value);
+    auto res = std::any_cast<NuclearLang::NukeInstance>(object);
+    res.set(expr->op, value);
+    return value;
+}
+
+Any Interpreter::interpreter::visitThisExpr(ContextFreeGrammar::This *expr) {
+    return lookUpVariable(expr->op, expr);
 }
 
 /** ---------------------------------------------------------------
