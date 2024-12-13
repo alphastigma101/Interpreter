@@ -17,6 +17,30 @@ namespace NuclearLang {
       inline void drawMiniatureNuke(int x, int y) { return static_cast<Derived*>(this)->drawMiniatureNuke(x,y);};
       inline void drawMiniatureNukeGrid(int numRows, int numCols) { return static_cast<Derived*>(this)->drawMiniatureNuke(numRows, numCols);};
       inline void launch() { return static_cast<Derived*>(this)->launch(); };
+      /** ------------------------------------------------------------------------- 
+       * @brief This function will report an error if something crashed 
+       *
+       * @param line The line it occured 
+       * @param where The string literal 
+       * @param message The message as to why it crashed
+       *
+       * @return None
+       *
+       * -------------------------------------------------------------------------
+      */
+      /*static void report(int &line, std::string where, std::string& message) {
+        std::cout << "[line " <<  line << "] Error" << where << ": " + message;
+        hadError = true;
+      };*/
+      /** ------------------------------------------------------------------------- 
+       * @brief A helper function that calls in report and uses the pass by reference
+       *
+       * @param line the source line 
+       * @param message the message as to why it crashed
+       *
+       * -------------------------------------------------------------------------
+      */
+      //static void error(int& line, std::string& message) { report(line, "", message); };
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:

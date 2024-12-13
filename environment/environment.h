@@ -19,6 +19,9 @@ namespace Environment {
             static environment* enclosing;
             static Any get(Token& name);
             static void define(const String& name, const Any& value);
+            environment* ancestor(int distance);
+            Any getAt(int& distance, String name);
+            void assignAt(int& distance, Token& name, Any& value);
             static void assign(Token& name, const Any& value);
             inline static Map<String, Any> getMap() { return env; };
         private:

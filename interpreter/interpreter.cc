@@ -137,7 +137,7 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
     Vector<Any> arguments;
     for (auto& it : expr->arguments) {
         try {
-            arguments.push_back(evaluate(std::any_cast<Expr*>(it)));
+            arguments.push_back(evaluate(std::any_cast<ContextFreeGrammar::Expr*>(it)));
         }
         catch(...) {
             throw runtimeerror<interpreter>(expr->op, "Failed to convert one of the elements in arguments into Expr*");
@@ -213,9 +213,18 @@ void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     throw new NuclearLang::NukeReturn(value);
 }
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
-    if (auto conv = dynamic_cast<Variable*>(expr))
+    return lookUpVariable(expr->op, expr);
+    /*if (auto conv = dynamic_cast<Variable*>(expr))
         return globals->get(expr->op);
-    throw catcher<interpreter>("Data member of interpreter 'visitVariableExpr', failed to convert its parameter into Variable class!");
+    throw catcher<interpreter>("Data member of interpreter 'visitVariableExpr', failed to convert its parameter into Variable class!");*/
+}
+Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
+    int distance = locals->at(expr);
+    if (&distance != nullptr) {
+      return environment->getAt(distance, name.getLexeme());
+    } else {
+      return globals->get(name);
+    }
 }
 void interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     Any value = nullptr;
@@ -233,7 +242,12 @@ void interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
 }
 Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
     Any value = evaluate(expr->right);
-    globals->assign(expr->op, value);
+    int distance = locals->at(expr);
+    if (&distance != nullptr) {
+      environment->assignAt(distance, expr->op, value);
+    } else {
+      globals->assign(expr->op, value);
+    }
     return value;
 }
 void interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {

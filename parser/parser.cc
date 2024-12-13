@@ -1,5 +1,5 @@
 #include <parser.h>
-template struct std::shared_ptr<Variant<Binary, Unary, Grouping, Literal, Methods, Arguments, EcoSystem>>; // define the underlying of ExprTypes
+template struct std::shared_ptr<Variant<Binary, Unary, Grouping, Literal, Methods, EcoSystem>>; // define the underlying of ExprTypes
 Expr* parser::assignment() {
     auto expr = logicalOr();
     if (match(TokenType::EQUAL)) {

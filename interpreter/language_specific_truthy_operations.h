@@ -57,18 +57,6 @@ namespace TruthyOperations {
                     logs.rotate();
                 }
             };
-            template<class T, class F>
-            static std::pair<const std::type_index, std::function<void(std::any const&)>> to_any_visitor(F const& f); 
-            static std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_visitor;
-            template<class T, class F>
-            inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
-            inline static bool is_registered(const Any& a) {
-                if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
-                    return true;
-                else
-                    throw new runtimeerror<truthyOperations>(getType(), "This object was not properly registered!");
-                return false;
-            };
             /*template<typename T>
             static bool instanceof(const Any& object);
             template<typename T>

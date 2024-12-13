@@ -37,6 +37,8 @@ class Visitor {
         template<typename T>
         inline auto visitUnaryExpr(T* expr) { return static_cast<Derived*>(this)->visitUnaryExpr(expr); };
         template<typename T>
+        inline auto visitLiteralExpr(T* expr) { return static_cast<Derived*>(this)->visitLiteralExpr(expr); };
+        template<typename T>
         inline void visitBlockStmt(T* stmt) { return static_cast<Derived*>(this)->visitBlockStmt(stmt); };
         template<typename T>
         inline auto visitExpressionStmt(T* stmt) { return static_cast<Derived*>(this)->visitExpressionStmt(stmt); };

@@ -27,6 +27,7 @@ namespace Interpreter {
             static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
             static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
             static Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
+            static Any lookUpVariable(Token name, ContextFreeGrammar::Expr* expr);
             static void visitVarStmt(ContextFreeGrammar::Var* stmt);
             static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
             static void visitIfStmt(ContextFreeGrammar::If* stmt);
@@ -35,6 +36,10 @@ namespace Interpreter {
             Any visitCallExpr(ContextFreeGrammar::Call* expr);
             Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
             static void visitReturnStmt(ContextFreeGrammar::Return* stmt);
+            inline static void resolve(ContextFreeGrammar::Expr* expr, int depth) {
+                locals->insert_or_assign(expr, depth);
+
+            };
             inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
                 Environment::environment* previous = this->globals;
                 this->globals = environment;
@@ -56,6 +61,7 @@ namespace Interpreter {
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;
             inline static Environment::environment* environment = globals;
+            inline static Map<ContextFreeGrammar::Expr*, int>* locals = new Map<ContextFreeGrammar::Expr*, int>();
             template<typename T>
             static bool instanceof(const Any& object);
         protected:

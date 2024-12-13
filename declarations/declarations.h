@@ -7,8 +7,6 @@
 #include <memory>
 #include <unordered_map>
 #include <iostream>
-#include <type_traits>
-#include <typeindex>
 #include <typeinfo>
 #include <functional>
 #include <atomic>
@@ -34,8 +32,9 @@ template<typename T>
 using Vector = std::vector<T>;
 template<typename T>
 using List = std::list<T>;
-template<typename T>
+
 // Pointers
+template<typename T>
 using Shared = std::shared_ptr<T>;
 template<typename T>
 using Unique = std::unique_ptr<T>;
@@ -80,7 +79,6 @@ namespace ContextFreeGrammar {
     class While;
     class Block;
     class Methods;
-    class Arguments;
     class EcoSystem;
 };
 /** ---------------------------------------------------------------------------
@@ -121,25 +119,18 @@ namespace AbstractionTreeSyntax {
 namespace Interpreter {
     class interpreter;
 };
-extern int currentEnvEle;
-extern Vector<String> evaluatedExpressions;
- 
+namespace Resolver {
+    class resolver;
+};
 namespace UnaryOperations {
     class unaryOperations;
 };
 namespace BinaryOperations {
     class binaryOperations;
 };
-namespace MethodOperations {
-    class methodOperations;
-};
-namespace ArgumentOperations {
-    class argumentOperations;
-};
 namespace Environment {
     class environment;
 };
-class NukeReturn;
 /** ---------------------------------------------------------------------------
  * @details 'ExprTypes' used alot in parser.cc and context_free_grammar.h
  *                      Needed for returning multiple user defined class instances
@@ -168,5 +159,8 @@ namespace Logging {
 namespace Lists {
     class linkedList;
     struct Node;
+};
+namespace Stack {
+    class stack;
 };
 #endif 

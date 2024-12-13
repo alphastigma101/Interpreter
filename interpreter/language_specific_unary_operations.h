@@ -10,19 +10,6 @@ namespace UnaryOperations {
             ~unaryOperations() noexcept = default;
         private:
             inline static Map<String, Vector<String>> logs_{};
-            template<class T, class F>
-            static std::pair<const std::type_index, std::function<void(Any const&)>> to_any_visitor(F const& f); 
-            static Unordered<std::type_index, std::function<void(Any const&)>> any_visitor;
-            template<class T, class F>
-            inline void register_any_visitor(F const& f) { any_visitor.insert(to_any_visitor<T>(f)); };
-            inline static bool is_registered(const Any& a) {
-                // cend() points one past the element. Menaing it is checking the bounds of the map
-                if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
-                    return true;
-                else
-                    throw new runtimeerror<unaryOperations>(getType(), "This object was not properly registered!");
-                return false;
-            };
             inline static const Token& getType() { return *static_cast<const Token*>(runtimeerror<unaryOperations>::type);};
             inline static bool isString(const Any value) { return value.type() == typeid(String);};
             inline static const char* what(const char* msg = catcher<unaryOperations>::getMsg()) throw() { return msg; };

@@ -2,6 +2,7 @@
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h>
+#include <resolver.h>
 #include <filesystem>
 #include <system_error>
 #include <fstream>
@@ -23,6 +24,8 @@ static void run(std::string& source) {
         return ast(stmt);
     });
     if (hadError) return;
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(stmt);
     interpreter interp(stmt);
     auto env = interp.getEnv()->getMap();
     for (const auto& it: env) {

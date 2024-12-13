@@ -97,7 +97,7 @@ Assign::Assign(const Token& op_, Expr* right) {
         this->op = std::move(op_); 
     }
     catch(...) {
-        throw new catcher<Arguments>("Undefined behavior occurred in Class Arguments!");
+        throw new catcher<Assign>("Undefined behavior occurred in Class Arguments!");
     }
 }
 /** -----------------------------

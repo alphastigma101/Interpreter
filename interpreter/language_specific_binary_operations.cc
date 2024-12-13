@@ -1,15 +1,4 @@
 #include <language_specific_binary_operations.h>
-/** -----------------
- * @brief This is a map that returns the paired types
- * 
- * @details If you need to add more to the map, use the 'register_any_visitor' method
- *          It is only avialable in in this classes defined method fields 
- * ------------------
-*/
-Unordered<std::type_index, std::function<void(Any const&)>> binaryOperations::any_visitor {
-    to_any_visitor<int>([](int x) { return x; }),
-    to_any_visitor<double>([](double x) { return x; })
-};
 /** ----------------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that calls in isNumeric, the helper function
  * 
@@ -99,34 +88,6 @@ bool binaryOperations::instanceof(const Any& object) {
     } catch (...) {
         return false;
     }
-}
-/** ---------------------------------------------------------------
- * @brief A simple method that will check an parameter object is inside the map.
- *
- * @param a An object that will be searched inside the map
- *
- * @return Return false if parameter object is not inside map, otherwise, return true.
- * ----------------------------------------------------------------
-*/
-bool binaryOperations::is_registered(const Any& a) {
-    try {
-        // cend() points one past the element. Menaing it is checking the bounds of the map
-        if (const auto it = any_visitor.find(std::type_index(a.type())); it != any_visitor.cend())
-            return true;
-        else
-           throw new catcher<binaryOperations>(
-            String(String("In binaryOperations is_registered method, type has not been added to map!") + "\n\t"  
-            + std::any_cast<String>(a)).c_str()
-        );
-    }
-    catch(catcher<binaryOperations>& e) {
-        std::cout << e.getMsg() << std::endl;
-        std::cout << "Logs have been updated! will Atempt to regiester type..." << std::endl;
-        logging<binaryOperations> logs(e.what(e.getMsg()));
-        logs.rotate();
-        logs_ = logs.getLogs();
-    }
-    return false;
 }
 /** ---------------------------------------------------------------
  * @brief A simple method that converts the parameter object into a supported type
@@ -229,30 +190,4 @@ Any binaryOperations::toOther(Any& value) {
     }
     throw new catcher<binaryOperations>("Unsupported Type!");*/
     return nullptr;
-}
-/** --------------------------------------------------------------
- * @brief Returns a pair 
- * 
- * @param F It is a generic type such that is deduced at compile time. 
- *          A pair will be constructed if type is not void 
- * @param T If the objcet that was passed at run time is not found, it will create a new pair 
- * 
- * @details .first is the typeid of the object while .second is a callable object.
- * 
- * @return Returns a constructed pair with the targeted, otherwise it will return void
- * ----------------------------------------------------------------
-*/
-template<class T, class F>
-std::pair<const std::type_index, std::function<void(std::any const&)>> binaryOperations::to_any_visitor(F const& f) {
-    return
-    {
-        std::type_index(typeid(T)),
-        [g = f](std::any const& a)
-        {
-            if constexpr (std::is_void_v<T>)
-                g();
-            else
-                g(std::any_cast<T const&>(a));
-        }
-    };
 }

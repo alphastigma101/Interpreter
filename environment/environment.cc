@@ -40,6 +40,22 @@ void Environment::environment::define(const String& name, const Any& value) {
    env[name] = value;
    //newEnv->insert(name, value, nullptr);
 }
+Environment::environment *Environment::environment::ancestor(int distance) {
+    Environment::environment* environment = this;
+    for (int i = 0; i < distance; i++) {
+      environment = environment->enclosing; 
+    }
+    return environment;
+}
+
+Any Environment::environment::getAt(int &distance, String name) {
+    return ancestor(distance)->env.at(name);
+}
+
+void Environment::environment::assignAt(int &distance, Token &name, Any &value) {
+    ancestor(distance)->env.insert_or_assign(name.getLexeme(), value);
+}
+
 /** -----------------------------------
  * @brief Method that updates the variables' values.
  *  
