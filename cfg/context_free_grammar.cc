@@ -1,4 +1,5 @@
 #include <context_free_grammar.h>
+#include <resolver.h>
 #include <interpreter.h>
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
@@ -20,6 +21,19 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     this->right = std::move(right_);
     this->op = std::move(op_);
 }  
+//Any Binary::accept(Visitor<Any*> visitor) { return visit(visitor);}
+Any Binary::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitBinaryExpr(dynamic_cast<ContextFreeGrammar::Binary*>(this));
+        }
+    }
+    catch(...) {} 
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitBinaryExpr(dynamic_cast<ContextFreeGrammar::Binary*>(this));
+    }
+    return nullptr; 
+}
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
  *
@@ -33,9 +47,23 @@ Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
  *
  * ---------------------------------------------------------------------------
 */
-Unary::Unary(Expr* right_, const Token& op_)  {
+ContextFreeGrammar::Unary::Unary(Expr* right_, const Token& op_)  {
    this->right = std::move(right_);
    this->op = std::move(op_);   
+}
+//Any Unary::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any Unary::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitUnaryExpr(dynamic_cast<ContextFreeGrammar::Unary*>(this));
+        }
+    }
+    catch(...) {}
+    // Check if the visitor is a Resolver
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitUnaryExpr(dynamic_cast<ContextFreeGrammar::Unary*>(this));
+    }
+    return nullptr;  
 }
 /** ---------------------------------------------------------------
  * @brief Initializes the expression_ and moves the resources into it 
@@ -49,6 +77,19 @@ Unary::Unary(Expr* right_, const Token& op_)  {
 Grouping::Grouping(Expr* expression) {
     this->expression = std::move(expression);
 }
+//Any ContextFreeGrammar::Grouping::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Grouping::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitGroupingExpr(dynamic_cast<ContextFreeGrammar::Grouping*>(this));
+        }
+    }
+    catch(...) {}
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitGroupingExpr(dynamic_cast<ContextFreeGrammar::Grouping*>(this));
+    }
+    return nullptr;  
+}
 /** ---------------------------------------------------------------
  * @brief Initializes the op and constructs a node that gets pushed to a vector
  *
@@ -57,15 +98,19 @@ Grouping::Grouping(Expr* expression) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-Literal::Literal(const Token&& oP) {
-    try { 
-        this->op = std::move(oP); 
-       
+Literal::Literal(const Token&& oP) { this->op = std::move(oP); }
+//Any ContextFreeGrammar::Literal::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Literal::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitLiteralExpr(dynamic_cast<ContextFreeGrammar::Literal*>(this));
+        }
     }
-    catch(...) {
-        catcher<Literal> cl("Undefined behavior occurred in Class Literal!");
-        throw cl;
-    }
+    catch(...) {}
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitLiteralExpr(dynamic_cast<ContextFreeGrammar::Literal*>(this));
+    } 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief ...
@@ -75,14 +120,19 @@ Literal::Literal(const Token&& oP) {
  * 
  * 
 */
-Variable::Variable(const Token&& oP) {
-    try { 
-        this->op = std::move(oP); 
+Variable::Variable(const Token&& oP) { this->op = std::move(oP); }
+//Any ContextFreeGrammar::Variable::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Variable::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitVariableExpr(dynamic_cast<ContextFreeGrammar::Variable*>(this));
+        }
     }
-    catch(...) {
-        catcher<Variable> cl("Undefined behavior occurred in Class Variable!");
-        throw cl;
-    }
+    catch(...) {}
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitVariableExpr(dynamic_cast<ContextFreeGrammar::Variable*>(this));
+    } 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -92,13 +142,21 @@ Variable::Variable(const Token&& oP) {
  * -------------------------------
 */
 Assign::Assign(const Token& op_, Expr* right) {
-    try { 
-        this->right = std::move(right);
-        this->op = std::move(op_); 
+    this->right = std::move(right);
+    this->op = std::move(op_); 
+}
+//Any ContextFreeGrammar::Assign::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Assign::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitAssignExpr(dynamic_cast<ContextFreeGrammar::Assign*>(this));
+        }
     }
-    catch(...) {
-        throw new catcher<Assign>("Undefined behavior occurred in Class Arguments!");
-    }
+    catch(...) {}
+    if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+        return visit->visitAssignExpr(dynamic_cast<ContextFreeGrammar::Assign*>(this));
+    } 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -111,7 +169,23 @@ Logical::Logical(Expr* left_, const Token& op_, Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
-}  
+}
+//Any ContextFreeGrammar::Logical::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Logical::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitLogicalExpr(dynamic_cast<ContextFreeGrammar::Logical*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitLogicalExpr(dynamic_cast<ContextFreeGrammar::Logical*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
+} 
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Function node tree in a absraction syntax tree
  *
@@ -136,6 +210,22 @@ Call::Call(Expr* callee, Token& paren, Vector<Expr*> arguments) {
     this->op = std::move(paren);
 
 }
+//Any ContextFreeGrammar::Call::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Call::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitCallExpr(dynamic_cast<ContextFreeGrammar::Call*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitCallExpr(dynamic_cast<ContextFreeGrammar::Call*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
+}
 /** -----------------------------
  * @brief .....
  * 
@@ -147,6 +237,22 @@ ContextFreeGrammar::Set::Set(Expr* object_, const Token& op_, Expr* value_) {
     this->object = std::move(object_);
     this->value = std::move(value_);
     this->op = std::move(op_);
+}
+//Any ContextFreeGrammar::Set::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Set::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitSetExpr(dynamic_cast<ContextFreeGrammar::Set*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitSetExpr(dynamic_cast<ContextFreeGrammar::Set*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
 }  
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Binary node tree in a absraction syntax tree
@@ -165,6 +271,22 @@ Get::Get(Expr* object_, const Token& op_)  {
    this->object = std::move(object_);
    this->op = std::move(op_);   
 }
+//Any ContextFreeGrammar::Get::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Get::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitGetExpr(dynamic_cast<ContextFreeGrammar::Get*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitGetExpr(dynamic_cast<ContextFreeGrammar::Get*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
+}
 /** ---------------------------------------------------------------
  * @brief Initializes the op and constructs a node that gets pushed to a vector
  *
@@ -173,15 +295,23 @@ Get::Get(Expr* object_, const Token& op_)  {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-This::This(const Token&& oP) {
-    try { 
-        this->op = std::move(oP); 
-       
+This::This(const Token&& oP) { this->op = std::move(oP); }
+
+//Any ContextFreeGrammar::This::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::This::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitThisExpr(dynamic_cast<ContextFreeGrammar::This*>(this));
+        }
     }
-    catch(...) {
-        catcher<This> cl("Undefined behavior occurred in Class This!");
-        throw cl;
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitThisExpr(dynamic_cast<ContextFreeGrammar::This*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief Creates a node called Print
@@ -192,14 +322,23 @@ This::This(const Token&& oP) {
  * -------------------------------
 */
 Print::Print(Expr* initalizer) {
-    try { 
-        this->initializer = std::move(initalizer); 
-
+    this->initializer = std::move(initalizer); 
+}
+//Any ContextFreeGrammar::Print::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Print::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitPrintStmt(dynamic_cast<ContextFreeGrammar::Print*>(this));
+        }
     }
-    catch(...) {
-        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
-        throw cl;
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitPrintStmt(dynamic_cast<ContextFreeGrammar::Print*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -209,14 +348,24 @@ Print::Print(Expr* initalizer) {
  * -------------------------------
 */
 Return::Return(const Token& keyword, Expr* value) {
-    try { 
-        this->value = std::move(value);
-        this->op = std::move(keyword); 
+    this->value = std::move(value);
+    this->op = std::move(keyword); 
+}
+//Any ContextFreeGrammar::Return::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Return::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
+        }
     }
-    catch(...) {
-        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
-        throw cl;
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -226,14 +375,24 @@ Return::Return(const Token& keyword, Expr* value) {
  * -------------------------------
 */
 Var::Var(const Token& op, Expr* initalizer) {
-    try { 
-        this->initializer = std::move(initalizer);
-        this->op = std::move(op); 
+    this->initializer = std::move(initalizer);
+    this->op = std::move(op);
+}
+//Any ContextFreeGrammar::Var::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Var::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitVarStmt(dynamic_cast<ContextFreeGrammar::Var*>(this));
+        }
     }
-    catch(...) {
-        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
-        throw cl;
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitVarStmt(dynamic_cast<ContextFreeGrammar::Var*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -243,13 +402,24 @@ Var::Var(const Token& op, Expr* initalizer) {
  * -------------------------------
 */
 While::While(Expr* condition, Statement* body) {
-    try { 
-        this->condition = std::move(condition);
-        this->body = std::move(body); 
+    this->condition = std::move(condition);
+    this->body = std::move(body); 
+}
+//Any ContextFreeGrammar::While::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::While::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitWhileStmt(dynamic_cast<ContextFreeGrammar::While*>(this));
+        }
     }
-    catch(...) {
-        throw catcher<While>("Undefined behavior occurred in Class Statement!");
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitWhileStmt(dynamic_cast<ContextFreeGrammar::While*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -258,15 +428,23 @@ While::While(Expr* condition, Statement* body) {
  * 
  * -------------------------------
 */
-Expression::Expression(Expr* initalizer) {
-    try { 
-        this->initializer = std::move(initalizer); 
+Expression::Expression(Expr* initalizer) { this->expression = std::move(initalizer);  }
+//Any ContextFreeGrammar::Expression::accept(Visitor<Any*> visitor) { return visit(visitor); }
 
+Any ContextFreeGrammar::Expression::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitExpressionStmt(dynamic_cast<ContextFreeGrammar::Expression*>(this));
+        }
     }
-    catch(...) {
-        catcher<Print> cl("Undefined behavior occurred in Class Statement!");
-        throw cl;
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitExpressionStmt(dynamic_cast<ContextFreeGrammar::Expression*>(this));
+        }
     }
+    catch(...) {} 
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -275,13 +453,22 @@ Expression::Expression(Expr* initalizer) {
  * 
  * -------------------------------
 */
-Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) {
-    try { 
-        this->statements = std::move(left);
+Block::Block(Vector<ContextFreeGrammar::Statement*>&& left) { this->statements = std::move(left); }
+//Any ContextFreeGrammar::Block::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Block::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitBlockStmt(dynamic_cast<ContextFreeGrammar::Block*>(this));
+        }
     }
-    catch(...) {
-        throw new catcher<Block>("Undefined behavior occurred in Class Arguments!");
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitBlockStmt(dynamic_cast<ContextFreeGrammar::Block*>(this));
+        }
     }
+    catch(...) {}
+    return nullptr; 
 }
 /** -----------------------------
  * @brief .....
@@ -294,6 +481,22 @@ If::If(Expr* cond, Statement* thenbranch, Statement* elsebranch) {
     this->condition = std::move(cond);
     this->thenBranch = std::move(thenbranch);
     this->elseBranch = std::move(elsebranch);
+}
+//Any ContextFreeGrammar::If::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::If::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitIfStmt(dynamic_cast<ContextFreeGrammar::If*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitIfStmt(dynamic_cast<ContextFreeGrammar::If*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
 }
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Function node tree in a absraction syntax tree
@@ -315,6 +518,22 @@ Functions::Functions(Token& name, Vector<Token> params, Vector<Statement*>& body
     this->params = std::move(params);
     this->statements = std::move(body);
 }
+//Any ContextFreeGrammar::Functions::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Functions::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitFunctionStmt(dynamic_cast<ContextFreeGrammar::Functions*>(this));
+        }
+    }
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitFunctionStmt(dynamic_cast<ContextFreeGrammar::Functions*>(this));
+        }
+    }
+    catch(...) {} 
+    return nullptr; 
+}
 /** --------------------------------------------------------------------------
  * @brief This class will represent the Function node tree in a absraction syntax tree
  *
@@ -334,382 +553,19 @@ Class::Class(Token name, Vector<Functions*> methods) {
     this->op = std::move(name);
     this->methods = std::move(methods);
 }
-
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param meth ...
- * @param op_ is a indexed element from a vector of Token instances
- *
- * @details  A custom garbage collector is implemented to cleanup the raw pointers
- * ----------------------------------------------------------------
-*/
-Import::Import(Expr* ecoSystem, const Token& op_) {}
-// Helper methods for constructing the AST
-//
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Binary::parenthesize(String name, Expr* left, Expr* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
+//Any ContextFreeGrammar::Class::accept(Visitor<Any*> visitor) { return visit(visitor); }
+Any ContextFreeGrammar::Class::visit(Any visitor) {
+    try {
+        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+            return visit->visitClassStmt(this);
+        }
     }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
+    catch(...) {}
+    try {
+        if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+            return visit->visitClassStmt(dynamic_cast<ContextFreeGrammar::Class*>(this));
+        }
     }
-    return result + ")";
-}
-Any Binary::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitBinaryExpr(this));
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Unary::parenthesize(String name, Expr* expr) {
-    String result = "(" + name + " ";
-    if (expr) result += std::any_cast<String>(expr->accept(this));
-    return result + ")";
-}
-Any Unary::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitUnaryExpr(this));
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Grouping::parenthesize(String name, Expr* expr) {
-    String result = "(" + name + " ";
-    if (expr) result += std::any_cast<String>(expr->accept(this));
-    return result + ")";
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Assign::parenthesize(String name, Expr* expr) {
-    if (!expr) return "(null)";
-    String result = "(" + name + " ";
-    if (expr) result += std::any_cast<String>(expr->accept(this));
-    return result + ")";
-}
-Any Assign::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitAssignExpr(this));
-}
-
-Any Variable::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return interp->visitVariableExpr(this);
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Logical::parenthesize(String name, Expr* left, Expr* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
-    }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
-    }
-    return result + ")";
-}
-Any Logical::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitLogicalExpr(this));
-}
-String Call::parenthesize(String name, Expr* left, Expr* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
-    }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
-    }
-    return result + ")";
-}
-Any Call::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return interp->visitCallExpr(this);
-    
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String ContextFreeGrammar::Set::parenthesize(String name, Expr* left, Expr* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
-    }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
-    }
-    return result + ")";
-}
-Any ContextFreeGrammar::Set::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitSetExpr(this));
-}
-String Get::parenthesize(String name, Expr* expr) {
-    String result = "(" + name + " ";
-    if (expr) result += std::any_cast<String>(expr->accept(this));
-    return result + ")";
-}
-Any Get::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitGetExpr(this));
-}
-Any This::acceptHelper(Expr* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return std::any_cast<String>(interp->visitThisExpr(this));
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Print::parenthesize(String name, Statement* stmt) {
-    String result = "(" + name;
-    if (!stmt) return "(null)";
-    if (initializer)
-        result += std::any_cast<String>(initializer->accept(initializer));
-    return result + ")";
-}
-Any Print::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        return interp->visitPrintStmt(this);
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Var::parenthesize(String name, Statement* stmt) {
-    if (!stmt) return "(null)";
-    String result = "(Var" + String("(") + name + " ";
-    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
-    return result + "))";
-}
-Any Var::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        interp->visitVarStmt(this);
-    return "\0";
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Expression::parenthesize(String name, Statement* stmt) {
-    if (!stmt) return "(null)";
-    String result = "(Expression" + String("(") + name + " ";
-    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
-    return result + "))";
-}
-Any Expression::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        return interp->visitExpressionStmt(this);
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
-    String result;
-    for (auto& it : expr) {
-        if (it) 
-            result += "(Block"  + String("(") + " " + std::any_cast<String>(it->accept(this)) + ")" + ")";
-        else continue;
-    }
-    return result;
-}
-Any Block::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        interp->visitBlockStmt(this);
-    return "\0";
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String If::parenthesize(String name, Statement* stmt) {
-    String result = "(" + name;
-    if (!stmt) return "(null)";
-    if (initializer)
-        result += std::any_cast<String>(initializer->accept(initializer));
-    return result + ")";
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-Any If::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        interp->visitIfStmt(this);
-    return "\0";
-}
-String While::parenthesize(String name, Statement* left) {
-    /*String result = "(" + name;
-    if (left) {
-        result += " " + left->accept(this);
-    }
-    if (right) {
-        result += " " + right->accept(this);
-    }
-    return result + ")";*/
-    return "\0";
-}
-Any While::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    else 
-        interp->visitWhileStmt(this);
-    return "\0";
-}
-String Functions::parenthesize(String name, Statement* left, Statement* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
-    }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
-    }
-    return result + ")";
-}
-Any Functions::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return interp->visitFunctionStmt(this);
-}
-String Class::parenthesize(String name, Statement* left, Statement* right) {
-    String result = "(" + name;
-    if (left) {
-        result += " " + std::any_cast<String>(left->accept(this));
-    }
-    if (right) {
-        result += " " + std::any_cast<String>(right->accept(this));
-    }
-    return result + ")";
-}
-Any Class::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    return interp->visitClassStmt(this);
-}
-/** -----------------------------
- * @brief .....
- * 
- * 
- * 
- * -------------------------------
-*/
-String Return::parenthesize(String name, Statement* stmt) {
-    if (!stmt) return "(null)";
-    String result = "(Var" + String("(") + name + " ";
-    if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
-    return result + "))";
-}
-Any Return::acceptHelper(Statement* visitor, bool tree) {
-    if (tree) 
-        return visit(this, true);
-    interp->visitReturnStmt(this);
-    return "\0";
-}
-/** ---------------------------------------------------------------
- * @brief ...
- *
- * @param name ...
- * @param left ...
- * @param right ...
- *
- * @details .....
- * ----------------------------------------------------------------
-*/
-String Import::parenthesize(String name, Expr* expr) {
-    /*builder.append("(").append(name);
-    for (Expr expr : exprs) {
-      builder.append(" ");
-      builder.append(expr.accept(this));
-    }
-    builder.append(")");
-
-    return builder.toString();*/
-    return "\0";
+    catch(...) {} 
+    return nullptr; 
 }

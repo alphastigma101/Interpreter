@@ -53,14 +53,14 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt): interpre
  * 
  */
 Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
-    if (auto call = dynamic_cast<Call*>(conv)) return conv->accept(call, false);
-    else if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(binary, false);
-    else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(literal, false);
-    else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(unary, false);
-    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(grouping, false);
-    else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(assign, false);
-    else if (auto logic = dynamic_cast<Logical*>(conv)) return conv->accept(logic, false);
-    else if (auto var = dynamic_cast<Variable*>(conv)) return conv->accept(var, false);
+    if (auto call = dynamic_cast<Call*>(conv)) return conv->accept(this);
+    else if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(this);
+    else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(this);
+    else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(this);
+    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(this);
+    else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(this);
+    else if (auto logic = dynamic_cast<Logical*>(conv)) return conv->accept(this);
+    else if (auto var = dynamic_cast<Variable*>(conv)) return conv->accept(this);
     throw catcher<interpreter>("Unexpected type in evaluate function");
 }
 /** ---------------------------------------------------------------------------
@@ -132,6 +132,7 @@ Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     // Unreachable.
     return nullptr;
 }
+
 Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
     auto callee = evaluate(expr->callee);
     Vector<Any> arguments;
@@ -183,6 +184,14 @@ Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
     return nullptr;
 }
 
+Any Interpreter::interpreter::visitLiteralExpr(ContextFreeGrammar::Literal *expr) {
+    return expr->op.getLexeme();
+}
+
+Any Interpreter::interpreter::visitGroupingExpr(ContextFreeGrammar::Grouping *expr) {
+    return evaluate(expr->expression);
+}
+
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction>* methods = new Map<String, NuclearLang::NukeFunction>();
@@ -204,7 +213,7 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt)
 {
     if (auto conv = dynamic_cast<Expression*>(stmt))
-        evaluate(conv->initializer);
+        evaluate(conv->expression);
     return "\0";
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
@@ -236,7 +245,7 @@ Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
  * 
  * ---------------------------------------------------------------------------
 */
-void interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
+Any interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     Any value = nullptr;
     if (stmt->value != nullptr) { 
         value = evaluate(stmt->value);
@@ -252,45 +261,52 @@ Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     throw catcher<interpreter>("Data member of interpreter 'visitVariableExpr', failed to convert its parameter into Variable class!");*/
 }
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
-    int distance = locals->at(expr);
-    if (&distance != nullptr) {
-      return environment->getAt(distance, name.getLexeme());
+    Any distance;
+    try {
+        distance = locals->at(expr);
+    } catch(...) { distance = nullptr; }
+    if (!distance.has_value()) {
+      return environment->getAt(std::any_cast<int>(distance), name.getLexeme());
     } else {
       return globals->get(name);
     }
 }
-void interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
+Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     Any value = nullptr;
     if (stmt->initializer != nullptr) {
       value = evaluate(stmt->initializer);
     }
     globals->define(stmt->op.getLexeme(), value);
-    return;
+    return nullptr;
 }
-void interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
+Any interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
     while (isTruthy(evaluate(stmt->condition))) {
         execute(stmt->body);
     }
-    return;
+    return nullptr;
 }
 Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
     Any value = evaluate(expr->right);
-    int distance = locals->at(expr);
-    if (&distance != nullptr) {
-      environment->assignAt(distance, expr->op, value);
+    Any distance;
+    try {
+        locals->at(expr);
+    }
+    catch(...) {distance = nullptr;}
+    if (distance.type() != typeid(nullptr)) {
+      environment->assignAt(std::any_cast<int>(distance), expr->op, value);
     } else {
       globals->assign(expr->op, value);
     }
     return value;
 }
-void interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {
+Any interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {
     Any res = evaluate(stmt->condition);
     if (isTruthy(res)) {
         execute(stmt->thenBranch);
     } else if (stmt->elseBranch != nullptr) {
         execute(stmt->elseBranch);
     }
-    return;
+    return nullptr;
 }
 Any interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
     Any left = evaluate(expr->left);

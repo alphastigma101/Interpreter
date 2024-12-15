@@ -20,9 +20,9 @@ static void run(std::string& source) {
     parser p(tokens);
     auto stmt = p.parse();
     if (hadError) return;
-    std::thread build([&stmt]() {
+    /*std::thread build([&stmt]() {
         return ast(stmt);
-    });
+    });*/
     if (hadError) return;
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(stmt);
@@ -31,9 +31,9 @@ static void run(std::string& source) {
     for (const auto& it: env) {
         std::cout << std::any_cast<String>(it.second) << std::endl;
     } 
-    if (build.joinable()) {
+    /*if (build.joinable()) {
         build.join();
-    }
+    }*/
    //cTree.clear();
 
 }

@@ -2,7 +2,7 @@
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
 namespace Interpreter {
-    class interpreter: protected ContextFreeGrammar::Binary, protected ContextFreeGrammar::Print,  
+    class interpreter: 
                        public Visitor<interpreter>, protected truthyOperations, 
                     protected binaryOperations, protected unaryOperations, protected NuclearLang::NukeFunction,
                     public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
@@ -14,32 +14,35 @@ namespace Interpreter {
              * @brief A constructor that handles the traversing of the ast
              * ------------------------------------------------
             */
-            explicit interpreter(Vector<ContextFreeGrammar::Statement*>& stmt);
+            explicit interpreter(Vector<Statement*>& stmt);
             ~interpreter() noexcept = default;
             //truthyOperations* tO = new truthyOperations();
             //binaryOperations* bO = new binaryOperations();
             //unaryOperations* uO = new unaryOperations();
-            static Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
-            static Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
-            inline void visitBlockStmt(ContextFreeGrammar::Block* stmt) {
+            Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
+            Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
+            Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
+            Any visitGroupingExpr(ContextFreeGrammar::Grouping* expr);
+            inline Any visitBlockStmt(ContextFreeGrammar::Block* stmt) {
                 executeBlock(stmt->statements, new Environment::environment(*globals));
+                return nullptr;
             };
-            static Any visitClassStmt(ContextFreeGrammar::Class* stmt);
-            static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
-            static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
-            static Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
-            static Any lookUpVariable(Token name, ContextFreeGrammar::Expr* expr);
-            static void visitVarStmt(ContextFreeGrammar::Var* stmt);
-            static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
-            static void visitIfStmt(ContextFreeGrammar::If* stmt);
-            static Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
-            static Any visitSetExpr(ContextFreeGrammar::Set* expr);
-            static Any visitThisExpr(ContextFreeGrammar::This* expr);
-            static void visitWhileStmt(ContextFreeGrammar::While* stmt);
+            Any visitClassStmt(ContextFreeGrammar::Class* stmt);
+            Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
+            Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
+            Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
+            Any lookUpVariable(Token name, ContextFreeGrammar::Expr* expr);
+            Any visitVarStmt(ContextFreeGrammar::Var* stmt);
+            Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
+            Any visitIfStmt(ContextFreeGrammar::If* stmt);
+            Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
+            Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            Any visitThisExpr(ContextFreeGrammar::This* expr);
+            Any visitWhileStmt(ContextFreeGrammar::While* stmt);
             Any visitCallExpr(ContextFreeGrammar::Call* expr);
-            static Any visitGetExpr(ContextFreeGrammar::Get* expr);
+            Any visitGetExpr(ContextFreeGrammar::Get* expr);
             Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
-            static void visitReturnStmt(ContextFreeGrammar::Return* stmt);
+            Any visitReturnStmt(ContextFreeGrammar::Return* stmt);
             inline static void resolve(ContextFreeGrammar::Expr* expr, int depth) {
                 locals->insert_or_assign(expr, depth);
 
@@ -56,10 +59,9 @@ namespace Interpreter {
             static int arity(int argc = 0) { return argc;};
             static Any call(Interpreter::interpreter* interpreter, Vector<Any>& arguments);
         private:
-            inline static void* functionName = nullptr;
-            inline static void* functionType = nullptr;
-            inline static void execute(ContextFreeGrammar::Statement* stmt) {
-                stmt->accept(stmt, false);
+            inline void execute(ContextFreeGrammar::Statement* stmt) {
+                Any temp = std::make_any<interpreter*>(this);
+                stmt->accept(this);
             };
             inline static Check<interpreter> check{};
             inline static Map<String, Vector<String>> logs_{};
@@ -69,7 +71,7 @@ namespace Interpreter {
             template<typename T>
             static bool instanceof(const Any& object);
         protected:
-            static Any evaluate(ContextFreeGrammar::Expr* conv);
+            Any evaluate(ContextFreeGrammar::Expr* conv);
            
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
             /** --------------------------------------

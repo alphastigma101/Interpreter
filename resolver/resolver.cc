@@ -1,5 +1,6 @@
-#include <resolver.h>
 #include <interpreter.h>
+#include <resolver.h>
+
 /** ------------------------------------------
  * @brief A constructor that uses `this->` to initialize the data member with the parameter
  * 
@@ -42,11 +43,11 @@ void Resolver::resolver::resolve(Vector<Statement*>& statements) {
  */
 void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) {
     // TODO: If this does not work, then swap out the argument with this instead
-    stmt->accept(stmt);
+    stmt->accept(this);
 }
 
 void Resolver::resolver::resolve(Expr *expr) {
-    expr->accept(expr);
+    expr->accept(this);
 }
 void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function, FunctionType type) {
     FunctionType enclosingFunction = currentFunction;
@@ -56,7 +57,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
       declare(param);
       define(param);
     }
-    resolve(function->body);
+    this->resolve(function->body);
     endScope();
     currentFunction = enclosingFunction;
 }
@@ -68,8 +69,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
  * ---------------------------------------------------------------------------------- 
 */
 void Resolver::resolver::beginScope() {
-    auto map = new Map<String, bool>();
-    scopes->push(std::move(map));
+    scopes->push(new Map<String, bool>());
 }
 /** ---------------------------------------------------------------------------------
  * @brief Exits the stack explicitly 
@@ -137,11 +137,10 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
 }
 
 Any Resolver::resolver::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
-    resolve(stmt->initializer);
+    resolve(stmt->expression);
     return nullptr;
 }
-Any Resolver::resolver::visitFunctionStmt(Functions *stmt)
-{
+Any Resolver::resolver::visitFunctionStmt(Functions *stmt) {
     declare(stmt->op);
     define(stmt->op);
     resolveFunction(stmt, FunctionType::FUNCTION);
@@ -180,9 +179,11 @@ Any Resolver::resolver::visitReturnStmt(ContextFreeGrammar::Return *stmt) {
  * ----------------------------------------------------------------------------------
  */
 Any Resolver::resolver::visitVarStmt(Statement *stmt) {
-    beginScope();
-    resolve(stmt->statements);
-    endScope();
+    declare(stmt->op);
+    if (stmt->initializer != nullptr) {
+      resolve(stmt->initializer);
+    }
+    define(stmt->op);
     return nullptr;
 }
 
@@ -223,6 +224,12 @@ Any Resolver::resolver::visitCallExpr(ContextFreeGrammar::Call *expr) {
 }
 Any Resolver::resolver::visitGroupingExpr(ContextFreeGrammar::Grouping *expr) {
     resolve(expr->expression);
+    return nullptr;
+}
+
+Any Resolver::resolver::visitGetExpr(ContextFreeGrammar::Get *expr)
+{
+    resolve(expr->object);
     return nullptr;
 }
 

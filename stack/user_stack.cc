@@ -1,11 +1,6 @@
 #include <user_stack.h>
 // Function to add an element x to the top of the stack
 void Stack::stack::push(Map<String, bool>* lexical_scope) {
-    // If the stack is full, print "Stack overflow" and
-    // TODO: Increase the size of the stack instead of returning it
-    if (top >= 99) {
-        return;
-    }
     arr.push_back(std::move(lexical_scope));
     top++;
 }
@@ -20,7 +15,7 @@ void Stack::stack::pop() {
             arr.erase(arr.begin() + i);
         }
     }
-    throw;
+    return;
 }
 // Function to return the top element of the stack
 Map<String, bool>* Stack::stack::peek() {
@@ -33,7 +28,7 @@ Map<String, bool>* Stack::stack::peek() {
             return arr.at(i);
         }
     }
-    throw;
+    return arr.at(top);
 }
 
 // Function to check if the stack is empty

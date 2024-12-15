@@ -2,6 +2,7 @@
 #define _INTERFACE_H_
 // These interfaces should be used for when the Derived class does not directly implement the methods that they offer
 // Note that some interfaces do not use the -> and define the methods
+
 template<class Type>
 class Conv {
     // An abstract class is used to convert types of a class object into a string 
@@ -32,6 +33,7 @@ class Check {
 template <typename Derived>
 class Visitor {
     public:
+        
         template<typename T>
         inline auto visitBinaryExpr(T* expr) { return static_cast<Derived*>(this)->visitBinaryExpr(expr); };
         template<typename T>
@@ -41,9 +43,11 @@ class Visitor {
         template<typename T>
         inline auto visitLiteralExpr(T* expr) { return static_cast<Derived*>(this)->visitLiteralExpr(expr); };
         template<typename T>
+        inline auto visitGroupingExpr(T* expr) { return static_cast<Derived*>(this)->visitLiteralExpr(expr); };
+        template<typename T>
         inline auto visitGetExpr(T* expr) { return static_cast<Derived*>(this)->visitGetExpr(expr); };
         template<typename T>
-        inline void visitBlockStmt(T* stmt) { return static_cast<Derived*>(this)->visitBlockStmt(stmt); };
+        inline auto visitBlockStmt(T* stmt) { return static_cast<Derived*>(this)->visitBlockStmt(stmt); };
         template<typename T>
         inline auto visitExpressionStmt(T* stmt) { return static_cast<Derived*>(this)->visitExpressionStmt(stmt); };
         template<typename T>
@@ -51,17 +55,17 @@ class Visitor {
         template<typename T>
         inline auto visitVariableExpr(T* expr) { return static_cast<Derived*>(this)->visitVariableExpr(expr); };
         template<typename T>
-        inline void visitVarStmt(T* stmt) { return static_cast<Derived*>(this)->visitVarStmt(stmt); };
+        inline auto visitVarStmt(T* stmt) { return static_cast<Derived*>(this)->visitVarStmt(stmt); };
         template<typename T>
         inline auto visitAssignExpr(T* expr) { return static_cast<Derived*>(this)->visitAssignExpr(expr); };
         template<typename T>
-        inline void visitIfStmt(T* stmt) { return static_cast<Derived*>(this)->visitIfStmt(stmt);};
+        inline auto visitIfStmt(T* stmt) { return static_cast<Derived*>(this)->visitIfStmt(stmt);};
         template<typename T>
         inline auto visitLogicalExpr(T* expr) { return static_cast<Derived*>(this)->visitLogicalExpr(expr); };
         template<typename T>
         inline auto visitSetExpr(T* expr) { return static_cast<Derived*>(this)->visitSetExpr(expr); };
         template<typename T>
-        inline void visitWhileStmt(T* stmt) { return static_cast<Derived*>(this)->visitWhileStmt(stmt); };
+        inline auto visitWhileStmt(T* stmt) { return static_cast<Derived*>(this)->visitWhileStmt(stmt); };
         template<typename T>
         inline auto visitCallExpr(T* expr) { return static_cast<Derived*>(this)->visitCallExpr(expr); }; 
         template<typename T>
@@ -69,7 +73,10 @@ class Visitor {
         template<typename T>
         inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };
         template<typename T>
-        inline auto visitClassStmt(T* expr) { return static_cast<Derived*>(this)->visitClassStmt(expr); };  
+        inline auto visitClassStmt(T* expr) { return static_cast<Derived*>(this)->visitClassStmt(expr); };
+    protected:
+        template<typename T>
+        inline auto accept(T* stmt) { return static_cast<Derived*>(this)->visit(stmt); };
 };      
 
 #endif 

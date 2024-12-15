@@ -1,6 +1,7 @@
 #include <scanner.h>
 #include <parser.h>
 #include <interpreter.h>
+#include <resolver.h>
 #include <cassert>
 Vector<String> types = {
     "bool y = false;",
@@ -95,10 +96,13 @@ static void Adding() {
 
 int main(int argc, char **argv) {
     //Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); // how would it handle this?
-    Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int b) {return b;} foo(100);");
+    //Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int b) {return b;} foo(100);");
+    Scanner scanner("int d = (34.000000 + 15.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;

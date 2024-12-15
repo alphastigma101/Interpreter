@@ -48,11 +48,11 @@ Environment::environment *Environment::environment::ancestor(int distance) {
     return environment;
 }
 
-Any Environment::environment::getAt(int &distance, String name) {
+Any Environment::environment::getAt(const int distance, String name) {
     return ancestor(distance)->env.at(name);
 }
 
-void Environment::environment::assignAt(int &distance, Token &name, Any &value) {
+void Environment::environment::assignAt(const int distance, Token &name, Any &value) {
     ancestor(distance)->env.insert_or_assign(name.getLexeme(), value);
 }
 
