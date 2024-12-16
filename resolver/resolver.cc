@@ -45,10 +45,18 @@ void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) {
     // TODO: If this does not work, then swap out the argument with this instead
     stmt->accept(this);
 }
-
-void Resolver::resolver::resolve(Expr *expr) {
-    expr->accept(this);
-}
+/** -------------------------------------------------------------------
+ * @brief Resolves a single expression in the context-free grammar.
+ * 
+ * @details This function calls the `accept` method on the provided 
+ *          expression, delegating the resolution process to the statement itself. 
+ * @details The implementation relies on the internal logic defined in the 
+ *          statement's `accept` method.
+ * @param expr A pointer to the Expr to be resolved.
+ * 
+ * --------------------------------------------------------------------
+*/
+void Resolver::resolver::resolve(Expr *expr) { expr->accept(this); }
 void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function, FunctionType type) {
     FunctionType enclosingFunction = currentFunction;
     currentFunction = type;
@@ -72,29 +80,39 @@ void Resolver::resolver::beginScope() {
     scopes->push(new Map<String, bool>());
 }
 /** ---------------------------------------------------------------------------------
- * @brief Exits the stack explicitly 
+ * @brief  When resolving a variable, if we can’t find it in the stack of local scopes, 
+ *         we assume it must be global.
  * ----------------------------------------------------------------------------------
 */
 void Resolver::resolver::endScope() { scopes->pop(); }
-
+/** ---------------------------------------------------------------------------------
+ * @brief A method that throws an error when a variable is not initialized
+ * 
+ * @param name is a lvalue reference to the Token class 
+*/
 void Resolver::resolver::declare(Token &name) {
     if (scopes->isEmpty()) return;
 
     Map<String, bool>* scope = scopes->peek();
     if (scope->at(name.getLexeme())) {
-      /*Lox.error(name,
-          "Already a variable with this name in this scope.");*/
+        int temp = std::stoi(name.getLiteral());
+        NuclearLang::Nuke::error(temp,
+          "Already a variable with this name in this scope.");
     }
     scope->insert_or_assign(name.getLexeme(), false);
 }
-
+/** ----------------------------------------------------
+ * @brief resolve its initializer expression 
+ *        in that same scope where the new variable now exists but is unavailable.
+ * 
+ * -----------------------------------------------------
+*/
 void Resolver::resolver::define(Token &name) {
     if (scopes->isEmpty()) return;
     scopes->peek()->insert_or_assign(name.getLexeme(), true);
 }
 
-void Resolver::resolver::resolveLocal(Expr *expr, Token &name)
-{
+void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
     for (int i = scopes->size() - 1; i >= 0; i--) {
       if (scopes->get(i)->at(name.getLexeme())) {
         interp->resolve(expr, scopes->size() - 1 - i);
@@ -158,15 +176,15 @@ Any Resolver::resolver::visitPrintStmt(ContextFreeGrammar::Print *stmt) {
 }
 Any Resolver::resolver::visitReturnStmt(ContextFreeGrammar::Return *stmt) {
     if (currentFunction == FunctionType::NONE) {
-      //Lox.error(stmt.keyword, "Can't return from top-level code.");
+        int temp = std::stoi(stmt->op.getLiteral());
+        NuclearLang::Nuke::error(temp, "Can't return from top-level code.");
     }
     if (stmt->value != nullptr) {
         if (currentFunction == FunctionType::INITIALIZER) {
-        /*Lox.error(stmt->op,
-            "Can't return a value from an initializer.");*/
-      }
-
-
+            int temp = std::stoi(stmt->op.getLiteral());
+            NuclearLang::Nuke::error(temp,
+                "Can't return a value from an initializer.");
+        }
       resolve(stmt->value);
     }
     return nullptr;
@@ -175,6 +193,8 @@ Any Resolver::resolver::visitReturnStmt(ContextFreeGrammar::Return *stmt) {
  * @brief A vistor method that visits lexical scopes
  *
  * @param stmt A derived class that derives from Statement
+ * 
+ * @details It will put stuff inside the stack. 
  *
  * ----------------------------------------------------------------------------------
  */
@@ -194,10 +214,10 @@ Any Resolver::resolver::visitWhileStmt(ContextFreeGrammar::While *stmt) {
 }
 
 Any Resolver::resolver::visitVariableExpr(Variable *expr) {
-    if (!scopes->isEmpty() &&
-        scopes->peek()->at(expr->op.getLexeme()) == false) {
-      /*Lox.error(expr.name,
-          "Can't read local variable in its own initializer.");*/
+    auto map = scopes->peek();
+    if (!scopes->isEmpty() && map->at(expr->op.getLexeme()) == false) {
+        int temp = std::stoi(expr->op.getLiteral());
+        NuclearLang::Nuke::error(temp, "Can't read local variable in its own initializer.");
     }
     resolveLocal(expr, expr->op);
     return nullptr;
@@ -218,7 +238,7 @@ Any Resolver::resolver::visitBinaryExpr(ContextFreeGrammar::Binary *expr) {
 Any Resolver::resolver::visitCallExpr(ContextFreeGrammar::Call *expr) {
     resolve(expr->callee);
     for (auto argument : expr->arguments) {
-      resolve(std::any_cast<ContextFreeGrammar::Expr*>(argument));
+      resolve(std::any_cast<ContextFreeGrammar::Call*>(argument));
     }
     return nullptr;
 }
@@ -260,8 +280,7 @@ Any Resolver::resolver::visitThisExpr(ContextFreeGrammar::This *expr)
     return nullptr;
 }
 
-Any Resolver::resolver::visitUnaryExpr(ContextFreeGrammar::Unary *expr)
-{
+Any Resolver::resolver::visitUnaryExpr(ContextFreeGrammar::Unary *expr) {
     resolve(expr->right);
     return nullptr;
 }

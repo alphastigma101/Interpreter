@@ -7,8 +7,8 @@ Environment::environment* Environment::environment::enclosing = nullptr;
             The idea is to keep the global variables defined in the outer-scope, while clearing out the inner scope variables 
  * -------------------------------------
 */
-Environment::environment::environment(Environment::environment& enclosing) {
-    this->enclosing = &enclosing;
+Environment::environment::environment(Environment::environment* enclosing) {
+    this->enclosing = enclosing;
 }
 /** -----------------------------------
  * @brief Method that gets the variable name from the map

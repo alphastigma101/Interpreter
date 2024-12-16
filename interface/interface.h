@@ -33,7 +33,6 @@ class Check {
 template <typename Derived>
 class Visitor {
     public:
-        
         template<typename T>
         inline auto visitBinaryExpr(T* expr) { return static_cast<Derived*>(this)->visitBinaryExpr(expr); };
         template<typename T>

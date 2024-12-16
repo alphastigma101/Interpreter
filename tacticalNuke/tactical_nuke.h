@@ -1,14 +1,15 @@
-#include <context_free_grammar.h>
 #ifndef _TACTICAL_NUKE_H_
 #define _TACTICAL_NUKE_H_
+#include <context_free_grammar.h>
+#include <run_time_error.h>
 namespace NuclearLang {
   template<class Derived>
-  class Nuke {
+  class NukeCallable {
     public:
       inline int arity(int argc = 0) { return static_cast<Derived*>(this)->arity(argc);};
       template<typename T, typename Y>
       inline auto call(T* interp, const Y& arguments) { return static_cast<Derived*>(this)->call(interp, arguments);};
-      ~Nuke() = default;
+      ~NukeCallable() = default;
       inline void moveCursor(int x, int y) { return static_cast<Derived*>(this)->moveCursor(x,y);};
       inline void drawStickFigures() { return static_cast<Derived*>(this)->drawStickFigures();};
       inline void drawNuke(int height) { return static_cast<Derived*>(this)->drawNuke(height);};
@@ -17,30 +18,17 @@ namespace NuclearLang {
       inline void drawMiniatureNuke(int x, int y) { return static_cast<Derived*>(this)->drawMiniatureNuke(x,y);};
       inline void drawMiniatureNukeGrid(int numRows, int numCols) { return static_cast<Derived*>(this)->drawMiniatureNuke(numRows, numCols);};
       inline void launch() { return static_cast<Derived*>(this)->launch(); };
-      /** ------------------------------------------------------------------------- 
-       * @brief This function will report an error if something crashed 
-       *
-       * @param line The line it occured 
-       * @param where The string literal 
-       * @param message The message as to why it crashed
-       *
-       * @return None
-       *
-       * -------------------------------------------------------------------------
-      */
-      /*static void report(int &line, std::string where, std::string& message) {
-        std::cout << "[line " <<  line << "] Error" << where << ": " + message;
-        hadError = true;
-      };*/
-      /** ------------------------------------------------------------------------- 
-       * @brief A helper function that calls in report and uses the pass by reference
-       *
-       * @param line the source line 
-       * @param message the message as to why it crashed
-       *
-       * -------------------------------------------------------------------------
-      */
-      //static void error(int& line, std::string& message) { report(line, "", message); };
+  };
+  class Nuke {
+    inline static bool hadError = false;
+    public:
+      Nuke() noexcept = default;
+      ~Nuke() noexcept = default;
+      static void run(const char* source);
+      static void runPrompt();
+      static void report(int &line, const char* where, const char* message);
+      static void error(int& line, const char* message);
+      static void runFile(const char* filePath);
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:
@@ -50,7 +38,7 @@ namespace NuclearLang {
       void* value = nullptr; // Turning this into inline static void* value = nullptr; will make the return value the same
       explicit NukeReturn() noexcept = default;
   };
-  class NukeFunction: public Nuke<NukeFunction>, public NukeReturn {
+  class NukeFunction: public NukeCallable<NukeFunction>, public NukeReturn {
     public:
       explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, bool isInitializer) {
         this->closure = std::move(closure);
@@ -94,7 +82,7 @@ namespace NuclearLang {
       inline static ContextFreeGrammar::Functions* declaration = nullptr;
       inline static  Environment::environment* closure = nullptr;  
     };
-    class NukeClass: public Nuke<NukeClass> {
+    class NukeClass: public NukeCallable<NukeClass> {
         public:
           template<typename A, typename B>
           explicit NukeClass(A name, B methods) noexcept {

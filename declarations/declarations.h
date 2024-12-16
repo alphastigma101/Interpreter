@@ -135,8 +135,9 @@ namespace Environment {
     class environment;
 };
 namespace NuclearLang {
-    template<class Derived>
     class Nuke;
+    template<class Derived>
+    class NukeCallable;
     class NukeReturn;
     class NukeFunction;
     class NukeClass;

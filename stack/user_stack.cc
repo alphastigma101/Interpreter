@@ -32,6 +32,5 @@ Map<String, bool>* Stack::stack::peek() {
 }
 
 // Function to check if the stack is empty
-// Return true if the stack is empty (i.e., top is
-// -1)
+// If top is less than 0, that means there is something on the stack
 bool Stack::stack::isEmpty() { return (top < 0); }

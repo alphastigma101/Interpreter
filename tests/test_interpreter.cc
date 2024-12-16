@@ -341,6 +341,25 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     }
     
 }
+/*TEST_F(InterpreterTest, InterpreterTest_Class) {
+    Scanner scanner(R"(class DevonshireCream {
+        serveOn() {
+            return "Scones";
+        }
+    }
+    radiate DevonshireCream;)");
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "10");
+    
+}*/
+
 
 // TODO optional: Use google test's input parameter generator to test input values
 class ParserTest : public testing::Test {

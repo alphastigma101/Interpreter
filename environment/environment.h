@@ -14,7 +14,7 @@ namespace Environment {
             friend class runtimeerror<environment>;
             friend class EnvironmentTest;
             explicit environment() = default;
-            explicit environment(environment& env);
+            explicit environment(environment* env);
             ~environment() noexcept = default;
             static environment* enclosing;
             static Any get(Token& name);

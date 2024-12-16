@@ -1,4 +1,5 @@
 #include <interpreter.h>
+#include <context_free_grammar.h>
 Environment::environment* interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
  * @brief Default constructor that calls in native functions 
@@ -7,9 +8,9 @@ Environment::environment* interpreter::globals = new Environment::environment();
  * 
 */
 interpreter::interpreter() {
-    globals->define(String("launch"), new NuclearLang::Nuke<NukeFunction>());
-    globals->define(String("fussion"), new NuclearLang::Nuke<NukeFunction>());
-    globals->define(String("fission"), new NuclearLang::Nuke<NukeFunction>());
+    globals->define(String("launch"), new NuclearLang::NukeCallable<NukeFunction>());
+    globals->define(String("fussion"), new NuclearLang::NukeCallable<NukeFunction>());
+    globals->define(String("fission"), new NuclearLang::NukeCallable<NukeFunction>());
 }
 /** ------------------------------------------------
  * @brief Returns the value that the call expression produces.
@@ -261,11 +262,11 @@ Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     throw catcher<interpreter>("Data member of interpreter 'visitVariableExpr', failed to convert its parameter into Variable class!");*/
 }
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
-    Any distance;
+    int* distance = nullptr;
     try {
-        distance = locals->at(expr);
-    } catch(...) { distance = nullptr; }
-    if (!distance.has_value()) {
+        *distance = locals->at(expr);
+    } catch(...) {}
+    if (distance != nullptr) {
       return environment->getAt(std::any_cast<int>(distance), name.getLexeme());
     } else {
       return globals->get(name);

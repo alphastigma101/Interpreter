@@ -1,5 +1,116 @@
+#include <tactical_nuke.h>
+#include <scanner.h>
+#include <context_free_grammar.h>
+#include <parser.h>
 #include <interpreter.h>
-#include "tactical_nuke.h"
+#include <resolver.h>
+#include <filesystem>
+#include <system_error>
+#include <fstream>
+#include <tactical_nuke.h>
+/** -------------------------------------------------------------------------
+ * @brief Is a standalone static void function that runs the user input 
+ * 
+ * @param source: is a file that contains data of possibly of a language 
+ *
+ * @return If an error occurred while parsing it will return back void. Otherwise, continue to execute 
+*/
+void NuclearLang::Nuke::run(const char* source) {
+  Scanner scanner(source); // Create a new scanner instance
+  Vector<Token> tokens = scanner.ScanTokens();
+  parser p(tokens);
+  auto stmt = p.parse();
+  if (hadError) return;
+  /*std::thread build([&stmt]() {
+      return ast(stmt);
+  });*/
+  if (hadError) return;
+  Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+  resolver->resolve(stmt);
+  interpreter interp(stmt);
+  auto env = interp.getEnv()->getMap();
+  for (const auto& it: env) {
+      std::cout << std::any_cast<String>(it.second) << std::endl;
+  } 
+  /*if (build.joinable()) {
+      build.join();
+  }*/
+  //cTree.clear();
+
+}
+/** ------------------------------------------------------------------------- 
+ * @brief This function will implement > at runtime 
+ *
+ * -------------------------------------------------------------------------
+*/
+void NuclearLang::Nuke::runPrompt() {
+  try {
+    for (;;) { 
+      std::cout << "> ";
+      std::string line;
+      std::getline(std::cin, line); // get user input
+      if (line[0] == '\0' || line.empty()) break;
+      run(line.c_str());
+    }
+  }
+  catch(const std::system_error& e) {
+    std::cout << "Caught system_error with code " "[" << e.code() << "] meaning " "[" << e.what() << "]\n";
+  }
+}
+
+/** -------------------------------------------------------------------------
+ * @brief This function will report an error if something crashed
+ *
+ * @param line The line it occured
+ * @param where The string literal
+ * @param message The message as to why it crashed
+ *
+ * @return None
+ *
+ * -------------------------------------------------------------------------
+ */
+void NuclearLang::Nuke::report(int &line, const char* where, const char* message) {
+  std::cout << "[line " <<  line << "] Error" << where << ": " << message;
+  hadError = true;
+}
+/** -------------------------------------------------------------------------
+ * @brief A helper function that calls in report and uses the pass by reference
+ *
+ * @param line the source line
+ * @param message the message as to why it crashed
+ *
+ * -------------------------------------------------------------------------
+ */
+void NuclearLang::Nuke::error(int &line, const char* message) {
+  report(line, "", message);
+}
+//TODO: Update the function below so it takes in more than one file 
+/** ------------------------------------------------------------------------- 
+ * @brief This function will run the file. 
+ *
+ * @param filePath The file that was fed into the program
+ * -------------------------------------------------------------------------
+*/
+void NuclearLang::Nuke::runFile(const char* filePath) {
+    std::string source,line;
+    if (std::filesystem::exists(filePath)) {
+      std::ifstream file (std::filesystem::path(filePath).stem());
+      if (file.is_open()) { 
+        while (std::getline(file, line)) {
+          source.append(line);
+        }
+        file.close();
+        run(source.c_str());
+        // Indicate an error in the exit code.
+        if (hadError) exit(1);
+      }
+    }
+    else {
+      std::cout << "Not a valid file" << std::endl;
+      runPrompt();
+    }
+}
+
 Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> &arguments) {
     Environment::environment *environment = new Environment::environment(*closure);
     for (int i = 0; i < declaration->params.size(); i++) {
