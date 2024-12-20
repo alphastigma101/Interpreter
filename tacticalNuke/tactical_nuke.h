@@ -26,8 +26,8 @@ namespace NuclearLang {
       ~Nuke() noexcept = default;
       static void run(const char* source);
       static void runPrompt();
-      static void report(int &line, const char* where, const char* message);
-      static void error(int& line, const char* message);
+      static void report(int line, const char* where, const char* message);
+      static void error(int line, const char* message);
       static void runFile(const char* filePath);
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {

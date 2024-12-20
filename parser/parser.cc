@@ -301,10 +301,11 @@ Statement* parser::expressionStatement() {
 Vector<ContextFreeGrammar::Statement*> parser::block() {
     Vector<Statement*> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-      statements.push_back(dynamic_cast<Statement*>(declarations()));
+        auto expr = declarations();
+        statements.push_back(std::move(expr));
     }
     consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
-    return std::move(statements);
+    return statements;
 }
 /** ---------------------------------------------------------------------------
  * @brief A rule that will call to the left and to the right to parse. 

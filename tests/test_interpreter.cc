@@ -341,8 +341,8 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     }
     
 }
-/*TEST_F(InterpreterTest, InterpreterTest_Class) {
-    Scanner scanner(R"(class DevonshireCream {
+TEST_F(InterpreterTest, InterpreterTest_Class) {
+    Scanner scanner(R"(containment DevonshireCream {
         serveOn() {
             return "Scones";
         }
@@ -358,7 +358,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "10");
     
-}*/
+}
 
 
 // TODO optional: Use google test's input parameter generator to test input values

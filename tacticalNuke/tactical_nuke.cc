@@ -69,7 +69,7 @@ void NuclearLang::Nuke::runPrompt() {
  *
  * -------------------------------------------------------------------------
  */
-void NuclearLang::Nuke::report(int &line, const char* where, const char* message) {
+void NuclearLang::Nuke::report(int line, const char* where, const char* message) {
   std::cout << "[line " <<  line << "] Error" << where << ": " << message;
   hadError = true;
 }
@@ -81,7 +81,7 @@ void NuclearLang::Nuke::report(int &line, const char* where, const char* message
  *
  * -------------------------------------------------------------------------
  */
-void NuclearLang::Nuke::error(int &line, const char* message) {
+void NuclearLang::Nuke::error(int line, const char* message) {
   report(line, "", message);
 }
 //TODO: Update the function below so it takes in more than one file 

@@ -19,12 +19,14 @@ enum TokenType {
     // KeyWords
     FALSE, TRUE, RETURN, BREAK,
     STATIC, CATCH, THROW, CONST, TRY, EXCEPT,
+    SIGNED, UNSIGNED,
     // Primitive Types
-    INT, DOUBLE, CHAR, VOID, BOOL, NIL,
+    INT, DOUBLE, CHAR, VOID, BOOL, NIL, 
+    CHAR32, CHAR16, 
     // Complex Types
     AUTO, LIST, QUERY, MAP, POINTER, REF,
     // Control flow
-    ELSE, IF,
+    ELSE, IF, ELSEIF,
     // Loops
     FOR, WHILE,
     // Logical operators
@@ -80,10 +82,13 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::DOUBLE, "DOUBLE"},
     {TokenType::VOID, "VOID"},
     {TokenType::BOOL, "BOOL"},
+    {TokenType::CHAR16, "CHAR16"},
+    {TokenType::CHAR32, "CHAR32"},
     {TokenType::AND, "AND"},
     {TokenType::CONTAINMENT, "CONTAINMENT"}, // these are classes
     {TokenType::THIS, "THIS"}, 
     {TokenType::ELSE, "ELSE"},
+    {TokenType::ELSEIF, "ELSEIF"},
     {TokenType::FALSE, "FALSE"},
     {TokenType::FOR, "FOR"},
     {TokenType::BREAK, "BREAK"},
@@ -102,6 +107,8 @@ static const Unordered<TokenType, String> tokenTypeStrings = {
     {TokenType::PRIVATE, "PRIVATE"},
     {TokenType::PROTECTED, "PROTECTED"},
     {TokenType::STATIC, "STATIC"},
+    {TokenType::SIGNED, "SIGNED"},
+    {TokenType::UNSIGNED, "UNSIGNED"},
     {TokenType::CATCH, "CATCH"},
     {TokenType::THROW, "THROW"},
     {TokenType::TRY, "TRY"},

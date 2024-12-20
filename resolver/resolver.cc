@@ -1,6 +1,5 @@
 #include <interpreter.h>
 #include <resolver.h>
-
 /** ------------------------------------------
  * @brief A constructor that uses `this->` to initialize the data member with the parameter
  * 
@@ -22,7 +21,7 @@ Resolver::resolver::resolver(Interpreter::interpreter *interp) noexcept { this->
  * -------------------------------------------------------------------
 */
 void Resolver::resolver::resolve(Vector<Statement*>& statements) {
-    for (auto& statement : statements) {
+    for (auto statement : statements) {
       resolve(statement);
     }
 }
@@ -41,10 +40,7 @@ void Resolver::resolver::resolve(Vector<Statement*>& statements) {
  * 
  * --------------------------------------------------------------------
  */
-void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) {
-    // TODO: If this does not work, then swap out the argument with this instead
-    stmt->accept(this);
-}
+void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) { stmt->accept(this); }
 /** -------------------------------------------------------------------
  * @brief Resolves a single expression in the context-free grammar.
  * 
@@ -61,7 +57,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
     FunctionType enclosingFunction = currentFunction;
     currentFunction = type;
     beginScope();
-    for (auto& param : function->params) {
+    for (auto param : function->params) {
       declare(param);
       define(param);
     }
@@ -76,9 +72,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
  * 
  * ---------------------------------------------------------------------------------- 
 */
-void Resolver::resolver::beginScope() {
-    scopes->push(new Map<String, bool>());
-}
+void Resolver::resolver::beginScope() { scopes->push(new Map<String, bool>()); }
 /** ---------------------------------------------------------------------------------
  * @brief  When resolving a variable, if we can’t find it in the stack of local scopes, 
  *         we assume it must be global.
@@ -110,6 +104,7 @@ void Resolver::resolver::declare(Token &name) {
 void Resolver::resolver::define(Token &name) {
     if (scopes->isEmpty()) return;
     scopes->peek()->insert_or_assign(name.getLexeme(), true);
+    return;
 }
 
 void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
@@ -130,6 +125,7 @@ void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
  */
 Any Resolver::resolver::visitBlockStmt(ContextFreeGrammar::Block* stmt) {
     beginScope();
+    // statements are empty for some reason
     resolve(stmt->statements);
     endScope();
     return nullptr;
@@ -147,7 +143,7 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
       if (method->op.getLexeme() == String("init")) {
         declaration = FunctionType::INITIALIZER;
       }
-      resolveFunction(method, declaration); 
+       resolveFunction(method, declaration); 
     }
     currentClass = enclosingClass;
     endScope();

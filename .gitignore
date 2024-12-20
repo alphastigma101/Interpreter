@@ -35,6 +35,8 @@ Notes.md
 logs/
 debugging/logs/
 debugging/*.o
+debugging/test.cc
+debugging/a.out
 debugging/Ast.txt
 debugging/test_environment
 debugging/exec_debug_tokens

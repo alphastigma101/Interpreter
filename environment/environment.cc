@@ -21,7 +21,6 @@ Environment::environment::environment(Environment::environment* enclosing) {
 Any Environment::environment::get(Token& name) {
     if (auto search = env.find(name.getLexeme()); search != env.end())
         return search->second;
-    //if (auto search = newEnv->find(name.getLexeme()); search != nullptr) return search->value;
     if (enclosing != nullptr) return enclosing->get(name);
     
     throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
