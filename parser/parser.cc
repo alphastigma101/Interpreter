@@ -337,7 +337,7 @@ Statement* parser::declarations() {
 Statement* parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
-    //consume(TokenType::PUBLIC, "Expect '{' before class body.");
+    //consume(TokenType::PUBLIC, "Expected '{' after class body.");
 
     Vector<ContextFreeGrammar::Functions*> methods;
     while (!check(RIGHT_BRACE) && !isAtEnd()) {

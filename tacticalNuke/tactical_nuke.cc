@@ -57,7 +57,6 @@ void NuclearLang::Nuke::runPrompt() {
     std::cout << "Caught system_error with code " "[" << e.code() << "] meaning " "[" << e.what() << "]\n";
   }
 }
-
 /** -------------------------------------------------------------------------
  * @brief This function will report an error if something crashed
  *
@@ -92,91 +91,123 @@ void NuclearLang::Nuke::error(int line, const char* message) {
  * -------------------------------------------------------------------------
 */
 void NuclearLang::Nuke::runFile(const char* filePath) {
-    std::string source,line;
-    if (std::filesystem::exists(filePath)) {
-      std::ifstream file (std::filesystem::path(filePath).stem());
-      if (file.is_open()) { 
-        while (std::getline(file, line)) {
-          source.append(line);
-        }
-        file.close();
-        run(source.c_str());
-        // Indicate an error in the exit code.
-        if (hadError) exit(1);
-      }
+  String source,line;
+  if (std::filesystem::exists(filePath)) {
+    std::ifstream file (std::filesystem::path(filePath).stem());
+    if (file.is_open()) { 
+      while (std::getline(file, line)) 
+        source.append(line);
+      file.close();
+      run(source.c_str());
+      // Indicate an error in the exit code.
+      if (hadError) exit(1);
     }
-    else {
-      std::cout << "Not a valid file" << std::endl;
-      runPrompt();
-    }
+  }
+  else {
+    std::cout << "Not a valid file" << std::endl;
+    runPrompt();
+  }
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> &arguments) {
-    Environment::environment *environment = new Environment::environment(*closure);
-    for (int i = 0; i < declaration->params.size(); i++) {
-        environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
-    }
-    try {
-      interp->executeBlock(declaration->statements, environment);
-    } 
-    catch (NuclearLang::NukeReturn* returnValue) {
-      int zero = 0;
-      if (isInitializer) return closure->getAt(zero, "this");
-      environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
-      closure = std::move(environment);
-      return returnValue->value;
-    }
-  int zero = 0;
-  if (isInitializer) return closure->getAt(zero, "this");
+  Environment::environment *environment = new Environment::environment(*closure);
+  for (int i = 0; i < declaration->params.size(); i++) {
+      environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
+  }
+  try { interp->executeBlock(declaration->statements, environment); } 
+  catch (NuclearLang::NukeReturn* returnValue) {
+    if (isInitializer) return closure->getAt(0, "this");
+    environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
+    closure = std::move(environment);
+    return returnValue->value;
+  }
+  if (isInitializer) return closure->getAt(0, "this");
   return nullptr;
 }
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instance) {
   Environment::environment* environment = new Environment::environment(*closure);
   environment->define("this", instance);
   return new NuclearLang::NukeFunction(declaration, environment, isInitializer);
 }
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 Any NuclearLang::NukeClass::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
   NuclearLang::NukeInstance* instance = new NuclearLang::NukeInstance(this);
-  NuclearLang::NukeFunction initializer = findMethod(new String("init"));
-    if (&initializer != nullptr) {
-      initializer.bind(instance)->call(interp, arguments);
-    }
+  NuclearLang::NukeFunction* initializer = findMethod(new String("init"));
+  if (initializer != nullptr) {
+    initializer->bind(instance)->call(interp, arguments);
+  }
   return std::move(instance);
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 int NuclearLang::NukeClass::arity(int argc) {
-  NuclearLang::NukeFunction initializer = findMethod(new String("init"));
-  if (&initializer == nullptr) return 0;
-  return initializer.arity();
+  NuclearLang::NukeFunction* initializer = findMethod(new String("init"));
+  if (initializer == nullptr) return 0;
+  return initializer->arity();
 }
-
-void NuclearLang::NukeInstance::set(Token name, Any value) {
-  fields->insert_or_assign(name.getLexeme(), value);
-}
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
+void NuclearLang::NukeInstance::set(Token name, Any value) { fields->insert_or_assign(name.getLexeme(), value); }
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param name An lvalue of the token class 
+ * 
+ * @return None. It instead throws an exception  
+*/
 Any NuclearLang::NukeInstance::get(Token name) {
   if (auto search = fields->find(name.getLexeme()); search != fields->end()) {
     return search->second;
   }
-  NuclearLang::NukeFunction method = klass->findMethod(new String(name.getLexeme()));
-  if (&method != nullptr) return method.bind(this);
-  /*throw runtimeerror(name, 
-      "Undefined property '" + name.getLexeme() + "'.");*/
+  NuclearLang::NukeFunction* method = klass->findMethod(new String(name.getLexeme()));
+  if (method != nullptr) return method->bind(this);
+  throw runtimeerror<NuclearLang::NukeClass>(name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
 }
-NuclearLang::NukeFunction NuclearLang::NukeClass::findMethod(void* name) {
+NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
   auto* nameStr = reinterpret_cast<String*>(name);
   if (methodMap->find(*nameStr) != methodMap->end()) {
-    return methodMap->at(*nameStr);
+    return &methodMap->at(*nameStr);
   }
-  throw;
-  //return nullptr;
-
+  return nullptr;
 }
-
-void NuclearLang::NukeFunction::moveCursor(int x, int y) {
-  std::cout << "\033[" << y << ";" << x << "H";
-}
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
+void NuclearLang::NukeFunction::moveCursor(int x, int y) { std::cout << "\033[" << y << ";" << x << "H"; }
 
 void NuclearLang::NukeFunction::drawStickFigures() {
   std::cout << "   O   O   \n";
@@ -185,7 +216,13 @@ void NuclearLang::NukeFunction::drawStickFigures() {
   std::cout << "  / \\ / \\  \n";
   std::cout << "-------------\n";
 }
-
+/** ---------------------------------------------------------------
+ * @brief Draws the nuke that will bomb the family of stick figures 
+ * 
+ * @param height An integer literal where the nuke will be dropped at
+ * 
+ * @return Nothing
+*/
 void NuclearLang::NukeFunction::drawNuke(int height) {
   // Print spaces to position the nuke
   for (int i = 0; i < height; i++) {
@@ -210,7 +247,13 @@ void NuclearLang::NukeFunction::drawNuke(int height) {
   std::cout << "            \\ | /\n";
   std::cout << "             \\|/ \n";
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 void NuclearLang::NukeFunction::drawExplosion() {
   std::cout << "       . . .      \n";
   std::cout << "     . . . . .    \n";
@@ -223,45 +266,54 @@ void NuclearLang::NukeFunction::drawExplosion() {
 void NuclearLang::NukeFunction::clearScreen() {
   std::cout << "\033[2J\033[1;1H"; // ANSI escape code to clear the screen
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 void NuclearLang::NukeFunction::drawMiniatureNuke(int x, int y) {
-    moveCursor(x, y);
-    std::cout << "  '--'  \n";
-    std::cout << " /_____\\\n";
-    std::cout << " |     |\n";
-    std::cout << " |     |\n";
-    std::cout << " |_____|\n";
-    std::cout << " |     |\n";
-    std::cout << " |     |\n";
-    std::cout << "  \\   /\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << "   | |\n";
-    std::cout << " /     \\\n";
-    std::cout << "|_______|\n";
-    std::cout << "|       |\n";
-    std::cout << " \\_|__/ \n";
-    std::cout << "  \\ | /\n";
-    std::cout << "   \\|/ \n";
+  moveCursor(x, y);
+  std::cout << "  '--'  \n";
+  std::cout << " /_____\\\n";
+  std::cout << " |     |\n";
+  std::cout << " |     |\n";
+  std::cout << " |_____|\n";
+  std::cout << " |     |\n";
+  std::cout << " |     |\n";
+  std::cout << "  \\   /\n";
+  std::cout << "   | |\n";
+  std::cout << "   | |\n";
+  std::cout << "   | |\n";
+  std::cout << "   | |\n";
+  std::cout << " /     \\\n";
+  std::cout << "|_______|\n";
+  std::cout << "|       |\n";
+  std::cout << " \\_|__/ \n";
+  std::cout << "  \\ | /\n";
+  std::cout << "   \\|/ \n";
 }
 
 void NuclearLang::NukeFunction::drawMiniatureNukeGrid(int numRows, int numCols) {
   int spacing = 6; // Space between each nuke
-
   for (int y = 0; y < numRows; y++) {
-      for (int x = 0; x < numCols; x++) {
-          drawMiniatureNuke(x * spacing, y * spacing);
-      }
+    for (int x = 0; x < numCols; x++) {
+      drawMiniatureNuke(x * spacing, y * spacing);
+    }
   }
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 void NuclearLang::NukeFunction::launch() {
   int nukeDropHeight = 20;  // Increased height for better visibility
   int groundLevel = 25;     // Position where stick figures will be drawn
-
   clearScreen();
-  
   // Draw stick figures at fixed position
   moveCursor(0, groundLevel);
   drawStickFigures();

@@ -192,7 +192,15 @@ Any Interpreter::interpreter::visitLiteralExpr(ContextFreeGrammar::Literal *expr
 Any Interpreter::interpreter::visitGroupingExpr(ContextFreeGrammar::Grouping *expr) {
     return evaluate(expr->expression);
 }
-
+/** ---------------------------------------------------------------
+ * @brief Represents the runtime of a class
+ * 
+ * @details Store the name of the class inside of a map. 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction>* methods = new Map<String, NuclearLang::NukeFunction>();

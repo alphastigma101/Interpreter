@@ -66,7 +66,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
     currentFunction = enclosingFunction;
 }
 /** ---------------------------------------------------------------------------------
- * @brief Creates a new lexical scope
+ * @brief Creates a new lexical scope by allocating a map on the stack.
  * 
  * @return None
  * 
@@ -74,13 +74,13 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
 */
 void Resolver::resolver::beginScope() { scopes->push(new Map<String, bool>()); }
 /** ---------------------------------------------------------------------------------
- * @brief  When resolving a variable, if we can’t find it in the stack of local scopes, 
- *         we assume it must be global.
+ * @brief  Resolves the variable. 
+ *         If variable is not found in stack, assume that variable is global therefore pop it.
  * ----------------------------------------------------------------------------------
 */
 void Resolver::resolver::endScope() { scopes->pop(); }
 /** ---------------------------------------------------------------------------------
- * @brief A method that throws an error when a variable is not initialized
+ * @brief A method that throws an error when a variable is already initialized
  * 
  * @param name is a lvalue reference to the Token class 
 */
@@ -106,7 +106,12 @@ void Resolver::resolver::define(Token &name) {
     scopes->peek()->insert_or_assign(name.getLexeme(), true);
     return;
 }
-
+/** -------------------------------------------------------------
+ * @brief A helper method that actually resolves the variable during the walking phase
+ * 
+ * @param expr A pointer to the abstract class Expr
+ * @param name An alias to the Token class 
+ */
 void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
     for (int i = scopes->size() - 1; i >= 0; i--) {
       if (scopes->get(i)->at(name.getLexeme())) {
@@ -125,12 +130,17 @@ void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
  */
 Any Resolver::resolver::visitBlockStmt(ContextFreeGrammar::Block* stmt) {
     beginScope();
-    // statements are empty for some reason
     resolve(stmt->statements);
     endScope();
     return nullptr;
 }
-
+/** ---------------------------------------------------------------
+ * @brief ... 
+ * 
+ * @param stmt A raw pointer to an abstract class called Statement
+ * 
+ * @return returns nullptr 
+*/
 Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     ClassType enclosingClass = currentClass;
     currentClass = ClassType::CLASS;
@@ -154,7 +164,13 @@ Any Resolver::resolver::visitExpressionStmt(ContextFreeGrammar::Expression *stmt
     resolve(stmt->expression);
     return nullptr;
 }
-Any Resolver::resolver::visitFunctionStmt(Functions *stmt) {
+/** ---------------------------------------------------------
+ * @brief When resolving a function, it will bind the parameters to the function.
+ * 
+ * @param stmt It is a pointer to the Functions class
+ * 
+*/
+Any Resolver::resolver::visitFunctionStmt(ContextFreeGrammar::Functions *stmt) {
     declare(stmt->op);
     define(stmt->op);
     resolveFunction(stmt, FunctionType::FUNCTION);

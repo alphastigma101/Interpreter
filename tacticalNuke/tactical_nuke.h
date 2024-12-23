@@ -82,7 +82,7 @@ namespace NuclearLang {
       inline static ContextFreeGrammar::Functions* declaration = nullptr;
       inline static  Environment::environment* closure = nullptr;  
     };
-    class NukeClass: public NukeCallable<NukeClass> {
+    class NukeClass: public NukeCallable<NukeClass>, protected runtimeerror<NukeClass> {
         public:
           template<typename A, typename B>
           explicit NukeClass(A name, B methods) noexcept {
@@ -92,7 +92,7 @@ namespace NuclearLang {
           ~NukeClass() noexcept = default;
           Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
           static int arity(int argc = 0);
-          static NukeFunction findMethod(void* name);
+          static NukeFunction* findMethod(void* name);
           void* name = nullptr;
         private:
           inline static void* methods = nullptr;
