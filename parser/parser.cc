@@ -1,13 +1,13 @@
 #include <parser.h>
 template struct std::shared_ptr<Variant<Binary, Unary, Grouping, Literal, Import>>; // define the underlying of ExprTypes
-Expr* parser::assignment() {
+ContextFreeGrammar::Expr* parser::assignment() {
     auto expr = logicalOr();
     if (match(TokenType::EQUAL)) {
       Token equals = previous();
       auto value = assignment();
-      if (auto conv = dynamic_cast<Variable*>(expr)) {
+      if (auto conv = dynamic_cast<ContextFreeGrammar::Variable*>(expr)) {
         Token name = conv->op;
-        return new Assign(name, value);
+        return new ContextFreeGrammar::Assign(name, value);
       }
       else if (auto conv = dynamic_cast<ContextFreeGrammar::Set*>(expr)) {
         auto get = (ContextFreeGrammar::Get*)expr;
@@ -17,12 +17,12 @@ Expr* parser::assignment() {
     }
     return expr;
 }
-Expr* parser::logicalOr() {
+ContextFreeGrammar::Expr* parser::logicalOr() {
     auto expr = logicalAnd();
     while (match(TokenType::OR)) {
       Token op = previous();
       auto right = logicalAnd();
-      expr = new Logical(expr, op, right);
+      expr = new ContextFreeGrammar::Logical(expr, op, right);
     }
     return expr;
 }
@@ -31,7 +31,7 @@ Expr* parser::logicalAnd() {
     while (match(TokenType::AND)) {
       Token op = previous();
       auto right = equality();
-      expr = new Logical(expr, op, right);
+      expr = new ContextFreeGrammar::Logical(expr, op, right);
     }
     return expr;
 }
@@ -126,7 +126,7 @@ Expr* parser::unary() {
     }
     return call();
 }
-Expr* parser::finishCall(Expr* callee) {
+ContextFreeGrammar::Expr* parser::finishCall(Expr* callee) {
     Vector<Expr*> arguments;
     if (!check(RIGHT_PAREN)) {
         do {
@@ -188,7 +188,7 @@ Expr* parser::primary() {
  * @return equality()
  * --------------------------------------------------------------------------
 */
-Expr* parser::expression() { return assignment(); }
+ContextFreeGrammar::Expr* parser::expression() { return assignment(); }
 /** --------------------------------------------------------------------------
  * @brief A grammar rule that will bind the statement and hold the value 
  *
@@ -269,10 +269,10 @@ Statement* parser::ifStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-Statement* parser::printStatement() {
+ContextFreeGrammar::Statement* parser::printStatement() {
     auto value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
-    return new Print(std::move(value));
+    return new ContextFreeGrammar::Print(std::move(value));
 }
 Statement* parser::returnStatement() {
     Token keyword = previous();
@@ -299,7 +299,7 @@ Statement* parser::expressionStatement() {
  * ---------------------------------------------------------------------------
 */
 Vector<ContextFreeGrammar::Statement*> parser::block() {
-    Vector<Statement*> statements;
+    Vector<ContextFreeGrammar::Statement*> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
         auto expr = declarations();
         statements.push_back(std::move(expr));
@@ -341,29 +341,35 @@ Statement* parser::classDeclaration() {
 
     Vector<ContextFreeGrammar::Functions*> methods;
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
-        Token&& op = previous();
-        methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method", op)));
+        methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method")));
     }
     consume(RIGHT_BRACE, "Expect '}' after class body.");
     return new ContextFreeGrammar::Class(name, methods);
 }
-Statement* parser::function(const char* kind, Token& name) {
+Statement* parser::function(const char* kind) {
     Vector<Token> parameters;
+    Token name;
+    if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
+                TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) 
+                name = consume(TokenType::IDENTIFIER, String("Expect " + String(kind) + " name.").c_str());
+    else 
+        throw parseError<parser>(peek(), "method id must have a type before it");
+    consume(LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());
     if (!check(TokenType::RIGHT_PAREN)) {
-      do {
-        if (parameters.size() >= 255) 
-          throw parseError<parser>(peek(), "Can't have more than 255 parameters.");
-        if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
-            TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) 
-        parameters.push_back(
-            consume(TokenType::IDENTIFIER, "Expect parameter name."));
-        else 
-            throw parseError<parser>(peek(), "Unsupported type!");
+        do {
+            if (parameters.size() >= 255) 
+                throw parseError<parser>(peek(), "Can't have more than 255 parameters.");
+            if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
+                TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) 
+                parameters.push_back(
+                    consume(TokenType::IDENTIFIER, "Expect parameter name."));
+            else
+                throw parseError<parser>(peek(), "Unsupported type!");
       } while (match(TokenType::COMMA));
     }
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
     consume(LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
-    Vector<Statement*> body = block();
+    Vector<ContextFreeGrammar::Statement*> body = block();
     return new Functions(name, parameters, body);
 }
 /** -----------------------------------------------------------------------------
@@ -384,13 +390,12 @@ Statement* parser::function(const char* kind, Token& name) {
 */
 Statement* parser::varDeclaration() {
     const Token name = consume(TokenType::IDENTIFIER, "Expect a name.");
-    Token&& op = previous();
     Expr* initializer = nullptr;
     if (match(TokenType::EQUAL)) {
       initializer = expression();
     }
     if (match(TokenType::LEFT_PAREN)) {
-        return function("function", op);
+        return function("function");
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     return new Var(std::move(name), std::move(initializer));

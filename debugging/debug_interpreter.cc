@@ -97,13 +97,27 @@ static void Adding() {
 int main(int argc, char **argv) {
     //Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); // how would it handle this?
     //Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int b) {return b;} foo(100);");
-    Scanner scanner("int a = 4;\n"
+    /*Scanner scanner("int a = 4;\n"
         "string b = 'hello';\n""\
         {\n"
             "a = a + 5;\n"
             "b = \"inner b\";\n"
         "}\n"
             "radiate a;"
+    );*/
+    Scanner scanner(R"(
+        containment Bacon {
+            string eat() {
+                radiate "Crunch crunch crunch!";
+            }
+            string sleep() {
+                radiate "Sleep sleep sleep!";
+            }
+        }
+        Bacon().eat(); // Prints "Crunch crunch crunch!".
+        Bacon().sleep(); // Prints "Sleep sleep sleep!"
+
+        )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -124,16 +138,20 @@ int main(int argc, char **argv) {
         auto res = *(Any*)nuclear->value;
         conv = std::any_cast<String>(res);
     }
-    /*newEnv->display<String>();
-    if (auto search = newEnv->find(String("bar")); search != nullptr) {
-        auto temp = *(Any*)search->value;
-        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(temp);
-        conv = std::any_cast<String>(*(Any*)nuclear->returnVal->value);
-        //std::cout << "Working!" << std::endl;
-    }*/
-    std::cout << conv << std::endl;
-    //std::cout << newEnv->find("bar"); 
-    //auto env = interp.getEnv()->getMap();
+    if (auto it = env.find("Bacon"); it != env.end()) {
+        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
+        auto res = *(String*)nuclear->name;
+        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
+        if (auto search = map.find("eat"); search != map.end()) {
+          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+        }
+        std::cout << conv;
+        if (auto search = map.find("sleep"); search != map.end()) {
+          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+        }
+        std::cout << conv;
+    }
+    
     //Adding();
     
     return 0;

@@ -143,11 +143,12 @@ NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instanc
   return new NuclearLang::NukeFunction(declaration, environment, isInitializer);
 }
 /** ---------------------------------------------------------------
- * @brief ... 
+ * @brief Whenever this method is called, it will create a new instance  
  * 
- * @param stmt A raw pointer to an abstract class called Statement
+ * @param interp A raw pointer to a class called Interpreter
+ * @param arguments A Vector that holds a list of Any types
  * 
- * @return returns nullptr 
+ * @return returns the allocated instance of the user defined class 
 */
 Any NuclearLang::NukeClass::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
   NuclearLang::NukeInstance* instance = new NuclearLang::NukeInstance(this);

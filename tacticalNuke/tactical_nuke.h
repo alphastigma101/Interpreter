@@ -45,6 +45,7 @@ namespace NuclearLang {
         this->declaration = std::move(declaration);
         this->isInitializer = isInitializer;
       };
+      inline static ContextFreeGrammar::Functions* declaration = nullptr;
       static NukeFunction* bind(NukeInstance* instance);
       static Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
       inline static int arity(int argc = 0) { return declaration->params.size(); };
@@ -79,7 +80,7 @@ namespace NuclearLang {
         this->value = std::move(returnValue->value);
       };
       // TODO: These need to be converted into void* instead of the user type
-      inline static ContextFreeGrammar::Functions* declaration = nullptr;
+      
       inline static  Environment::environment* closure = nullptr;  
     };
     class NukeClass: public NukeCallable<NukeClass>, protected runtimeerror<NukeClass> {
@@ -94,8 +95,9 @@ namespace NuclearLang {
           static int arity(int argc = 0);
           static NukeFunction* findMethod(void* name);
           void* name = nullptr;
-        private:
           inline static void* methods = nullptr;
+        private:
+          
     };
     class NukeInstance {
       public:

@@ -150,7 +150,7 @@ namespace ContextFreeGrammar {
     };
     class Get: public Expr {
         public:
-            explicit Get(Expr* object_, const Token& op_);
+            explicit Get(Expr* object_, Token op_);
             ~Get() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);
@@ -209,7 +209,7 @@ namespace ContextFreeGrammar {
     class Call: public Expr {
         public:
             friend class catcher<Call>; // Use to output a message
-            explicit Call(Expr* callee, Token& paren, Vector<Expr*> arguments);
+            explicit Call(Expr* callee, Token paren, Vector<Expr*> arguments);
             ~Call() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);

@@ -201,7 +201,7 @@ Any ContextFreeGrammar::Logical::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Call::Call(Expr* callee, Token& paren, Vector<Expr*> arguments) {
+Call::Call(Expr* callee, Token paren, Vector<Expr*> arguments) {
     this->callee = std::move(callee);
     // Now create a thread that will run the for loop concurrently 
     for (auto& arg : arguments) {
@@ -267,7 +267,7 @@ Any ContextFreeGrammar::Set::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Get::Get(Expr* object_, const Token& op_)  {
+Get::Get(Expr* object_, Token op_)  {
    this->object = std::move(object_);
    this->op = std::move(op_);   
 }
@@ -321,7 +321,7 @@ Any ContextFreeGrammar::This::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Print::Print(Expr* initalizer) {
+ContextFreeGrammar::Print::Print(ContextFreeGrammar::Expr* initalizer) {
     this->initializer = std::move(initalizer); 
 }
 //Any ContextFreeGrammar::Print::accept(Visitor<Any*> visitor) { return visit(visitor); }
@@ -516,6 +516,7 @@ Any ContextFreeGrammar::If::visit(Any visitor) {
 Functions::Functions(Token& name, Vector<Token> params, Vector<Statement*>& body) {
     this->op = std::move(name);
     this->params = std::move(params);
+    //this->body
     this->statements = std::move(body);
 }
 //Any ContextFreeGrammar::Functions::accept(Visitor<Any*> visitor) { return visit(visitor); }
@@ -549,7 +550,7 @@ Any ContextFreeGrammar::Functions::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Class::Class(Token name, Vector<Functions*> methods) {
+Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
     this->op = std::move(name);
     this->methods = std::move(methods);
 }

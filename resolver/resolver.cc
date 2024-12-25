@@ -61,7 +61,8 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
       declare(param);
       define(param);
     }
-    this->resolve(function->body);
+    for (auto body : function->statements)
+        this->resolve(body);
     endScope();
     currentFunction = enclosingFunction;
 }
@@ -148,7 +149,7 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     define(stmt->op);
     beginScope();
     scopes->peek()->insert_or_assign("this", true);
-    for (auto& method : stmt->methods) {
+    for (auto method : stmt->methods) {
       FunctionType declaration = FunctionType::METHOD;
       if (method->op.getLexeme() == String("init")) {
         declaration = FunctionType::INITIALIZER;
@@ -259,34 +260,29 @@ Any Resolver::resolver::visitGroupingExpr(ContextFreeGrammar::Grouping *expr) {
     return nullptr;
 }
 
-Any Resolver::resolver::visitGetExpr(ContextFreeGrammar::Get *expr)
-{
+Any Resolver::resolver::visitGetExpr(ContextFreeGrammar::Get *expr) {
     resolve(expr->object);
     return nullptr;
 }
 
 Any Resolver::resolver::visitLiteralExpr(ContextFreeGrammar::Literal *expr) { return nullptr; }
 
-Any Resolver::resolver::visitLogicalExpr(ContextFreeGrammar::Logical *expr)
-{
+Any Resolver::resolver::visitLogicalExpr(ContextFreeGrammar::Logical *expr) {
     resolve(expr->left);
     resolve(expr->right);
     return nullptr;
 }
 
-Any Resolver::resolver::visitSetExpr(ContextFreeGrammar::Set *expr)
-{
+Any Resolver::resolver::visitSetExpr(ContextFreeGrammar::Set *expr) {
     resolve(expr->value);
     resolve(expr->object);
     return nullptr;
 }
 
-Any Resolver::resolver::visitThisExpr(ContextFreeGrammar::This *expr)
-{
+Any Resolver::resolver::visitThisExpr(ContextFreeGrammar::This *expr) {
     if (currentClass == ClassType::EMPTY) {
-      /*Lox.error(expr.keyword,
-          "Can't use 'this' outside of a class.");*/
-      return nullptr;
+        NuclearLang::Nuke::error(expr->op.getLine(), "Can't use 'this' outside of a class.");
+        return nullptr;
     }
     resolveLocal(expr, expr->op);
     return nullptr;

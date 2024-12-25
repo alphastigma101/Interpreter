@@ -162,7 +162,7 @@ Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
     Any object = evaluate(expr->object);
     if (instanceof<NuclearLang::NukeInstance>(object)) {
         auto res = std::any_cast<NuclearLang::NukeInstance>(object);
-      return res.get(expr->op);
+        return res.get(expr->op);
     }
 
     throw runtimeerror<Interpreter::interpreter>(expr->op,
@@ -203,24 +203,23 @@ Any Interpreter::interpreter::visitGroupingExpr(ContextFreeGrammar::Grouping *ex
 */
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
-    Map<String, NuclearLang::NukeFunction>* methods = new Map<String, NuclearLang::NukeFunction>();
+    Map<String, NuclearLang::NukeFunction> methods;
     for (auto& method : stmt->methods) {
         bool temp;
         if (method->op.getLexeme() == String("init")) temp = true;
         else temp = false;
-      NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(
+        NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(
             method, 
             environment, 
             temp
         );
-      methods->insert_or_assign(method->op.getLexeme(), std::move(*function));
+      methods.insert_or_assign(method->op.getLexeme(), std::move(*function));
     }
     NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods);
-    environment->assign(stmt->op, klass);
+    environment->assign(stmt->op, std::move(klass));
     return nullptr;
 }
-Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt)
-{
+Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
     if (auto conv = dynamic_cast<Expression*>(stmt))
         evaluate(conv->expression);
     return "\0";
@@ -327,8 +326,7 @@ Any interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
     return evaluate(expr->right);
 }
 
-Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr)
-{
+Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr) {
     Any object = evaluate(expr->object);
 
     if (!instanceof<NuclearLang::NukeInstance>(object)) {

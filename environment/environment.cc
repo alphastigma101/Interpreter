@@ -64,7 +64,7 @@ void Environment::environment::assignAt(const int distance, Token &name, Any &va
  * @return Returns the name of the variable otherwise returns null if not found. 
  * -------------------------------------
 */
-void Environment::environment::assign(Token& name, const Any& value) {
+void Environment::environment::assign(Token name, const Any& value) {
     if (auto search = env.find(name.getLexeme()); search != env.end()) {
         env.insert_or_assign(name.getLexeme(), value);
         return;  

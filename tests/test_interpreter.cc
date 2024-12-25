@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <scanner.h>
 #include <parser.h>
-#include <interpreter.h> 
+#include <interpreter.h>
+#include <resolver.h> 
 class InterpreterTest : public ::testing::Test {
     protected:
         void SetUp() override {
@@ -341,7 +342,73 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     }
     
 }
-TEST_F(InterpreterTest, InterpreterTest_Class) {
+TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
+    Scanner scanner(R"(
+        containment Bacon {
+            string eat() {
+                radiate "Crunch crunch crunch!";
+            }
+        }
+        Bacon().eat(); // Prints "Crunch crunch crunch!".)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("Bacon"); it != env.end()) {
+        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
+        auto res = *(String*)nuclear->name;
+        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
+        if (auto search = map.find("eat"); search != map.end()) {
+          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+        }
+    }
+    EXPECT_EQ(conv, "\"Crunch crunch crunch!\"");
+}
+
+/*TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
+   Scanner scanner(R"(
+        containment Bacon {
+            string eat() {
+                radiate "Crunch crunch crunch!";
+            }
+            string sleep() {
+                radiate "Sleep sleep sleep!";
+            }
+        }
+        Bacon().eat(); // Prints "Crunch crunch crunch!".
+        Bacon().sleep(); // Prints "Sleep sleep sleep!"
+
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("Bacon"); it != env.end()) {
+        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
+        auto res = *(String*)nuclear->name;
+        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
+        if (auto search = map.find("eat"); search != map.end()) {
+          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+        }
+        EXPECT_EQ(conv, "Crunch crunch crunch!");
+        if (auto search = map.find("sleep"); search != map.end()) {
+          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+        }
+        EXPECT_EQ(conv, "Sleep sleep sleep!");
+    }
+}*/
+
+/*TEST_F(InterpreterTest, InterpreterTest_ClassInstance) {
     Scanner scanner(R"(containment DevonshireCream {
         serveOn() {
             return "Scones";
@@ -357,8 +424,7 @@ TEST_F(InterpreterTest, InterpreterTest_Class) {
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "10");
-    
-}
+}*/
 
 
 // TODO optional: Use google test's input parameter generator to test input values

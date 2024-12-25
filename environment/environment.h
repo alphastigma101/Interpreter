@@ -22,7 +22,7 @@ namespace Environment {
             environment* ancestor(int distance);
             Any getAt(const int distance, String name);
             void assignAt(const int distance, Token& name, Any& value);
-            static void assign(Token& name, const Any& value);
+            static void assign(Token name, const Any& value);
             inline static Map<String, Any> getMap() { return env; };
         private:
             /** --------------------------------------------------------------------------

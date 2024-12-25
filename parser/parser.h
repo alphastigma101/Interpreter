@@ -78,7 +78,7 @@ namespace Parser {
             Statement* varDeclaration();
             Statement* whileStatement();
             Statement* forStatement();
-            Statement* function(const char* function, Token& name);
+            Statement* function(const char* function);
             Statement* returnStatement();
             Statement* classDeclaration();
             Vector<ContextFreeGrammar::Statement*> block();
