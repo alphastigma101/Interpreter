@@ -225,7 +225,7 @@ Any Resolver::resolver::visitWhileStmt(ContextFreeGrammar::While *stmt) {
     return nullptr;
 }
 
-Any Resolver::resolver::visitVariableExpr(Variable *expr) {
+Any Resolver::resolver::visitVariableExpr(ContextFreeGrammar::Variable *expr) {
     try {
         auto map = scopes->peek();
         if (!scopes->isEmpty() && map->at(expr->op.getLexeme()) == false) {
@@ -237,7 +237,7 @@ Any Resolver::resolver::visitVariableExpr(Variable *expr) {
     return nullptr;
 }
 
-Any Resolver::resolver::visitAssignExpr(Assign *expr) {
+Any Resolver::resolver::visitAssignExpr(ContextFreeGrammar::Assign *expr) {
     resolve(expr->right);
     resolveLocal(expr, expr->op);
     return nullptr;

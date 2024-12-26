@@ -25,6 +25,8 @@ template<typename K, typename V>
 // Containers
 using Map = std::map<K, V>;
 template<typename K, typename V>
+using MultiMap = std::multimap<K,V>;
+template<typename K, typename V>
 using Unordered = std::unordered_map<K, V>;
 template<typename... T>
 using Variant = std::variant<T...>;
@@ -124,14 +126,6 @@ namespace Interpreter {
 };
 namespace Resolver {
     class resolver;
-};
-namespace Symbol {
-    template<class Derived>
-    class Table;
-    class Functions;
-    class Parameters;
-    class Variables;
-    class Logical;
 };
 namespace UnaryOperations {
     class unaryOperations;

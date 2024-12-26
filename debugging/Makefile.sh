@@ -2,7 +2,7 @@
 
 INCLUDE=" -I ../types/ -I ../logging/ -I ../asm/ -I ../catch/ -I ../tokens/ -I ../interface/ -I ../ast/ -I ../cfg/ -I 
              ../declarations/ -I ../definitions/ -I ../runtime/ -I ../interpreter/ -I ../scanner/ -I ../parser/ -I ../addon/ 
-             -I ../threading/ -I ../environment/ -I ../tacticalNuke/ -I ../resolver/ -I ../stack/"
+             -I ../threading/ -I ../environment/ -I ../tacticalNuke/ -I ../resolver/ -I ../stack/ -I ../symbolTable/"
 LDFLAGS=" -L $HOME/Public-Projects/logging -lgtest -lgtest_main -pthread"
 
 #echo "creating debugging object files and executables" 
@@ -75,14 +75,16 @@ g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../stack/user_stack.cc -o stack.o
 
 echo "Creating debugging object files and executables for resolver"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../resolver/resolver.cc -o resolver.o
+echo "Creating debugging object files and executables for symbol Table"
+g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../symbolTable/symbol-table.cc -o symbol.o
 
 echo "Creating debugging object files and executables for interpreter"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -c ../interpreter/interpreter.cc -o interpreter.o 
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING=1  -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
-g++ -g -std=c++17 -fconcepts nuke.o resolver.o stack.o scanner.o parser.o interpreter.o context_free_grammar.o  environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  debug_interpreter.o -o exec_debug_interpreter
+g++ -g -std=c++17 -fconcepts nuke.o symbol.o resolver.o stack.o scanner.o parser.o interpreter.o context_free_grammar.o  environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  debug_interpreter.o -o exec_debug_interpreter
 g++ -g -std=c++17 -fconcepts $INCLUDE  -DENABLE_TESTING=1 -DENABLE_LOGGING=1 -c ../tests/test_interpreter.cc -o test_interpreter.o
-g++ -g -std=c++17 -fconcepts nuke.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
+g++ -g -std=c++17 -fconcepts nuke.o symbol.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 
 echo "Compiling main.cc!"
 g++ -g -std=c++17 -fconcepts  $INCLUDE -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -c ../main.cc -o main.o
-g++ -g -std=c++17 -fconcepts  nuke.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o token.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o environment.o main.o -o exec_interpreter
+g++ -g -std=c++17 -fconcepts  nuke.o symbol.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o token.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o environment.o main.o -o exec_interpreter

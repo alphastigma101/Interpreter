@@ -131,7 +131,6 @@ ContextFreeGrammar::Expr* parser::finishCall(ContextFreeGrammar::Expr* callee) {
     if (!check(RIGHT_PAREN)) {
         do {
             if (arguments.size() >= 255) {
-                //error(peek(), "Can't have more than 255 arguments.");
                 throw parseError<parser>(peek(), "Can't have more than 255 arguments.");
             }
             arguments.push_back(expression());
@@ -346,33 +345,67 @@ Statement* parser::classDeclaration() {
     consume(RIGHT_BRACE, "Expect '}' after class body.");
     return new ContextFreeGrammar::Class(name, methods);
 }
+/** ----------------------------------------
+ * @brief A method that parses class methods and free functions 
+ * 
+ * @details If the parameter name type is nullptr, that means method classes are being parsed.
+ *          Otherwise, free functions are being parsed
+ * @details Populates a table where the function name is key. 
+ *          It will search through a map using f_id which is initialized with name.getLexeme().c_str().
+ * 
+ * @details If found, it will return a struct called Statement which will keep adding the parameter's name and type.
+ *          It will throw if there is a parameter name that already exists inside a vector 
+ *          
+ *  
+ * @param kind is a const char* type that holds the name "function"
+ * @param type is a pointer to the Token class
+ *  
+ * @return Returns an allocated Derived class called Functions 
+*/
 ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
     Vector<Token> parameters;
     Token name;
     if (type != nullptr) {
-        // If type is not null, then varDeclaration has called the function 
-        // And has already consumed the ( 
-        // So set name to equal the previous 
+        // Must be free functions being parsed
         name = tokens_.at(current - 2);
-        // standAlone[type.getLexeme()] = tokens.at(current - 3).getLexeme();
+        //auto temp = table->newSymbols();
+        //temp->functions.f_type = type->getLexeme();
+        //temp->functions.f_id = name.getLexeme();
+        //table->insert(name.getLexeme().c_str(), std::move(*temp));
     }
     else {
-        // If it is a nullptr then, the function's that are getting parsed are methods
+        // Must be methods that are getting parsed
+        //Token op = previous();
+        //type = std::move(&op);
         if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
-                    TokenType::DOUBLE, TokenType::VOID, TokenType::INT))
+                    TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) {
             name = consume(TokenType::IDENTIFIER, String("Expect " + String(kind) + " name.").c_str());
+            //auto temp = table->newSymbols();
+            //temp->functions.f_type = type->getLexeme();
+            //temp->functions.f_id = name.getLexeme();
+            //table->insert(name.getLexeme().c_str(), std::move(*temp));
+        }
         else 
-            throw parseError<parser>(peek(), "method id must have a type before it");
+            throw parseError<parser>(peek(), "Method name must have a return type before it");
         consume(LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());   
-    } 
+    }
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (parameters.size() >= 255) 
                 throw parseError<parser>(peek(), "Can't have more than 255 parameters.");
-            if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
-                TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) 
-                parameters.push_back(
-                    consume(TokenType::IDENTIFIER, "Expect parameter name."));
+            if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) { 
+                //Token op = previous();
+                //type = std::move(&op);
+                Token paramName = consume(TokenType::IDENTIFIER, "Expect parameter name.");
+                /*auto symbols = table->get(name.getLexeme().c_str());
+                if (symbols.params.p_id.find(paramName.getLexeme()) == symbols.params.p_id.end())  {
+                    symbols.params.p_id.insert({paramName.getLexeme(), type->getLexeme()});
+                }
+                else 
+                    throw Parser::parseError<Parser::parser>(paramName, "Parameter names must have different ids");
+                table->update(name.getLexeme().c_str(), std::move(symbols));*/
+                parameters.push_back(paramName);
+            }
             else
                 throw parseError<parser>(peek(), "Unsupported type!");
       } while (match(TokenType::COMMA));

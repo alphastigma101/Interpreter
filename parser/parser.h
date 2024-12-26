@@ -1,6 +1,7 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 #include <abstraction_tree_syntax.h>
+#include <symbol-table.h>
 namespace Parser {
     template<class Derived>
     class parseError {
@@ -31,7 +32,8 @@ namespace Parser {
             parseError<Derived>() = default;
         private:
             inline static Token token;
-            inline static std::string message;
+            inline static String message;
+            inline static Symbol::Table* table = new Symbol::Table();
     };
     class parser: protected parseError<parser>, public logging<parser> {
         /** ----------------------------------------------------------------------------------------------------------------------------
