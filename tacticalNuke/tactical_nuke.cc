@@ -115,12 +115,14 @@ void NuclearLang::Nuke::runFile(const char* filePath) {
  * 
  * @return returns nullptr 
 */
-Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> &arguments) {
+Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> arguments) {
   Environment::environment *environment = new Environment::environment(*closure);
   for (int i = 0; i < declaration->params.size(); i++) {
-      environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
+    environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
   }
-  try { interp->executeBlock(declaration->statements, environment); } 
+  try { 
+    interp->executeBlock(declaration->statements, environment); 
+  } 
   catch (NuclearLang::NukeReturn* returnValue) {
     if (isInitializer) return closure->getAt(0, "this");
     environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));

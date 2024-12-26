@@ -19,7 +19,7 @@ interpreter::interpreter() {
  * @param arguments A vector that contains a list of arguments of user-defined function 
  * 
  */
-Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any>& arguments) {
+Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any> arguments) {
     launch();
     return Any(); 
 }
@@ -28,7 +28,7 @@ Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any>& argume
  * @brief Calls in evaluate mehtod to begin the evaluation 
  * 
 */
-interpreter::interpreter(Vector<ContextFreeGrammar::Statement*>& stmt): interpreter::interpreter() {
+interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpreter::interpreter() {
     try {
         for (auto &it: stmt) {
             if (auto conv = dynamic_cast<Statement*>(it))
@@ -62,6 +62,8 @@ Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
     else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(this);
     else if (auto logic = dynamic_cast<Logical*>(conv)) return conv->accept(this);
     else if (auto var = dynamic_cast<Variable*>(conv)) return conv->accept(this);
+    else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) return conv->accept(this);
+    else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) return conv->accept(this);
     throw catcher<interpreter>("Unexpected type in evaluate function");
 }
 /** ---------------------------------------------------------------------------
@@ -137,7 +139,7 @@ Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
 Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
     auto callee = evaluate(expr->callee);
     Vector<Any> arguments;
-    for (auto& it : expr->arguments) {
+    for (auto it : expr->arguments) {
         try {
             arguments.push_back(evaluate(std::any_cast<ContextFreeGrammar::Expr*>(it)));
         }
@@ -145,24 +147,32 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             throw runtimeerror<interpreter>(expr->op, "Failed to convert one of the elements in arguments into Expr*");
         }
     }
-    if (!(instanceof<NukeFunction*>(callee))) {
-      throw runtimeerror<interpreter>(expr->paren,
-          "Can only call functions and classes.");
+    if (callee.type() == typeid(NuclearLang::NukeFunction*)) {
+        auto function = std::any_cast<NuclearLang::NukeFunction*>(callee);
+        if (arguments.size() != function->arity()) {
+        throw runtimeerror<Interpreter::interpreter>(expr->paren, String("Expected " +
+            std::to_string(function->arity()) + " arguments but got " +
+            std::to_string(arguments.size()) + ".").c_str());
+        }
+        return function->call(this, arguments);
     }
-    auto function = std::any_cast<NukeFunction*>(callee);
-    if (arguments.size() != function->arity()) {
-      throw runtimeerror<interpreter>(expr->paren, String("Expected " +
-          std::to_string(function->arity()) + " arguments but got " +
-          std::to_string(arguments.size()) + ".").c_str());
+    else if (callee.type() == typeid(NuclearLang::NukeClass*)) {
+        auto function = std::any_cast<NuclearLang::NukeClass*>(callee);
+        if (arguments.size() != function->arity()) {
+            throw runtimeerror<interpreter>(expr->paren, String("Expected " +
+            std::to_string(function->arity()) + " arguments but got " +
+            std::to_string(arguments.size()) + ".").c_str());
+        }
+        return function->call(this, arguments); 
     }
-    return function->call(this, arguments);
+    throw runtimeerror<Interpreter::interpreter>(expr->paren, "Can only call functions and classes.");
 }
 
 Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
     Any object = evaluate(expr->object);
-    if (instanceof<NuclearLang::NukeInstance>(object)) {
-        auto res = std::any_cast<NuclearLang::NukeInstance>(object);
-        return res.get(expr->op);
+    if (instanceof<NuclearLang::NukeInstance*>(object)) {
+        auto res = std::any_cast<NuclearLang::NukeInstance*>(object);
+        return res->get(expr->op);
     }
 
     throw runtimeerror<Interpreter::interpreter>(expr->op,
@@ -204,7 +214,7 @@ Any Interpreter::interpreter::visitGroupingExpr(ContextFreeGrammar::Grouping *ex
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction> methods;
-    for (auto& method : stmt->methods) {
+    for (auto method : stmt->methods) {
         bool temp;
         if (method->op.getLexeme() == String("init")) temp = true;
         else temp = false;
@@ -222,12 +232,11 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
     if (auto conv = dynamic_cast<Expression*>(stmt))
         evaluate(conv->expression);
-    return "\0";
+    return nullptr;
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NukeFunction* function = new NukeFunction(stmt, environment, false);
     environment->define(stmt->op.getLexeme(), std::move(function));
-    //functionName = new String(stmt->op.getLexeme());
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -264,9 +273,6 @@ Any interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
 
 Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     return lookUpVariable(expr->op, expr);
-    /*if (auto conv = dynamic_cast<Variable*>(expr))
-        return globals->get(expr->op);
-    throw catcher<interpreter>("Data member of interpreter 'visitVariableExpr', failed to convert its parameter into Variable class!");*/
 }
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
     int* distance = nullptr;
@@ -274,7 +280,7 @@ Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Exp
         *distance = locals->at(expr);
     } catch(...) {}
     if (distance != nullptr) {
-      return environment->getAt(std::any_cast<int>(distance), name.getLexeme());
+      return environment->getAt(*distance, name.getLexeme());
     } else {
       return globals->get(name);
     }
@@ -359,7 +365,7 @@ bool interpreter::instanceof(const Any& object) {
         else if (isOther<T>(object)) return true;
         return false;
     } catch (...) {
-        throw catcher<interpreter>("Unknown Type!");
+        throw catcher<Interpreter::interpreter>("Unknown Type!");
     }
     return false;
 }

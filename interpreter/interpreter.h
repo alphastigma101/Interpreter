@@ -14,7 +14,7 @@ namespace Interpreter {
              * @brief A constructor that handles the traversing of the ast
              * ------------------------------------------------
             */
-            explicit interpreter(Vector<Statement*>& stmt);
+            explicit interpreter(Vector<ContextFreeGrammar::Statement*> stmt);
             ~interpreter() noexcept = default;
             //truthyOperations* tO = new truthyOperations();
             //binaryOperations* bO = new binaryOperations();
@@ -50,17 +50,16 @@ namespace Interpreter {
             inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
                 Environment::environment* previous = this->globals;
                 this->globals = environment;
-                for (const auto& statement : statements) {
+                for (const auto statement : statements) {
                     execute(statement);
                 }
                 this->globals = previous;
             };
             inline Environment::environment* getEnv() { return globals; };
-            static int arity(int argc = 0) { return argc;};
-            static Any call(Interpreter::interpreter* interpreter, Vector<Any>& arguments);
+            inline static int arity(int argc = 0) { return argc;};
+            static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
             inline void execute(ContextFreeGrammar::Statement* stmt) {
-                Any temp = std::make_any<interpreter*>(this);
                 stmt->accept(this);
             };
             inline static Check<interpreter> check{};

@@ -33,7 +33,15 @@ namespace NuclearLang {
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:
       template<typename T>
-      explicit NukeReturn(T& value) { this->value = new T(value); };
+      explicit NukeReturn(T value) {
+        try { 
+          this->value = new T(value);
+          
+        }
+        catch(...) {
+          std::cout << "Bad Cast!" << std::endl;
+        } 
+      };
       ~NukeReturn() noexcept = default;
       void* value = nullptr; // Turning this into inline static void* value = nullptr; will make the return value the same
       explicit NukeReturn() noexcept = default;
@@ -47,7 +55,7 @@ namespace NuclearLang {
       };
       inline static ContextFreeGrammar::Functions* declaration = nullptr;
       static NukeFunction* bind(NukeInstance* instance);
-      static Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
+      static Any call(Interpreter::interpreter* interp, const Vector<Any> arguments);
       inline static int arity(int argc = 0) { return declaration->params.size(); };
       ~NukeFunction() noexcept = default;
       inline static Environment::environment* getClosure() { return closure; };

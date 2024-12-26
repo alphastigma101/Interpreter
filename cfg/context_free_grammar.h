@@ -379,7 +379,7 @@ namespace ContextFreeGrammar {
     };
     class Functions: public Statement {
         public:
-            explicit Functions(Token& name, Vector<Token> params, Vector<Statement*>& body);
+            explicit Functions(Token name, Vector<Token> params, Vector<Statement*>& body);
             ~Functions() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);

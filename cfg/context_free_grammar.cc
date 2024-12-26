@@ -201,7 +201,7 @@ Any ContextFreeGrammar::Logical::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Call::Call(Expr* callee, Token paren, Vector<Expr*> arguments) {
+ContextFreeGrammar::Call::Call(ContextFreeGrammar::Expr* callee, Token paren, Vector<ContextFreeGrammar::Expr*> arguments) {
     this->callee = std::move(callee);
     // Now create a thread that will run the for loop concurrently 
     for (auto& arg : arguments) {
@@ -267,7 +267,7 @@ Any ContextFreeGrammar::Set::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Get::Get(Expr* object_, Token op_)  {
+ContextFreeGrammar::Get::Get(ContextFreeGrammar::Expr* object_, Token op_)  {
    this->object = std::move(object_);
    this->op = std::move(op_);   
 }
@@ -353,12 +353,12 @@ Return::Return(const Token& keyword, Expr* value) {
 }
 //Any ContextFreeGrammar::Return::accept(Visitor<Any*> visitor) { return visit(visitor); }
 Any ContextFreeGrammar::Return::visit(Any visitor) {
-    try {
-        if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
-            return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
-        }
+    // TODO: Each visit method that contains a try and catch statement needs to either use typeid() or visitor.type()
+    // This will help prevent any other try and accept statements being intercepted
+    if (visitor.type() == typeid(Interpreter::interpreter*)) {
+        auto visit = std::any_cast<Interpreter::interpreter*>(visitor);
+        return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
     }
-    catch(...) {}
     try {
         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
             return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
@@ -513,7 +513,7 @@ Any ContextFreeGrammar::If::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Functions::Functions(Token& name, Vector<Token> params, Vector<Statement*>& body) {
+Functions::Functions(Token name, Vector<Token> params, Vector<Statement*>& body) {
     this->op = std::move(name);
     this->params = std::move(params);
     //this->body

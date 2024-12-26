@@ -26,7 +26,7 @@ ContextFreeGrammar::Expr* parser::logicalOr() {
     }
     return expr;
 }
-Expr* parser::logicalAnd() {
+ContextFreeGrammar::Expr* parser::logicalAnd() {
     auto expr = equality();
     while (match(TokenType::AND)) {
       Token op = previous();
@@ -48,7 +48,7 @@ Expr* parser::logicalAnd() {
  *
  * ---------------------------------------------------------------------------------------------------------------------------------------
 */
-Expr* parser::equality()  {
+ContextFreeGrammar::Expr* parser::equality()  {
     // Recursion left !=
     auto expr = comparison();
     while (match(TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL)) {
@@ -65,7 +65,7 @@ Expr* parser::equality()  {
  * @return term()
  * --------------------------------------------------------------------------
 */
-Expr* parser::comparison() {
+ContextFreeGrammar::Expr* parser::comparison() {
     auto expr = term();
     while (match(TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL)) {
         const Token op = previous();
@@ -82,7 +82,7 @@ Expr* parser::comparison() {
  * @details expr is a shared_ptr wrapped with variant that holds Binary, Unary, Grouping, and Literal instances
  * --------------------------------------------------------------------------
 */
-Expr* parser::term() {
+ContextFreeGrammar::Expr* parser::term() {
     auto expr = factor();
     while (match(TokenType::MINUS, TokenType::PLUS)) {
         const Token op = previous();
@@ -101,7 +101,7 @@ Expr* parser::term() {
    Ex: Factor can handle the () but Grouping is needed so it can get the nested () expression as it's own 
  * --------------------------------------------------------------------------
 */
-Expr* parser::factor() {
+ContextFreeGrammar::Expr* parser::factor() {
     auto expr = unary(); 
     while (match(TokenType::SLASH, TokenType::STAR, TokenType::MODULO)) {
         const Token op = previous();
@@ -118,7 +118,7 @@ Expr* parser::factor() {
  * @details expr is a shared_ptr that wraps around a variant that holds Binary, Unary, Grouping, and Literal instances
  * --------------------------------------------------------------------------
 */
-Expr* parser::unary() {
+ContextFreeGrammar::Expr* parser::unary() {
     if (match(TokenType::BANG, TokenType::MINUS)) {
         const Token op = previous();
         auto right = unary();
@@ -126,8 +126,8 @@ Expr* parser::unary() {
     }
     return call();
 }
-ContextFreeGrammar::Expr* parser::finishCall(Expr* callee) {
-    Vector<Expr*> arguments;
+ContextFreeGrammar::Expr* parser::finishCall(ContextFreeGrammar::Expr* callee) {
+    Vector<ContextFreeGrammar::Expr*> arguments;
     if (!check(RIGHT_PAREN)) {
         do {
             if (arguments.size() >= 255) {
@@ -137,11 +137,10 @@ ContextFreeGrammar::Expr* parser::finishCall(Expr* callee) {
             arguments.push_back(expression());
         } while (match(TokenType::COMMA));
     }
-    Token paren = consume(RIGHT_PAREN,
-                          "Expect ')' after arguments.");
-    return new Call(callee, paren, arguments);
+    Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+    return new ContextFreeGrammar::Call(callee, paren, arguments);
 }
-Expr* parser::call() {
+ContextFreeGrammar::Expr* parser::call() {
     auto expr = primary();
     while (true) { 
         if (match(TokenType::LEFT_PAREN)) {
@@ -291,7 +290,7 @@ Statement* parser::returnStatement() {
 Statement* parser::expressionStatement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
-    return new Expression(std::move(expr));
+    return new ContextFreeGrammar::Expression(std::move(expr));
 }
 /** ---------------------------------------------------------------------------
  * @brief A rule that will call to the left and to the right to parse. 
@@ -337,7 +336,8 @@ Statement* parser::declarations() {
 Statement* parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
-    //consume(TokenType::PUBLIC, "Expected '{' after class body.");
+    if (match(TokenType::PUBLIC, TokenType::PRIVATE, TokenType::PROTECTED)) 
+        consume(TokenType::SEMICOLON, "Expected ':' specifier.");
 
     Vector<ContextFreeGrammar::Functions*> methods;
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
@@ -346,15 +346,25 @@ Statement* parser::classDeclaration() {
     consume(RIGHT_BRACE, "Expect '}' after class body.");
     return new ContextFreeGrammar::Class(name, methods);
 }
-Statement* parser::function(const char* kind) {
+ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
     Vector<Token> parameters;
     Token name;
-    if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
-                TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) 
-                name = consume(TokenType::IDENTIFIER, String("Expect " + String(kind) + " name.").c_str());
-    else 
-        throw parseError<parser>(peek(), "method id must have a type before it");
-    consume(LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());
+    if (type != nullptr) {
+        // If type is not null, then varDeclaration has called the function 
+        // And has already consumed the ( 
+        // So set name to equal the previous 
+        name = tokens_.at(current - 2);
+        // standAlone[type.getLexeme()] = tokens.at(current - 3).getLexeme();
+    }
+    else {
+        // If it is a nullptr then, the function's that are getting parsed are methods
+        if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
+                    TokenType::DOUBLE, TokenType::VOID, TokenType::INT))
+            name = consume(TokenType::IDENTIFIER, String("Expect " + String(kind) + " name.").c_str());
+        else 
+            throw parseError<parser>(peek(), "method id must have a type before it");
+        consume(LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());   
+    } 
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (parameters.size() >= 255) 
@@ -370,7 +380,7 @@ Statement* parser::function(const char* kind) {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
     consume(LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
     Vector<ContextFreeGrammar::Statement*> body = block();
-    return new Functions(name, parameters, body);
+    return new ContextFreeGrammar::Functions(name, parameters, body);
 }
 /** -----------------------------------------------------------------------------
  * @brief A method that checks to see if the language has an identifier.
@@ -389,13 +399,14 @@ Statement* parser::function(const char* kind) {
  * ------------------------------------------------------------------------------
 */
 Statement* parser::varDeclaration() {
+    Token type = previous();
     const Token name = consume(TokenType::IDENTIFIER, "Expect a name.");
     Expr* initializer = nullptr;
     if (match(TokenType::EQUAL)) {
       initializer = expression();
     }
     if (match(TokenType::LEFT_PAREN)) {
-        return function("function");
+        return function("function", std::move(&type));
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     return new Var(std::move(name), std::move(initializer));

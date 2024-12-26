@@ -20,7 +20,7 @@ Resolver::resolver::resolver(Interpreter::interpreter *interp) noexcept { this->
  * 
  * -------------------------------------------------------------------
 */
-void Resolver::resolver::resolve(Vector<Statement*>& statements) {
+void Resolver::resolver::resolve(Vector<ContextFreeGrammar::Statement*>& statements) {
     for (auto statement : statements) {
       resolve(statement);
     }
@@ -52,7 +52,7 @@ void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) { stmt->ac
  * 
  * --------------------------------------------------------------------
 */
-void Resolver::resolver::resolve(Expr *expr) { expr->accept(this); }
+void Resolver::resolver::resolve(ContextFreeGrammar::Expr *expr) { expr->accept(this); }
 void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function, FunctionType type) {
     FunctionType enclosingFunction = currentFunction;
     currentFunction = type;
@@ -61,8 +61,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
       declare(param);
       define(param);
     }
-    for (auto body : function->statements)
-        this->resolve(body);
+    for (auto body : function->statements) this->resolve(body);
     endScope();
     currentFunction = enclosingFunction;
 }
@@ -85,16 +84,16 @@ void Resolver::resolver::endScope() { scopes->pop(); }
  * 
  * @param name is a lvalue reference to the Token class 
 */
-void Resolver::resolver::declare(Token &name) {
+void Resolver::resolver::declare(Token name) {
     if (scopes->isEmpty()) return;
 
-    Map<String, bool>* scope = scopes->peek();
-    if (scope->at(name.getLexeme())) {
+    Map<String, bool> scope = *(*scopes).peek();
+    if (scope.at(name.getLexeme())) {
         int temp = std::stoi(name.getLiteral());
         NuclearLang::Nuke::error(temp,
           "Already a variable with this name in this scope.");
     }
-    scope->insert_or_assign(name.getLexeme(), false);
+    scope.insert_or_assign(name.getLexeme(), false);
 }
 /** ----------------------------------------------------
  * @brief resolve its initializer expression 
@@ -102,7 +101,7 @@ void Resolver::resolver::declare(Token &name) {
  * 
  * -----------------------------------------------------
 */
-void Resolver::resolver::define(Token &name) {
+void Resolver::resolver::define(Token name) {
     if (scopes->isEmpty()) return;
     scopes->peek()->insert_or_assign(name.getLexeme(), true);
     return;
@@ -113,9 +112,9 @@ void Resolver::resolver::define(Token &name) {
  * @param expr A pointer to the abstract class Expr
  * @param name An alias to the Token class 
  */
-void Resolver::resolver::resolveLocal(Expr *expr, Token &name) {
+void Resolver::resolver::resolveLocal(Expr *expr, Token name) {
     for (int i = scopes->size() - 1; i >= 0; i--) {
-      if (scopes->get(i)->at(name.getLexeme())) {
+      if (scopes->get(i).at(name.getLexeme())) {
         interp->resolve(expr, scopes->size() - 1 - i);
         return;
       }
@@ -227,11 +226,13 @@ Any Resolver::resolver::visitWhileStmt(ContextFreeGrammar::While *stmt) {
 }
 
 Any Resolver::resolver::visitVariableExpr(Variable *expr) {
-    auto map = scopes->peek();
-    if (!scopes->isEmpty() && map->at(expr->op.getLexeme()) == false) {
-        int temp = std::stoi(expr->op.getLiteral());
-        NuclearLang::Nuke::error(temp, "Can't read local variable in its own initializer.");
-    }
+    try {
+        auto map = scopes->peek();
+        if (!scopes->isEmpty() && map->at(expr->op.getLexeme()) == false) {
+            int temp = std::stoi(expr->op.getLiteral());
+            NuclearLang::Nuke::error(temp, "Can't read local variable in its own initializer.");
+        }
+    } catch(...) {}
     resolveLocal(expr, expr->op);
     return nullptr;
 }

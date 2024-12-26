@@ -105,25 +105,12 @@ int main(int argc, char **argv) {
         "}\n"
             "radiate a;"
     );*/
-    Scanner scanner(R"(
-        containment Bacon {
-            string eat() {
-                radiate "Crunch crunch crunch!";
-            }
-            string sleep() {
-                radiate "Sleep sleep sleep!";
-            }
-        }
-        Bacon().eat(); // Prints "Crunch crunch crunch!".
-        Bacon().sleep(); // Prints "Sleep sleep sleep!"
-
-        )"
-    );
+    Scanner scanner("string bar(string a) { return a; } bar('hello!');");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    resolver->resolve(res);
+    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    //resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
@@ -138,19 +125,7 @@ int main(int argc, char **argv) {
         auto res = *(Any*)nuclear->value;
         conv = std::any_cast<String>(res);
     }
-    if (auto it = env.find("Bacon"); it != env.end()) {
-        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
-        auto res = *(String*)nuclear->name;
-        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
-        if (auto search = map.find("eat"); search != map.end()) {
-          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
-        }
-        std::cout << conv;
-        if (auto search = map.find("sleep"); search != map.end()) {
-          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
-        }
-        std::cout << conv;
-    }
+    std::cout << conv;
     
     //Adding();
     

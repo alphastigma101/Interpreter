@@ -132,6 +132,9 @@ namespace BinaryOperations {
                 if (value.type() == typeid(NuclearLang::NukeInstance*)) {
                     return true;
                 }
+                if (value.type() == typeid(NuclearLang::NukeClass*)) {
+                    return true;
+                }
                 
                 
                 return false;

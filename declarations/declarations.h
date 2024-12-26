@@ -125,6 +125,14 @@ namespace Interpreter {
 namespace Resolver {
     class resolver;
 };
+namespace Symbol {
+    template<class Derived>
+    class Table;
+    class Functions;
+    class Parameters;
+    class Variables;
+    class Logical;
+};
 namespace UnaryOperations {
     class unaryOperations;
 };
