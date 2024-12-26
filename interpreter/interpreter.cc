@@ -335,13 +335,11 @@ Any interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
 Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr) {
     Any object = evaluate(expr->object);
 
-    if (!instanceof<NuclearLang::NukeInstance>(object)) {
+    if (!instanceof<NuclearLang::NukeInstance*>(object))
         throw  runtimeerror<Interpreter::interpreter>(expr->op, "Only instances have fields.");
-    }
-
     Any value = evaluate(expr->value);
-    auto res = std::any_cast<NuclearLang::NukeInstance>(object);
-    res.set(expr->op, value);
+    auto res = std::any_cast<NuclearLang::NukeInstance*>(object);
+    res->set(expr->op, value);
     return value;
 }
 

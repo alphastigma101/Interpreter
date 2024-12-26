@@ -342,6 +342,33 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     }
     
 }
+TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
+    Scanner scanner(R"(
+        containment Bacon {
+            string choice;
+            string eat() {
+                if (choice != "Crunch crunch crunch!") {
+                    radiate choice;
+                }
+                else {
+                    radiate "Crunch crunch crunch!";
+                }
+            }
+        }
+        Bacon().choice = "Not crunch crunch crunch!";
+        Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    try {
+        interpreter interp(res);
+    }
+    catch(NuclearLang::NukeReturn& e) {
+        EXPECT_EQ(e.value, "Not crunch crunch crunch!");
+    }
+    
+}
 TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     Scanner scanner(R"(
         containment Bacon {
@@ -426,77 +453,6 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     EXPECT_EQ(conv, "10");
 }*/
 
-
-// TODO optional: Use google test's input parameter generator to test input values
-class ParserTest : public testing::Test {
-    protected:
-        void SetUp() override {
-            // Set up any necessary test environment
-        }
-
-        void TearDown() override {
-            // Clean up after each test
-        }
-};
-TEST_F(ParserTest,  ParserTest_MissingSemiColon) {
-    Scanner scan("double z = 90.0000");
-    Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    EXPECT_EQ("[line 1] Error at end: Expect ';' after variable declaration. Got '90.0000' instead.", p.getText());
-}
-TEST_F(ParserTest, ParserTest_ClosePara_Test) {
-    Scanner scan("(");
-    Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    EXPECT_EQ("[line 1] Error at end: Expect expression. Got '(' instead.", p.getText());
-}
-TEST_F(ParserTest, ParserTest_CloseParaAroundLiteral_Test) {
-    Scanner scan("(56;");
-    Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    EXPECT_EQ("[line 1] Error at ';': Expect ')' after expression. Got ';' instead.", p.getText());
-}
-TEST_F(ParserTest, ParserTest_ExtraPara_Test) {
-    Scanner scan("double z = ((34.000000 + 15.000000) / 3.000000))");
-    Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    EXPECT_EQ("[line 1] Error at ')': Expect ';' after variable declaration. Got ')' instead.", p.getText());
-}
-
-TEST_F(ParserTest, ParserTest_Semicolon_Test) {
-    Scanner scan(";");
-    Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    EXPECT_EQ("[line 1] Error at ';': Expect expression. Got ';' instead.", p.getText());
-}
-
-// Test fixture for AbstractionTreeSyntax classes
-class AbstractionTreeSyntaxTest : public testing::Test/*, public AbstractionTreeSyntax::ast*/ {
-    public:
-        AbstractionTreeSyntaxTest();
-        ~AbstractionTreeSyntaxTest();
-        static std::string demangle(const char* name);
-};
-AbstractionTreeSyntaxTest::AbstractionTreeSyntaxTest() {}
-AbstractionTreeSyntaxTest::~AbstractionTreeSyntaxTest() {}
-std::string AbstractionTreeSyntaxTest::demangle(const char* name) {
-    int status = -1;
-    std::unique_ptr<char, void(*)(void*)> res {
-        abi::__cxa_demangle(name, NULL, NULL, &status),
-        std::free
-    };
-    return (status == 0) ? res.get() : name;
-}
-
-// Test construction of Binary node
-TEST(CompressedAstTreeTest, ConstructBinaryNode) {
-    
-}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

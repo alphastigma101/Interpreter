@@ -32,10 +32,13 @@ g++ -g -std=c++17 -fconcepts $INCLUDE  -c ../cfg/context_free_grammar.cc -o cont
 
 echo "Build object file for parser.cc"
 g++ -w -g -std=c++17 -fconcepts $INCLUDE -DENABLE_LOGGING=1 -c ../parser/parser.cc -o parser.o
+#g++ -w -g -std=c++17 -fconcepts $INCLUDE -DENABLE_LOGGING=1 -c ../tests/test_parser.cc -o test_parser.o
+#g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o token.o -o test_parser $LDFLAGS
 
 #echo "Creating object files and executables for ast"
 #g++ -g -std=c++17 -fconcepts $INCLUDE -c ../ast/abstraction_tree_syntax.cc -o abstraction_tree_syntax.o 
-
+#g++ -w -g -std=c++17 -fconcepts $INCLUDE -DENABLE_LOGGING=1 -c ../tests/test_parser.cc -o test_abstraction_tree_syntax.o
+#g++ -g -std=c++17 -fconcepts scanner.o parser.o context_free_grammar.o token.o -o test_abstraction_tree_syntax $LDFLAGS
 
 echo "Creating debugging object files and executables for truthy"
 g++ -g -std=c++17 -fconcepts $INCLUDE  -c ../interpreter/language_specific_truthy_operations.cc -o language_specific_truthy_operations.o 
