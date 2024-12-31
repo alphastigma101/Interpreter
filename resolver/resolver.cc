@@ -1,6 +1,7 @@
-#include <interpreter.h>
-#include <resolver.h>
+//#include <interpreter.h>
 #include <context_free_grammar.h>
+#include <tactical_nuke.h>
+
 
 /** ------------------------------------------
  * @brief A constructor that uses `this->` to initialize the data member with the parameter

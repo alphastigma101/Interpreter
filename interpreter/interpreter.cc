@@ -1,4 +1,4 @@
-#include <interpreter.h>
+//#include <interpreter.h>
 #include <context_free_grammar.h>
 Environment::environment* interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
