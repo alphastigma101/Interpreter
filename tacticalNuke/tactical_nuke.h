@@ -1,6 +1,7 @@
 #ifndef _TACTICAL_NUKE_H_
 #define _TACTICAL_NUKE_H_
-#include <context_free_grammar.h>
+#include <token.h>
+#include <catch.h>
 #include <run_time_error.h>
 namespace NuclearLang {
   template<class Derived>
@@ -53,10 +54,10 @@ namespace NuclearLang {
         this->declaration = std::move(declaration);
         this->isInitializer = isInitializer;
       };
-      inline static ContextFreeGrammar::Functions* declaration = nullptr;
+      static void* declaration;
       static NukeFunction* bind(NukeInstance* instance);
       static Any call(Interpreter::interpreter* interp, const Vector<Any> arguments);
-      inline static int arity(int argc = 0) { return declaration->params.size(); };
+      static int arity(int argc = 0);
       ~NukeFunction() noexcept = default;
       inline static Environment::environment* getClosure() { return closure; };
     protected:
@@ -82,11 +83,7 @@ namespace NuclearLang {
        * @brief A constructor that is allocated on the heap dynamically that stores the return value of the function.
        * --------------------------------------------------------
        */
-      explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue){
-        this->closure = std::move(closure);
-        this->declaration = std::move(declaration);
-        this->value = std::move(returnValue->value);
-      };
+      explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue);
       // TODO: These need to be converted into void* instead of the user type
       
       inline static  Environment::environment* closure = nullptr;  

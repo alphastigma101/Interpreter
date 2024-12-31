@@ -8,5 +8,4 @@
 #ifndef ENABLE_LOGGING
     #define ENABLE_LOGGING 0
 #endif
-
 #endif  // End of addon.h 

@@ -29,7 +29,7 @@ namespace Parser {
                 return static_cast<Derived*>(this)->report(line, where, message);
             };
         protected:
-            parseError<Derived>() = default;
+            parseError() = default;
         private:
             inline static Token token;
             inline static String message;

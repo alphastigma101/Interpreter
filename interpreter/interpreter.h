@@ -23,10 +23,7 @@ namespace Interpreter {
             Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
             Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
             Any visitGroupingExpr(ContextFreeGrammar::Grouping* expr);
-            inline Any visitBlockStmt(ContextFreeGrammar::Block* stmt) {
-                executeBlock(stmt->statements, new Environment::environment(*globals));
-                return nullptr;
-            };
+            Any visitBlockStmt(ContextFreeGrammar::Block* stmt);
             Any visitClassStmt(ContextFreeGrammar::Class* stmt);
             Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
             Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
@@ -59,9 +56,7 @@ namespace Interpreter {
             inline static int arity(int argc = 0) { return argc;};
             static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
-            inline void execute(ContextFreeGrammar::Statement* stmt) {
-                stmt->accept(this);
-            };
+            void execute(ContextFreeGrammar::Statement* stmt);
             inline static Check<interpreter> check{};
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;

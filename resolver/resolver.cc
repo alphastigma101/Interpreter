@@ -1,5 +1,7 @@
 #include <interpreter.h>
 #include <resolver.h>
+#include <context_free_grammar.h>
+
 /** ------------------------------------------
  * @brief A constructor that uses `this->` to initialize the data member with the parameter
  * 

@@ -105,27 +105,16 @@ int main(int argc, char **argv) {
         "}\n"
             "radiate a;"
     );*/
-    Scanner scanner("string bar(string a) { return a; } bar('hello!');");
+    Scanner scanner("for (int i = 0; i < 10; i = i + 1) { radiate i; }");
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    //resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
-    if (auto it = env.find("foo"); it != env.end()) {
-        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
-        auto res = *(Any*)nuclear->value;
-        conv = std::any_cast<String>(res);
-    }
+    if (auto it = env.find("i"); it != env.end())
+        conv = std::any_cast<String>(it->second);
     std::cout << conv << std::endl;
-    if (auto it = env.find("bar"); it != env.end()) {
-        auto nuclear = std::any_cast<NuclearLang::NukeFunction*>(it->second);
-        auto res = *(Any*)nuclear->value;
-        conv = std::any_cast<String>(res);
-    }
-    std::cout << conv;
     
     //Adding();
     

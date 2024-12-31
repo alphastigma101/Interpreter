@@ -391,7 +391,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
         auto res = *(String*)nuclear->name;
         auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
         if (auto search = map.find("eat"); search != map.end()) {
-          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
+          conv = reinterpret_cast<ContextFreeGrammar::Functions*>(search->second.declaration)->statements.at(0)->initializer->op.getLexeme();  
         }
     }
     EXPECT_EQ(conv, "\"Crunch crunch crunch!\"");

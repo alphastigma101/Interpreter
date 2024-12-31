@@ -8,6 +8,7 @@
 #include <system_error>
 #include <fstream>
 #include <tactical_nuke.h>
+void* NuclearLang::NukeFunction::declaration = nullptr;
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
  * 
@@ -108,6 +109,11 @@ void NuclearLang::Nuke::runFile(const char* filePath) {
     runPrompt();
   }
 }
+NuclearLang::NukeFunction::NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue){
+  this->closure = std::move(closure);
+  this->declaration = reinterpret_cast<ContextFreeGrammar::Functions*>(std::move(declaration));
+  this->value = std::move(returnValue->value);
+}
 /** ---------------------------------------------------------------
  * @brief ... 
  * 
@@ -117,20 +123,23 @@ void NuclearLang::Nuke::runFile(const char* filePath) {
 */
 Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vector<Any> arguments) {
   Environment::environment *environment = new Environment::environment(*closure);
-  for (int i = 0; i < declaration->params.size(); i++) {
-    environment->define(declaration->params.at(i).getLexeme(), arguments.at(i));
+  for (int i = 0; i < reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->params.size(); i++) {
+    environment->define(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->params.at(i).getLexeme(), arguments.at(i));
   }
   try { 
-    interp->executeBlock(declaration->statements, environment); 
+    interp->executeBlock(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->statements, environment); 
   } 
   catch (NuclearLang::NukeReturn* returnValue) {
     if (isInitializer) return closure->getAt(0, "this");
-    environment->assign(declaration->op, new NukeFunction(declaration, closure, returnValue));
+    environment->assign(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->op, new NukeFunction(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration), closure, returnValue));
     closure = std::move(environment);
     return returnValue->value;
   }
   if (isInitializer) return closure->getAt(0, "this");
   return nullptr;
+}
+int NuclearLang::NukeFunction::arity(int argc) { 
+  return reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->params.size(); 
 }
 /** ---------------------------------------------------------------
  * @brief ... 
@@ -142,7 +151,7 @@ Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vect
 NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instance) {
   Environment::environment* environment = new Environment::environment(*closure);
   environment->define("this", instance);
-  return new NuclearLang::NukeFunction(declaration, environment, isInitializer);
+  return new NuclearLang::NukeFunction(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration), environment, isInitializer);
 }
 /** ---------------------------------------------------------------
  * @brief Whenever this method is called, it will create a new instance  

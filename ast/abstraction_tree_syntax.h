@@ -13,7 +13,7 @@ namespace AbstractionTreeSyntax {
         public:
             friend class catcher<Type>;
             friend class runtimeerror<Type>;
-            ~generateAst<Type>() noexcept = default;
+            ~generateAst() noexcept = default;
             inline void streamOutAst(String res) { return static_cast<Type*>(this)->streamOutAst(res); }; // could change the parameter so it uses Type* and use this
             inline void formatAst(String res) { return static_cast<Type*>(this)->formatAst(res);};
             inline String buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) { return static_cast<Type*>(this)->buildTree(stmt);};
