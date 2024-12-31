@@ -51,6 +51,7 @@ debugging/test_interpreter
 debugging/exec_interpreter
 debugging/mini_*
 debugging/a.out
+debugging/test_parser
 # Executables to exclude
 exec_*
 # Object files to exclude
