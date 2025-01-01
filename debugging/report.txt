@@ -1,0 +1,65 @@
+[==========] Running 24 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 24 tests from InterpreterTest
+[ RUN      ] InterpreterTest.Adding
+[       OK ] InterpreterTest.Adding (0 ms)
+[ RUN      ] InterpreterTest.Substract
+[       OK ] InterpreterTest.Substract (0 ms)
+[ RUN      ] InterpreterTest.Multiplication
+[       OK ] InterpreterTest.Multiplication (0 ms)
+[ RUN      ] InterpreterTest.ComplexAddAndDivide
+[       OK ] InterpreterTest.ComplexAddAndDivide (0 ms)
+[ RUN      ] InterpreterTest.AddDivideMultiple
+[       OK ] InterpreterTest.AddDivideMultiple (0 ms)
+[ RUN      ] InterpreterTest.Complex
+[       OK ] InterpreterTest.Complex (0 ms)
+[ RUN      ] InterpreterTest.Integers
+[       OK ] InterpreterTest.Integers (0 ms)
+[ RUN      ] InterpreterTest.Comparison
+[       OK ] InterpreterTest.Comparison (0 ms)
+[ RUN      ] InterpreterTest.BlockScope
+[       OK ] InterpreterTest.BlockScope (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_BlockScopePrint
+[       OK ] InterpreterTest.InterpreterTest_BlockScopePrint (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_Initializers
+[       OK ] InterpreterTest.InterpreterTest_Initializers (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_ShadowedVariableArithmetic
+[       OK ] InterpreterTest.InterpreterTest_ShadowedVariableArithmetic (0 ms)
+[ RUN      ] InterpreterTest.PrintStmt
+[       OK ] InterpreterTest.PrintStmt (0 ms)
+[ RUN      ] InterpreterTest.LogicalOr
+[       OK ] InterpreterTest.LogicalOr (0 ms)
+[ RUN      ] InterpreterTest.LogicalAnd
+[       OK ] InterpreterTest.LogicalAnd (0 ms)
+[ RUN      ] InterpreterTest.IfStatement
+[       OK ] InterpreterTest.IfStatement (0 ms)
+[ RUN      ] InterpreterTest.ElseStatement
+[       OK ] InterpreterTest.ElseStatement (0 ms)
+[ RUN      ] InterpreterTest.ForLoop
+[       OK ] InterpreterTest.ForLoop (1 ms)
+[ RUN      ] InterpreterTest.WhileLoop
+[       OK ] InterpreterTest.WhileLoop (1 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_FunctionInt
+[       OK ] InterpreterTest.InterpreterTest_FunctionInt (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_FunctionString
+[       OK ] InterpreterTest.InterpreterTest_FunctionString (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_FunctionMultiple
+[       OK ] InterpreterTest.InterpreterTest_FunctionMultiple (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_ClassFields
+[line 3] Error at ';': Expect '(' after method name. Got ';' instead.
+[line 12] Error at '}': Expect expression. Got ';' instead.
+unknown file: Failure
+Unknown C++ exception thrown in the test body.
+
+[  FAILED  ] InterpreterTest.InterpreterTest_ClassFields (0 ms)
+[ RUN      ] InterpreterTest.InterpreterTest_ClassMethod
+[       OK ] InterpreterTest.InterpreterTest_ClassMethod (0 ms)
+[----------] 24 tests from InterpreterTest (11 ms total)
+
+[----------] Global test environment tear-down
+[==========] 24 tests from 1 test suite ran. (11 ms total)
+[  PASSED  ] 23 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] InterpreterTest.InterpreterTest_ClassFields
+
+ 1 FAILED TEST

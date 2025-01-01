@@ -1,5 +1,6 @@
 //#include <interpreter.h>
 #include <context_free_grammar.h>
+#define ENABLE_VISITOR_PATTERN 1
 Environment::environment* interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
  * @brief Default constructor that calls in native functions 

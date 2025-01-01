@@ -31,8 +31,8 @@ g++ -g -std=c++20  $INCLUDE  -D ENABLE_VISITOR_PATTERN=0 -c ../cfg/context_free_
 
 echo "Build object file for parser.cc"
 g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0  -c ../parser/parser.cc -o parser.o
-g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tests/test_parser.cc -o test_parser.o
-g++ -g -std=c++20  scanner.o test_parser.o parser.o context_free_grammar.o token.o -o test_parser $LDFLAGS
+#g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tests/test_parser.cc -o test_parser.o
+#g++ -g -std=c++20  scanner.o test_parser.o parser.o context_free_grammar.o token.o -o test_parser $LDFLAGS
 
 #echo "Creating object files and executables for ast"
 #g++ -g -std=c++20  $INCLUDE -c ../ast/abstraction_tree_syntax.cc -o abstraction_tree_syntax.o 
@@ -64,10 +64,10 @@ g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../interpreter/langua
 
 echo "Creating debugging object files and executables for environment"
 g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../environment/environment.cc -o environment.o
-g++ -g -std=c++20 $INCLUDE -c ../debugging/debug_environment.cc -o debug_environment.o
-g++ -g -std=c++20 debug_environment.o -o exec_debug_environment
-g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tests/test_environment.cc -o test_environment.o
-g++ -g -std=c++20  test_environment.o -o test_environment $LDFLAGS
+#g++ -g -std=c++20 $INCLUDE -c ../debugging/debug_environment.cc -o debug_environment.o
+#g++ -g -std=c++20 debug_environment.o -o exec_debug_environment
+#g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tests/test_environment.cc -o test_environment.o
+#g++ -g -std=c++20  test_environment.o -o test_environment $LDFLAGS
 
 echo "Creating debugging object files and executables for tactical nuke"
 g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tacticalNuke/tactical_nuke.cc -o nuke.o 
