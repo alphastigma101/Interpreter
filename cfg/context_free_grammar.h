@@ -2,8 +2,12 @@
 #define _CONTEXT_FREE_GRAMMAR_H_
 #include <run_time_error.h>
 #if ENABLE_VISITOR_PATTERN
-    #include <resolver.h>
-    #include <interpreter.h>
+    #if ENABLE_RESOLVER
+        #include <resolver.h>
+        #include <interpreter.h>
+    #else 
+        #include <interpreter.h>
+    #endif
 #else 
     #include <token.h>
 #endif
@@ -106,15 +110,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitBinaryExpr is being compiled!"
+                    //#pragma message "visitBinaryExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitBinaryExpr(dynamic_cast<ContextFreeGrammar::Binary*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitBinaryExpr(dynamic_cast<ContextFreeGrammar::Binary*>(this));
                         }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif 
@@ -131,15 +136,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitLogcalExpr is being compiled!"
+                    //#pragma message "visitLogcalExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitLogicalExpr(dynamic_cast<ContextFreeGrammar::Logical*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitLogicalExpr(dynamic_cast<ContextFreeGrammar::Logical*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif
@@ -156,15 +162,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitSetExpr is being compiled!"
+                    //#pragma message "visitSetExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitSetExpr(dynamic_cast<ContextFreeGrammar::Set*>(this));
                         }
-                    else
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitSetExpr(dynamic_cast<ContextFreeGrammar::Set*>(this));
                         }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif
@@ -181,15 +188,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor)  {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitThisExpr is being compiled!"
+                    //#pragma message "visitThisExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitThisExpr(dynamic_cast<ContextFreeGrammar::This*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitThisExpr(dynamic_cast<ContextFreeGrammar::This*>(this));
                         }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif
@@ -204,15 +212,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitUnaryExpr is being compiled!"
+                    //#pragma message "visitUnaryExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitUnaryExpr(dynamic_cast<ContextFreeGrammar::Unary*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitUnaryExpr(dynamic_cast<ContextFreeGrammar::Unary*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif  
@@ -229,15 +238,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitGetExpr is being compiled!"
+                    //#pragma message "visitGetExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitGetExpr(dynamic_cast<ContextFreeGrammar::Get*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitGetExpr(dynamic_cast<ContextFreeGrammar::Get*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif
@@ -263,15 +273,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitGroupingExpr is being compiled!"
+                    //#pragma message "visitGroupingExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitGroupingExpr(dynamic_cast<ContextFreeGrammar::Grouping*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitGroupingExpr(dynamic_cast<ContextFreeGrammar::Grouping*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif 
@@ -286,15 +297,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitLiteralExpr is being compiled!"
+                    //#pragma message "visitLiteralExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitLiteralExpr(dynamic_cast<ContextFreeGrammar::Literal*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitLiteralExpr(dynamic_cast<ContextFreeGrammar::Literal*>(this));
-                        } 
+                        }
+                    #endif  
                 #else 
                     return nullptr;
                 #endif
@@ -309,15 +321,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitAssignExpr is being compiled!"
+                    //#pragma message "visitAssignExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitAssignExpr(dynamic_cast<ContextFreeGrammar::Assign*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitAssignExpr(dynamic_cast<ContextFreeGrammar::Assign*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif
@@ -334,15 +347,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitVariableExpr is being compiled!"
+                    //#pragma message "visitVariableExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitVariableExpr(dynamic_cast<ContextFreeGrammar::Variable*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitVariableExpr(dynamic_cast<ContextFreeGrammar::Variable*>(this));
-                        } 
+                        }
+                    #endif  
                 #else 
                     return nullptr;
                 #endif
@@ -358,15 +372,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor)  {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitCallExpr is being compiled!"
+                    //#pragma message "visitCallExpr is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitCallExpr(dynamic_cast<ContextFreeGrammar::Call*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitCallExpr(dynamic_cast<ContextFreeGrammar::Call*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif  
@@ -461,14 +476,16 @@ namespace ContextFreeGrammar {
             Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
+                    //#pragma message "Enabled visitPrintStmt!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitPrintStmt(dynamic_cast<ContextFreeGrammar::Print*>(this));
                         }
-                    else
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitPrintStmt(dynamic_cast<ContextFreeGrammar::Print*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif   
@@ -484,7 +501,7 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitReturnStatement is being compiled!"
+                    //#pragma message "visitReturnStatement is being compiled!"
                     // TODO: Each visit method that contains a try and catch statement needs to either use typeid() or visitor.type()
                     // This will help prevent any other try and accept statements being intercepted
                     // TODO Move the visit methods inside the header and use directives to include the interpreter.h 
@@ -492,10 +509,11 @@ namespace ContextFreeGrammar {
                         auto visit = std::any_cast<Interpreter::interpreter*>(visitor);
                         return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
                     }
-                    else 
+                    #if ENABLE_RESOLVER 
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitReturnStmt(dynamic_cast<ContextFreeGrammar::Return*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif
@@ -510,15 +528,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitVarStatement is being compiled!"
+                    //#pragma message "visitVarStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitVarStmt(dynamic_cast<ContextFreeGrammar::Var*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitVarStmt(dynamic_cast<ContextFreeGrammar::Var*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif 
@@ -534,15 +553,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitWhileStatement is being compiled!"
+                    //#pragma message "visitWhileStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitWhileStmt(dynamic_cast<ContextFreeGrammar::While*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitWhileStmt(dynamic_cast<ContextFreeGrammar::While*>(this));
-                        } 
+                        }
+                    #endif 
                 #else
                     return nullptr;
                 #endif
@@ -558,15 +578,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitExpressionStatement is being compiled!"
+                    //#pragma message "visitExpressionStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitExpressionStmt(dynamic_cast<ContextFreeGrammar::Expression*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitExpressionStmt(dynamic_cast<ContextFreeGrammar::Expression*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif 
@@ -581,18 +602,18 @@ namespace ContextFreeGrammar {
             ~Block() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
-                std::cout << ENABLE_VISITOR_PATTERN << std::endl;
-                #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitBlockStatement is being compiled!"
+                #if ENABLE_VISITOR_BLOCK
+                    //#pragma message "visitBlockStatement is being compiled!"
                     std::cout << "Executing code!" << std::endl;
                     if (visitor.type() == typeid(Interpreter::interpreter*)) 
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitBlockStmt(dynamic_cast<ContextFreeGrammar::Block*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitBlockStmt(dynamic_cast<ContextFreeGrammar::Block*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif
@@ -609,15 +630,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitClassStatement is being compiled!"
+                   //#pragma message "visitClassStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitClassStmt(this);
                         }
-                    else 
+                    #if ENABLE_RESOLVER 
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitClassStmt(dynamic_cast<ContextFreeGrammar::Class*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif 
@@ -634,15 +656,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitIfStatement is being compiled!"
+                    //#pragma message "visitIfStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitIfStmt(dynamic_cast<ContextFreeGrammar::If*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitIfStmt(dynamic_cast<ContextFreeGrammar::If*>(this));
                         }
+                    #endif
                 #else 
                     return nullptr;
                 #endif
@@ -658,15 +681,16 @@ namespace ContextFreeGrammar {
             inline Any accept(Any visitor) override { return visit(visitor); };
             inline Any visit(Any visitor) {
                 #if ENABLE_VISITOR_PATTERN
-                    #pragma message "visitFunctionStatement is being compiled!"
+                    //#pragma message "visitFunctionStatement is being compiled!"
                     if (visitor.type() == typeid(Interpreter::interpreter*))
                         if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                             return visit->visitFunctionStmt(dynamic_cast<ContextFreeGrammar::Functions*>(this));
                         }
-                    else 
+                    #if ENABLE_RESOLVER
                         if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
                             return visit->visitFunctionStmt(dynamic_cast<ContextFreeGrammar::Functions*>(this));
-                        } 
+                        }
+                    #endif 
                 #else 
                     return nullptr;
                 #endif 

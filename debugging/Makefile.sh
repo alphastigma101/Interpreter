@@ -70,21 +70,21 @@ g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tests/test_environm
 g++ -g -std=c++20  test_environment.o -o test_environment $LDFLAGS
 
 echo "Creating debugging object files and executables for tactical nuke"
-g++ -g -std=c++20   $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tacticalNuke/tactical_nuke.cc -o nuke.o 
+g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../tacticalNuke/tactical_nuke.cc -o nuke.o 
 
 echo "Creating debugging object files and executables for user defined stack"
 g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../stack/user_stack.cc -o stack.o
 
 echo "Creating debugging object files and executables for resolver"
-g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN -c ../resolver/resolver.cc -o resolver.o
+g++ -g -std=c++20 $INCLUDE -D ENABLE_RESOLVER=1 -D ENABLE_VISITOR_PATTERN -c ../resolver/resolver.cc -o resolver.o
 echo "Creating debugging object files and executables for symbol Table"
 g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../symbolTable/symbol-table.cc -o symbol.o
 
 echo "Creating debugging object files and executables for interpreter"
-g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN -c ../interpreter/interpreter.cc -o interpreter.o 
-g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
+g++ -g -std=c++20  $INCLUDE -D ENABLE_RESOLVER=0 -D ENABLE_VISITOR_PATTERN -c ../interpreter/interpreter.cc -o interpreter.o 
+g++ -g -std=c++20  $INCLUDE -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
 g++ -g -std=c++20  nuke.o symbol.o resolver.o stack.o scanner.o parser.o interpreter.o context_free_grammar.o  environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  debug_interpreter.o -o exec_debug_interpreter
-g++ -g -std=c++20  $INCLUDE -D ENABLE_VISITOR_PATTERN -c ../tests/test_interpreter.cc -o test_interpreter.o
+g++ -g -std=c++20  $INCLUDE  -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++20  nuke.o symbol.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 
 echo "Compiling main.cc!"
