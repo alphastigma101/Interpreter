@@ -89,8 +89,6 @@ void Resolver::resolver::endScope() { scopes->pop(); }
 */
 void Resolver::resolver::declare(Token name) {
     if (scopes->isEmpty()) return;
-
-    //Map<String, bool> scope = scopes->peek();
     try {
         if (scopes->peek().at(name.getLexeme())) {
             int temp = std::stoi(name.getLiteral());
@@ -220,7 +218,7 @@ Any Resolver::resolver::visitReturnStmt(ContextFreeGrammar::Return *stmt) {
  *
  * ----------------------------------------------------------------------------------
  */
-Any Resolver::resolver::visitVarStmt(Statement *stmt) {
+Any Resolver::resolver::visitVarStmt(ContextFreeGrammar::Statement *stmt) {
     declare(stmt->op);
     if (stmt->initializer != nullptr) {
       resolve(stmt->initializer);

@@ -15,7 +15,7 @@
  *
  * ---------------------------------------------------------------------------
 */
-Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
+ContextFreeGrammar::Binary::Binary(Expr* left_, const Token& op_, Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
@@ -81,7 +81,7 @@ Any ContextFreeGrammar::Unary::visit(Any visitor) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-Grouping::Grouping(Expr* expression) { this->expression = std::move(expression); }
+ContextFreeGrammar::Grouping::Grouping(Expr* expression) { this->expression = std::move(expression); }
 
 Any ContextFreeGrammar::Grouping::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
@@ -108,7 +108,7 @@ Any ContextFreeGrammar::Grouping::visit(Any visitor) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-Literal::Literal(const Token oP) { this->op = std::move(oP); }
+ContextFreeGrammar::Literal::Literal(const Token oP) { this->op = std::move(oP); }
 
 Any ContextFreeGrammar::Literal::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
@@ -135,7 +135,7 @@ Any ContextFreeGrammar::Literal::visit(Any visitor) {
  * 
  * 
 */
-Variable::Variable(const Token&& oP) { this->op = std::move(oP); }
+ContextFreeGrammar::Variable::Variable(const Token&& oP) { this->op = std::move(oP); }
 
 Any ContextFreeGrammar::Variable::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
@@ -160,7 +160,7 @@ Any ContextFreeGrammar::Variable::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Assign::Assign(const Token op_, ContextFreeGrammar::Expr* right) {
+ContextFreeGrammar::Assign::Assign(const Token op_, ContextFreeGrammar::Expr* right) {
     this->right = std::move(right);
     this->op = std::move(op_); 
 }
@@ -186,7 +186,7 @@ Any ContextFreeGrammar::Assign::visit(Any visitor) {
  *
  * -------------------------------
  */
-Logical::Logical(ContextFreeGrammar::Expr* left_, const Token& op_, ContextFreeGrammar::Expr* right_) {
+ContextFreeGrammar::Logical::Logical(ContextFreeGrammar::Expr* left_, const Token& op_, ContextFreeGrammar::Expr* right_) {
     this->left = std::move(left_);
     this->right = std::move(right_);
     this->op = std::move(op_);
@@ -320,11 +320,10 @@ Any ContextFreeGrammar::Get::visit(Any visitor) {
  * @details  A custom garbage collector is implemented to cleanup the raw pointers
  * ----------------------------------------------------------------
 */
-This::This(const Token&& oP) { this->op = std::move(oP); }
+ContextFreeGrammar::This::This(const Token oP) { this->op = std::move(oP); }
 
 Any ContextFreeGrammar::This::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitThisExpr is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitThisExpr(dynamic_cast<ContextFreeGrammar::This*>(this));
@@ -373,7 +372,7 @@ Any ContextFreeGrammar::Print::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Return::Return(const Token keyword, ContextFreeGrammar::Expr* value) {
+ContextFreeGrammar::Return::Return(const Token keyword, ContextFreeGrammar::Expr* value) {
     this->value = std::move(value);
     this->op = std::move(keyword); 
 }
@@ -405,14 +404,13 @@ Any ContextFreeGrammar::Return::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Var::Var(const Token op, ContextFreeGrammar::Expr* initalizer) {
+ContextFreeGrammar::Var::Var(const Token op, ContextFreeGrammar::Expr* initalizer) {
     this->initializer = std::move(initalizer);
     this->op = std::move(op);
 }
 
 Any ContextFreeGrammar::Var::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitVarStatement is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitVarStmt(dynamic_cast<ContextFreeGrammar::Var*>(this));
@@ -434,14 +432,13 @@ Any ContextFreeGrammar::Var::visit(Any visitor) {
  * 
  * -------------------------------
 */
-While::While(ContextFreeGrammar::Expr* condition, ContextFreeGrammar::Statement* body) {
+ContextFreeGrammar::While::While(ContextFreeGrammar::Expr* condition, ContextFreeGrammar::Statement* body) {
     this->condition = std::move(condition);
     this->body = std::move(body); 
 }
 
 Any ContextFreeGrammar::While::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitWhileStatement is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitWhileStmt(dynamic_cast<ContextFreeGrammar::While*>(this));
@@ -463,7 +460,7 @@ Any ContextFreeGrammar::While::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Expression::Expression(ContextFreeGrammar::Expr* initalizer) { this->expression = std::move(initalizer);  }
+ContextFreeGrammar::Expression::Expression(ContextFreeGrammar::Expr* initalizer) { this->expression = std::move(initalizer);  }
 
 Any ContextFreeGrammar::Expression::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
@@ -489,7 +486,7 @@ Any ContextFreeGrammar::Expression::visit(Any visitor) {
  * 
  * -------------------------------
 */
-Block::Block(Vector<ContextFreeGrammar::Statement*> left) { this->statements = std::move(left); }
+ContextFreeGrammar::Block::Block(Vector<ContextFreeGrammar::Statement*> left) { this->statements = std::move(left); }
 
 Any ContextFreeGrammar::Block::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
@@ -514,7 +511,7 @@ Any ContextFreeGrammar::Block::visit(Any visitor) {
  * 
  * -------------------------------
 */
-If::If(ContextFreeGrammar::Expr* cond, ContextFreeGrammar::Statement* thenbranch, ContextFreeGrammar::Statement* elsebranch) {
+ContextFreeGrammar::If::If(ContextFreeGrammar::Expr* cond, ContextFreeGrammar::Statement* thenbranch, ContextFreeGrammar::Statement* elsebranch) {
     this->condition = std::move(cond);
     this->thenBranch = std::move(thenbranch);
     this->elseBranch = std::move(elsebranch);
@@ -522,7 +519,6 @@ If::If(ContextFreeGrammar::Expr* cond, ContextFreeGrammar::Statement* thenbranch
 
 Any ContextFreeGrammar::If::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitIfStatement is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitIfStmt(dynamic_cast<ContextFreeGrammar::If*>(this));
@@ -552,7 +548,7 @@ Any ContextFreeGrammar::If::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Functions::Functions(Token name, Vector<Token> params, Vector<Statement*>& body) {
+ContextFreeGrammar::Functions::Functions(Token name, Vector<Token> params, Vector<Statement*>& body) {
     this->op = std::move(name);
     this->params = std::move(params);
     //this->body
@@ -561,7 +557,6 @@ Functions::Functions(Token name, Vector<Token> params, Vector<Statement*>& body)
 
 Any ContextFreeGrammar::Functions::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitFunctionStatement is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitFunctionStmt(dynamic_cast<ContextFreeGrammar::Functions*>(this));
@@ -591,7 +586,7 @@ Any ContextFreeGrammar::Functions::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
+ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
     this->op = std::move(name);
     this->methods = std::move(methods);
 }
@@ -621,7 +616,7 @@ Any ContextFreeGrammar::Class::visit(Any visitor) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Binary::parenthesize(String name, Expr* left, Expr* right) {
+String ContextFreeGrammar::Binary::parenthesize(String name, Expr* left, Expr* right) {
     String result = "(" + name;
     if (left) {
         result += " " + std::any_cast<String>(left->accept(this));
@@ -641,7 +636,7 @@ String Binary::parenthesize(String name, Expr* left, Expr* right) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Unary::parenthesize(String name, ContextFreeGrammar::Expr* expr) {
+String ContextFreeGrammar::Unary::parenthesize(String name, ContextFreeGrammar::Expr* expr) {
     String result = "(" + name + " ";
     if (expr) result += std::any_cast<String>(expr->accept(this));
     return result + ")";
@@ -656,7 +651,7 @@ String Unary::parenthesize(String name, ContextFreeGrammar::Expr* expr) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Grouping::parenthesize(String name, Expr* expr) {
+String ContextFreeGrammar::Grouping::parenthesize(String name, Expr* expr) {
     String result = "(" + name + " ";
     if (expr) result += std::any_cast<String>(expr->accept(this));
     return result + ")";
@@ -668,7 +663,7 @@ String Grouping::parenthesize(String name, Expr* expr) {
  * 
  * -------------------------------
 */
-String Print::parenthesize(String name, Statement* stmt) {
+String ContextFreeGrammar::Print::parenthesize(String name, Statement* stmt) {
     String result = "(" + name;
     if (!stmt) return "(null)";
     if (initializer)
@@ -682,7 +677,7 @@ String Print::parenthesize(String name, Statement* stmt) {
  * 
  * -------------------------------
 */
-String Var::parenthesize(String name, Statement* stmt) {
+String ContextFreeGrammar::Var::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
     String result = "(Var" + String("(") + name + " ";
     if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
@@ -695,7 +690,7 @@ String Var::parenthesize(String name, Statement* stmt) {
  * 
  * -------------------------------
 */
-String Expression::parenthesize(String name, Statement* stmt) {
+String ContextFreeGrammar::Expression::parenthesize(String name, Statement* stmt) {
     if (!stmt) return "(null)";
     String result = "(Expression" + String("(") + name + " ";
     if (initializer) result += std::any_cast<String>(initializer->accept(initializer));
@@ -708,7 +703,7 @@ String Expression::parenthesize(String name, Statement* stmt) {
  * 
  * -------------------------------
 */
-String Assign::parenthesize(String name, Expr* expr) {
+String ContextFreeGrammar::Assign::parenthesize(String name, Expr* expr) {
     if (!expr) return "(null)";
     String result = "(" + name + " ";
     if (expr) result += std::any_cast<String>(expr->accept(this));
@@ -725,7 +720,7 @@ String Assign::parenthesize(String name, Expr* expr) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
+String ContextFreeGrammar::Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
     String result;
     for (auto it : expr) {
         if (it) 
@@ -744,7 +739,7 @@ String Block::parenthesize(Vector<ContextFreeGrammar::Statement*>&& expr) {
  * @details .....
  * ----------------------------------------------------------------
 */
-String Functions::parenthesize(String name, ContextFreeGrammar::Statement* left, ContextFreeGrammar::Statement* right) {
+String ContextFreeGrammar::Functions::parenthesize(String name, ContextFreeGrammar::Statement* left, ContextFreeGrammar::Statement* right) {
     /*builder.append("(").append(name);
     for (Expr expr : exprs) {
       builder.append(" ");

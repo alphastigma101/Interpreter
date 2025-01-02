@@ -53,37 +53,37 @@ namespace Parser {
              * ----------------------------------------------------------------------------------------------------------
             */
             explicit parser(std::vector<Token>& tokens) {  tokens_ = std::move(tokens); };
-            Vector<Statement*> parse();
+            Vector<ContextFreeGrammar::Statement*> parse();
             void printNodes();
             inline static String getMessage() { return message; };
             ~parser() noexcept = default;
         protected:
             // Current rules that were made from a grammar 
-            Expr* equality();
-            Expr* comparison();
-            Expr* expression();
-            Expr* term();
-            Expr* factor();
-            Expr* unary();
-            Expr* primary();
-            Expr* methods();
-            Expr* ecosystem();
-            Expr* assignment();
-            Expr* logicalOr();
-            Expr* logicalAnd();
-            Expr* call();
-            Expr* finishCall(Expr* expr);
-            Statement* statement();
-            Statement* printStatement();
-            Statement* ifStatement();
-            Statement* expressionStatement();
-            Statement* declarations();
-            Statement* varDeclaration();
-            Statement* whileStatement();
-            Statement* forStatement();
-            Statement* function(const char* function, Token* type = nullptr);
-            Statement* returnStatement();
-            Statement* classDeclaration();
+            ContextFreeGrammar::Expr* equality();
+            ContextFreeGrammar::Expr* comparison();
+            ContextFreeGrammar::Expr* expression();
+            ContextFreeGrammar::Expr* term();
+            ContextFreeGrammar::Expr* factor();
+            ContextFreeGrammar::Expr* unary();
+            ContextFreeGrammar::Expr* primary();
+            ContextFreeGrammar::Expr* methods();
+            ContextFreeGrammar::Expr* ecosystem();
+            ContextFreeGrammar::Expr* assignment();
+            ContextFreeGrammar::Expr* logicalOr();
+            ContextFreeGrammar::Expr* logicalAnd();
+            ContextFreeGrammar::Expr* call();
+            ContextFreeGrammar::Expr* finishCall(ContextFreeGrammar::Expr* expr);
+            ContextFreeGrammar::Statement* statement();
+            ContextFreeGrammar::Statement* printStatement();
+            ContextFreeGrammar::Statement* ifStatement();
+            ContextFreeGrammar::Statement* expressionStatement();
+            ContextFreeGrammar::Statement* declarations();
+            ContextFreeGrammar::Statement* varDeclaration();
+            ContextFreeGrammar::Statement* whileStatement();
+            ContextFreeGrammar::Statement* forStatement();
+            ContextFreeGrammar::Statement* function(const char* function, Token* type = nullptr);
+            ContextFreeGrammar::Statement* returnStatement();
+            ContextFreeGrammar::Statement* classDeclaration();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
@@ -161,8 +161,8 @@ namespace Parser {
                 /*auto clear = [this]() {
                     for (int i = 0; i < nodes.size(); i++) {
                         auto& [intVal, pairVal] = nodes[i];
-                        if (std::holds_alternative<Expr*>(pairVal.second)) {
-                            auto& clean = std::get<Expr*>(pairVal.second);
+                        if (std::holds_alternative<ContextFreeGrammar::Expr*>(pairVal.second)) {
+                            auto& clean = std::get<ContextFreeGrammar::Expr*>(pairVal.second);
                             clean.release();
                         }
                     }

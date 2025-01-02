@@ -36,7 +36,7 @@ void Interpreter::interpreter::execute(ContextFreeGrammar::Statement *stmt) {
 interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpreter::interpreter() {
     try {
         for (auto &it: stmt) {
-            if (auto conv = dynamic_cast<Statement*>(it))
+            if (auto conv = dynamic_cast<ContextFreeGrammar::Statement*>(it))
                 execute(conv);
         }
     } 
@@ -59,14 +59,14 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpret
  * 
  */
 Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
-    if (auto call = dynamic_cast<Call*>(conv)) return conv->accept(this);
-    else if (auto binary = dynamic_cast<Binary*>(conv)) return conv->accept(this);
-    else if (auto literal = dynamic_cast<Literal*>(conv)) return conv->accept(this);
-    else if (auto unary = dynamic_cast<Unary*>(conv)) return conv->accept(this);
-    else if (auto grouping = dynamic_cast<Grouping*>(conv)) return conv->accept(this);
-    else if (auto assign = dynamic_cast<Assign*>(conv)) return conv->accept(this);
-    else if (auto logic = dynamic_cast<Logical*>(conv)) return conv->accept(this);
-    else if (auto var = dynamic_cast<Variable*>(conv)) return conv->accept(this);
+    if (auto call = dynamic_cast<ContextFreeGrammar::Call*>(conv)) return conv->accept(this);
+    else if (auto binary = dynamic_cast<ContextFreeGrammar::Binary*>(conv)) return conv->accept(this);
+    else if (auto literal = dynamic_cast<ContextFreeGrammar::Literal*>(conv)) return conv->accept(this);
+    else if (auto unary = dynamic_cast<ContextFreeGrammar::Unary*>(conv)) return conv->accept(this);
+    else if (auto grouping = dynamic_cast<ContextFreeGrammar::Grouping*>(conv)) return conv->accept(this);
+    else if (auto assign = dynamic_cast<ContextFreeGrammar::Assign*>(conv)) return conv->accept(this);
+    else if (auto logic = dynamic_cast<ContextFreeGrammar::Logical*>(conv)) return conv->accept(this);
+    else if (auto var = dynamic_cast<ContextFreeGrammar::Variable*>(conv)) return conv->accept(this);
     else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) return conv->accept(this);
     else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) return conv->accept(this);
     throw catcher<interpreter>("Unexpected type in evaluate function");
@@ -259,7 +259,7 @@ Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
  * ---------------------------------------------------------------------------
 */
 Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
-    if (auto conv = dynamic_cast<Print*>(stmt))
+    if (auto conv = dynamic_cast<ContextFreeGrammar::Print*>(stmt))
         globals->define("radiate", evaluate(conv->initializer));
     return nullptr;
 }

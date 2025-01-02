@@ -134,7 +134,7 @@ namespace ContextFreeGrammar {
     };
     class This: public Expr {
         public:
-            explicit This(const Token&& oP);
+            explicit This(const Token oP);
             ~This() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);
@@ -421,5 +421,4 @@ namespace ContextFreeGrammar {
             Import() = default;
     };*/
 };
-using namespace ContextFreeGrammar;
 #endif 
