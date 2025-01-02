@@ -326,8 +326,9 @@ Statement* parser::declarations() {
             logging<parser> logs(std::move(err));
             logs.rotate();
             logs_ = logs.getLogs();
-        #else 
-            std::cout << err << std::endl;
+        #else
+            this->message = std::move(err); 
+            std::cout << this->message << std::endl;
         #endif
         return nullptr;
     }

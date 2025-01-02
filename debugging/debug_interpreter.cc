@@ -85,6 +85,8 @@ static void Adding() {
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
@@ -109,6 +111,8 @@ int main(int argc, char **argv) {
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;

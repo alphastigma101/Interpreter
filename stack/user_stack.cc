@@ -17,14 +17,14 @@ void Stack::stack::pop() {
     return;
 }
 // Function to return the top element of the stack
-Map<String, bool>* Stack::stack::peek() {
+Map<String, bool>& Stack::stack::peek() {
     if (top < 0)  throw catcher<Stack::stack>("Stack is empty! There is nothing to peek at");
     for (int i = 0; i < arr.size(); i++) {
         if (i == top) {
-            return std::move(&arr.at(i));
+            return arr.at(i);
         }
     }
-    return std::move(&arr.at(top));
+    return arr.at(top);
 }
 
 // Function to check if the stack is empty

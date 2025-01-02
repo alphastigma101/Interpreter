@@ -239,7 +239,7 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     return nullptr;
 }
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
-    if (auto conv = dynamic_cast<Expression*>(stmt))
+    if (auto conv = dynamic_cast<ContextFreeGrammar::Expression*>(stmt))
         evaluate(conv->expression);
     return nullptr;
 }
@@ -286,10 +286,10 @@ Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
     int* distance = nullptr;
     try {
-        *distance = locals->at(expr);
+        distance = new int(locals.count(expr));
     } catch(...) {}
     if (distance != nullptr) {
-      return environment->getAt(*distance, name.getLexeme());
+      return environment->getAt(std::move(*distance), name.getLexeme());
     } else {
       return globals->get(name);
     }
@@ -310,13 +310,13 @@ Any interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
 }
 Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
     Any value = evaluate(expr->right);
-    Any distance;
+    int* distance = nullptr;
     try {
-        locals->at(expr);
+        distance = new int(locals.count(expr));
     }
     catch(...) {distance = nullptr;}
-    if (distance.type() != typeid(nullptr)) {
-      environment->assignAt(std::any_cast<int>(distance), expr->op, value);
+    if (distance != nullptr) {
+      environment->assignAt(std::move(*distance), expr->op, value);
     } else {
       globals->assign(expr->op, value);
     }
