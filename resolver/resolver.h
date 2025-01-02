@@ -1,7 +1,9 @@
 #ifndef _RESOLVER_H_
 #define _RESOLVER_H_
 #include <user_stack.h>
-#include <token.h>
+//#if !ENABLE_RESOLVER
+    #include <token.h>
+//#endif
 namespace Resolver {
     // the resolver class is the semantic analyis 
     class resolver: public Visitor<resolver> {

@@ -54,6 +54,7 @@ using Set = std::set<T>;
 */
 extern String user_choice;
 extern String file_name;
+static constexpr bool EnableVisitorPattern = false;
 /** ---------------------------------------------------------------------------
  * @brief Defined in context_free_grammar.h
  *

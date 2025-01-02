@@ -41,8 +41,7 @@ namespace Interpreter {
             Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
             Any visitReturnStmt(ContextFreeGrammar::Return* stmt);
             inline static void resolve(ContextFreeGrammar::Expr* expr, int depth) {
-                locals->insert_or_assign(expr, depth);
-
+                locals.insert_or_assign(expr, depth);
             };
             inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
                 Environment::environment* previous = this->globals;
@@ -61,7 +60,7 @@ namespace Interpreter {
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;
             inline static Environment::environment* environment = globals;
-            inline static Map<ContextFreeGrammar::Expr*, int>* locals = new Map<ContextFreeGrammar::Expr*, int>();
+            inline static Map<ContextFreeGrammar::Expr*, int> locals{}; //= new Map<ContextFreeGrammar::Expr*, int>();
             template<typename T>
             static bool instanceof(const Any& object);
         protected:

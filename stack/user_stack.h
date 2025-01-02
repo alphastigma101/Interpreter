@@ -17,9 +17,9 @@ namespace Stack {
             ~stack() noexcept = default;
             static void push(Map<String, bool>* lexical_scope);
             static void pop();
-            static Map<String, bool>* peek();
+            static Map<String, bool>& peek();
             static bool isEmpty();
-            inline static Map<String, bool> get(int pos) { return arr.at(pos);};
+            inline static Map<String, bool>& get(int pos) { return arr.at(pos);};
             inline static int size() { return top; };
     };
 };

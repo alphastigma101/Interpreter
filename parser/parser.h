@@ -55,7 +55,8 @@ namespace Parser {
             explicit parser(std::vector<Token>& tokens) {  tokens_ = std::move(tokens); };
             Vector<Statement*> parse();
             void printNodes();
-            ~parser() noexcept = default; // This shouldn't be a virtual... 
+            inline static String getMessage() { return message; };
+            ~parser() noexcept = default;
         protected:
             // Current rules that were made from a grammar 
             Expr* equality();
