@@ -9,7 +9,8 @@ class Scanner: public catcher<Scanner> {
         inline String getSource() { return source; };
     protected:
         void number_();          
-        void string_(); 
+        void string_();
+        void dependcies(); 
         bool match(const char expected);
         void identifier();
         void addToken(const TokenType type, const String literal);

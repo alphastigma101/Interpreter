@@ -29,6 +29,7 @@ const Unordered<String, TokenType> Scanner::keywords = {
     {"true",   TokenType::TRUE},
     {"false",  TokenType::FALSE},
     {"containment",  TokenType::CONTAINMENT}, // classes
+    {"mushroomcloud", TokenType::MUSHROOMCLOUD},
     {"radiate",  TokenType::RADIATE}, // print
     {"fission",  TokenType::FISSION}, // split method
     {"radiate",  TokenType::FUSION}, // concat method
@@ -87,6 +88,7 @@ void Scanner::scanToken() {
     char c = advance();
     switch (c) {
         // Single-character tokens
+        case '$': dependcies(); break;
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
@@ -237,4 +239,19 @@ void Scanner::number_() {
         while (isDigit(peek())) advance();
     }
     addToken(TokenType::NUMBER, source.substr(start, current - start));
+}
+/** --------------------------------------
+ * @brief a function that searched for the a file that will be imported and add it to the tokens member variable
+ * 
+ * @details Uses filesystem to open up the file and uses threading and syncing memory to add to the vector
+ * 
+ * --------------------------------------
+ */
+void Scanner::dependcies() {
+    // Search for mushroomcloud and create a token for it like so: addToken(TokenType::MUSHROOMCLOUD, depend);
+    // Use the string_(); to search for the "" around a file and use addToken(TokenType::FILE, file);
+    while (peek() != (peek() == '"' ? '"' : '\'') && !isAtEnd()) {
+        if (peek() == '\n') line++;
+        advance();
+    }
 }

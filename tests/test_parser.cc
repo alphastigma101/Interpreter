@@ -60,7 +60,26 @@ TEST_F(ParserTest, ParserTest_UserTypes) {
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at 'Bagel': Expect a name. Got ';' instead.", p.getMessage());
 }
-
+TEST_F(ParserTest, ParserTest_UserInstance) {
+    Scanner scanner(R"(
+        containment Bagel {}
+        Bagel = Bagel(); // Should throw an execption because it is missing an identifier)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    EXPECT_EQ("[line 3] Error at '=': Expect a name. Got ';' instead.", p.getMessage());
+}
+TEST_F(ParserTest, ParserTest_UserAccess) {
+    Scanner scanner(R"(
+        containment Bagel {}
+        Bagel. = Bagel(); // Should throw an execption because it is missing an identifier)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    EXPECT_EQ("[line 3] Error at '.': Expect a name. Got ';' instead.", p.getMessage());
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

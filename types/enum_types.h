@@ -43,6 +43,8 @@ enum TokenType {
     // classes
     CONTAINMENT, PUBLIC,
     PRIVATE, PROTECTED,
+    // user files
+    FILES,
     // hidden functions
     LAMBDA,
     MUSHROOMCLOUD, // the ecosystem mechanic
