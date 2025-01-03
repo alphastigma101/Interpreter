@@ -158,16 +158,6 @@ namespace Parser {
             inline bool match(Args... types) {  return (... || (check(types) ? (advance(), true) : false)); };
             inline Token consume(const TokenType type, const String message) {
                 if (check(type)) return advance();
-                /*auto clear = [this]() {
-                    for (int i = 0; i < nodes.size(); i++) {
-                        auto& [intVal, pairVal] = nodes[i];
-                        if (std::holds_alternative<ContextFreeGrammar::Expr*>(pairVal.second)) {
-                            auto& clean = std::get<ContextFreeGrammar::Expr*>(pairVal.second);
-                            clean.release();
-                        }
-                    }
-                };
-                clear();*/
                 throw parseError<parser>(peek(), message);
             };
         private:

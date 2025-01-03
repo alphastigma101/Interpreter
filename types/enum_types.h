@@ -23,6 +23,8 @@ enum TokenType {
     // Primitive Types
     INT, DOUBLE, CHAR, VOID, BOOL, NIL, 
     CHAR32, CHAR16, 
+    // user types
+    USER_TYPE,
     // Complex Types
     AUTO, LIST, QUERY, MAP, POINTER, REF,
     // Control flow

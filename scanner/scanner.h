@@ -35,6 +35,9 @@ class Scanner: public catcher<Scanner> {
             if (current + 1 >= source.length()) return '\0';
             return source.at(current + 1);
         };
+        inline bool isWhitespace(char c) {
+            return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+        };
         static const Unordered<String, TokenType> keywords;
 };
 #endif

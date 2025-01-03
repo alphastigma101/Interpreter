@@ -126,10 +126,7 @@ void Scanner::scanToken() {
         case '\'': string_(); break;
         default: 
             if (isDigit(c)) { number_();} 
-            else if (isAlpha(c)) { identifier(); }
-            else { 
-                //throw runtimeerror<Scaner>(line, "Unexcepted character");
-            }                
+            else if (isAlpha(c)) { identifier(); }               
             break;
     }
 }
@@ -160,14 +157,26 @@ void Scanner::addToken(const TokenType type, const String literal) {
  *  --------------------------------------------------------------------------
 */
 void Scanner::identifier() {
+    TokenType type;
     while (isAlphaNumeric(peek())) advance();
     String text = source.substr(start, current - start);
     auto it = keywords.find(text);
-    TokenType type;
     if (it != keywords.end()) {
         type = it->second;
     } else {
-        type = TokenType::IDENTIFIER; // Default type if not found in keywords
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.at(i).getLexeme() == String("containment")) {
+                try {
+                    String temp = source.substr(start, current - start + 1);
+                    if (tokens.at(i + 1).getLexeme() == text && temp.find('(') == String::npos) {
+                        addToken(TokenType::USER_TYPE, text);
+                        return;
+                    }
+                }
+                catch(...) {}
+            }
+        }
+        type = TokenType::IDENTIFIER; // Default type if 
     }
     addToken(type);
 }

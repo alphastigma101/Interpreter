@@ -108,19 +108,10 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Bacon {
-            string choice = "";
-            string eat() {
-                if (choice != "Crunch crunch crunch!") {
-                    radiate choice;
-                }
-                else {
-                    radiate "Crunch crunch crunch!";
-                }
-            }
-        }
-        Bacon().choice = "Not crunch crunch crunch!";
-        Bacon().eat(); // Prints out "Not crunch crunch crunch!".)");
+        containment Bagel {}
+        Bagel bagel = Bagel();
+        radiate bagel; // Prints "Bagel instance".)"
+    );
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();

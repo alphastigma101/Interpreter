@@ -342,6 +342,30 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     }
     
 }
+TEST_F(InterpreterTest, InterpreterTest_ClassInstances) {
+    Scanner scanner(R"(
+        containment Bagel {}
+        Bagel bagel = Bagel();
+        radiate bagel; // Prints "Bagel instance".)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("Bacon"); it != env.end()) {
+        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
+        auto res = *(String*)nuclear->name;
+        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
+        if (auto search = map.find("eat"); search != map.end()) {
+          conv = reinterpret_cast<ContextFreeGrammar::Functions*>(search->second.declaration)->statements.at(0)->initializer->op.getLexeme();  
+        }
+    }
+    EXPECT_EQ(conv, "\"Crunch crunch crunch!\"");
+}
 TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
     Scanner scanner(R"(
         containment Bacon {

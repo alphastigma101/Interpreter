@@ -318,7 +318,7 @@ ContextFreeGrammar::Statement* parser::declarations() {
         // NOTE: the if statement
         // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
-                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR)) return varDeclaration(); /* return new Types(varDeclaration());*/
+                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) return varDeclaration(); /* return new Types(varDeclaration());*/
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();

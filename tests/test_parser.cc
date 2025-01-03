@@ -50,6 +50,17 @@ TEST_F(ParserTest, ParserTest_Semicolon_Test) {
     EXPECT_EQ("[line 1] Error at ';': Expect expression. Got ';' instead.", p.getMessage());
 }
 
+TEST_F(ParserTest, ParserTest_UserTypes) {
+    Scanner scanner(R"(
+        containment Bagel {}
+        Bagel Bagel = Bagel(); // Should throw an execption)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    EXPECT_EQ("[line 3] Error at 'Bagel': Expect a name. Got ';' instead.", p.getMessage());
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
