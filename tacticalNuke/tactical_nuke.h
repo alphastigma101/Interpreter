@@ -112,6 +112,7 @@ namespace NuclearLang {
         ~NukeInstance() noexcept = default;
         static void set(Token name, Any value);
         Any get(Token name);
+        inline static NukeClass* getKlass() { return klass; };
       private:
         inline static NukeClass* klass = nullptr;
         inline static Map<String, Any>* fields = new Map<String, Any>();
