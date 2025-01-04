@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
         containment Bacon {
             string choice;
             string eat() {
-                if (choice != "Crunch crunch crunch!") {
+                if (choice != "Crunch crunch crunch!" and choice != "") {
                     radiate choice;
                 }
                 else {
@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        Bacon().choice = "Not crunch crunch crunch!";
         Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();

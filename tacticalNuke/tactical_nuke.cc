@@ -204,6 +204,16 @@ Any NuclearLang::NukeInstance::get(Token name) {
   if (method != nullptr) return method->bind(this);
   throw runtimeerror<NuclearLang::NukeClass>(name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
 }
+
+void *NuclearLang::NukeInstance::getProperties(void *name) {
+  auto temp = reinterpret_cast<String*>(name);
+  auto properties = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(klass->properties);
+  if (auto search = properties->find(*temp); search != properties->end()) {
+    return &(reinterpret_cast<NuclearLang::NukeProperties&>(search->second));
+  }
+  return nullptr;
+}
+
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
   auto* nameStr = reinterpret_cast<String*>(name);

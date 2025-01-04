@@ -12,7 +12,6 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
-#include <addon.h>
 #include <interface.h>
 #include <logging.h>
 /** --------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #!bin/bash 
 
 INCLUDE=" -I ../types/ -I ../logging/ -I ../asm/ -I ../catch/ -I ../tokens/ -I ../interface/ -I ../ast/ -I ../cfg/ -I 
-             ../declarations/ -I ../definitions/ -I ../runtime/ -I ../interpreter/ -I ../scanner/ -I ../parser/ -I ../addon/ 
+             ../declarations/ -I ../definitions/ -I ../runtime/ -I ../interpreter/ -I ../scanner/ -I ../parser/
              -I ../threading/ -I ../environment/ -I ../tacticalNuke/ -I ../resolver/ -I ../stack/ -I ../symbolTable/"
 LDFLAGS=" -L $HOME/Public-Projects/logging -lgtest -lgtest_main -pthread"
 #echo "creating debugging object files and executables" 

@@ -137,6 +137,7 @@ namespace NuclearLang {
         static void set(Token name, Any value);
         Any get(Token name);
         inline static NukeClass* getKlass() { return klass; };
+        static void* getProperties(void* name); 
       private:
         inline static NukeClass* klass = nullptr;
         inline static Map<String, Any> fields{};
