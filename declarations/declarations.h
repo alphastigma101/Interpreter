@@ -145,6 +145,7 @@ namespace NuclearLang {
     class NukeFunction;
     class NukeClass;
     class NukeInstance;
+    class NukeProperties;
 };
 /** ---------------------------------------------------------------------------
  * @details 'ExprTypes' used alot in parser.cc and context_free_grammar.h

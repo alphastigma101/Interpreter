@@ -17,8 +17,8 @@ namespace Environment {
             explicit environment(environment* env);
             ~environment() noexcept = default;
             static environment* enclosing;
-            static Any get(Token& name);
-            static void define(const String& name, const Any& value);
+            static Any get(Token name);
+            static void define(const String name, const Any value);
             environment* ancestor(int distance);
             Any getAt(const int distance, String name);
             void assignAt(const int distance, Token name, Any value);

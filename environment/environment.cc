@@ -1,4 +1,5 @@
 #include <environment.h>
+#include <tactical_nuke.h>
 Environment::environment* Environment::environment::enclosing = nullptr;
 /** -----------------------------------
  * @brief This is a default constructor for environment
@@ -18,10 +19,14 @@ Environment::environment::environment(Environment::environment* enclosing) {
  * @return Returns the variable's value if found, otherwise returns null if not found. 
  * -------------------------------------
 */
-Any Environment::environment::get(Token& name) {
+Any Environment::environment::get(Token name) {
     if (auto search = env.find(name.getLexeme()); search != env.end())
         return search->second;
     if (enclosing != nullptr) return enclosing->get(name);
+    if (auto search = env.find(String("this")); search != env.end()) {
+        auto instance = std::any_cast<NuclearLang::NukeInstance*>(search->second);
+        return instance->get(name); 
+    }
     
     throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
 }
@@ -35,7 +40,7 @@ Any Environment::environment::get(Token& name) {
  * @return Returns the name of the variable otherwise returns null if not found. 
  * -------------------------------------
 */
-void Environment::environment::define(const String& name, const Any& value) {
+void Environment::environment::define(const String name, const Any value) {
    env[name] = value;
    //newEnv->insert(name, value, nullptr);
 }

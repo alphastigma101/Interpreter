@@ -123,7 +123,7 @@ namespace ContextFreeGrammar {
     };
     class Set: public Expr, protected Visitor<Set> {
         public:
-            explicit Set(Expr* left_, const Token& op_, Expr* right_);
+            explicit Set(Expr* left_, const Token op_, Expr* right_);
             ~Set() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);
@@ -293,6 +293,16 @@ namespace ContextFreeGrammar {
             */
             Vector<Functions*> methods{};
             /** --------------------------------------------------------
+             * @brief initializer represents the value.
+             * ---------------------------------------------------------
+            */
+            Vector<Statement*> properties{};
+            /** --------------------------------------------------------
+             * @brief initializer represents the value.
+             * ---------------------------------------------------------
+            */
+            Vector<Token> types{};
+            /** --------------------------------------------------------
              * @brief A token class instance wrapped in a unique_ptr. 
              *        It is included with the node that was created
              * ---------------------------------------------------------
@@ -362,7 +372,7 @@ namespace ContextFreeGrammar {
     };
     class Class: public Statement  {
         public:
-            explicit Class(Token name, Vector<Functions*> methods);
+            explicit Class(Token name, Vector<Functions*> methods, Vector<Statement*> properties_);
             ~Class() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);

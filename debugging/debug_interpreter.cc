@@ -107,10 +107,20 @@ int main(int argc, char **argv) {
         "}\n"
             "radiate a;"
     );*/
-    Scanner scanner(R"(
-        containment Bagel {}
-        Bagel bagel = Bagel();
-        radiate bagel; // Prints "Bagel instance".)"
+     Scanner scanner(R"(
+        containment Bacon {
+            string choice;
+            string eat() {
+                if (choice != "Crunch crunch crunch!") {
+                    radiate choice;
+                }
+                else {
+                    radiate "Crunch crunch crunch!";
+                }
+            }
+        }
+        Bacon().choice = "Not crunch crunch crunch!";
+        Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
@@ -120,7 +130,7 @@ int main(int argc, char **argv) {
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
-    if (auto it = env.find("i"); it != env.end())
+    if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
     std::cout << conv << std::endl;
     

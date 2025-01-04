@@ -62,7 +62,7 @@ namespace Interpreter {
             inline static Environment::environment* environment = globals;
             inline static Map<ContextFreeGrammar::Expr*, int> locals{}; //= new Map<ContextFreeGrammar::Expr*, int>();
             template<typename T>
-            static bool instanceof(const Any& object);
+            static bool instanceof(const Any object);
         protected:
             Any evaluate(ContextFreeGrammar::Expr* conv);
            

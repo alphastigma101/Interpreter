@@ -52,6 +52,7 @@ namespace Resolver {
             static void declare(Token name);
             static void define(Token name);
             void resolveFunction(ContextFreeGrammar::Functions* function, FunctionType type);
+            void resolveProperties(ContextFreeGrammar::Statement* stmt);
             static void resolveLocal(ContextFreeGrammar::Expr* expr, Token name);
             inline static Stack::stack* scopes = new Stack::stack();
             inline static FunctionType currentFunction = FunctionType::NONE;

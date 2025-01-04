@@ -188,7 +188,7 @@ int NuclearLang::NukeClass::arity(int argc) {
  * 
  * @return returns nullptr 
 */
-void NuclearLang::NukeInstance::set(Token name, Any value) { fields->insert_or_assign(name.getLexeme(), value); }
+void NuclearLang::NukeInstance::set(Token name, Any value) { fields.insert_or_assign(name.getLexeme(), value); }
 /** ---------------------------------------------------------------
  * @brief ... 
  * 
@@ -197,7 +197,7 @@ void NuclearLang::NukeInstance::set(Token name, Any value) { fields->insert_or_a
  * @return None. It instead throws an exception  
 */
 Any NuclearLang::NukeInstance::get(Token name) {
-  if (auto search = fields->find(name.getLexeme()); search != fields->end()) {
+  if (auto search = fields.find(name.getLexeme()); search != fields.end()) {
     return search->second;
   }
   NuclearLang::NukeFunction* method = klass->findMethod(new String(name.getLexeme()));

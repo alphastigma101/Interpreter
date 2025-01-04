@@ -11,9 +11,8 @@ ContextFreeGrammar::Expr* parser::assignment() {
         Token name = conv->op;
         return new ContextFreeGrammar::Assign(name, value);
       }
-      else if (auto conv = dynamic_cast<ContextFreeGrammar::Set*>(expr)) {
-        auto get = (ContextFreeGrammar::Get*)expr;
-        return new ContextFreeGrammar::Set(get->object, get->op, value);
+      else if (auto conv = dynamic_cast<ContextFreeGrammar::Get*>(expr)) {
+        return new ContextFreeGrammar::Set(conv->object, conv->op, value);
       }
       error(); 
     }
@@ -338,15 +337,37 @@ ContextFreeGrammar::Statement* parser::declarations() {
 ContextFreeGrammar::Statement* parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
-    if (match(TokenType::PUBLIC, TokenType::PRIVATE, TokenType::PROTECTED)) 
-        consume(TokenType::SEMICOLON, "Expected ':' specifier.");
-
     Vector<ContextFreeGrammar::Functions*> methods;
+    Vector<ContextFreeGrammar::Statement*> properties;
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
+        if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) properties = std::move(classProperties()); 
         methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method")));
     }
     consume(RIGHT_BRACE, "Expect '}' after class body.");
-    return new ContextFreeGrammar::Class(name, methods);
+    return new ContextFreeGrammar::Class(name, methods, properties);
+}
+Vector<ContextFreeGrammar::Statement*> parser::classProperties() {
+    Vector<ContextFreeGrammar::Statement*> stmt;
+    for (int i = current; i < tokens_.size(); i++) {
+        try {
+            if (tokens_.at(i + 1).getType() != TokenType::LEFT_PAREN) {
+                auto tmp = declarations();
+                if (isOneOf(tokens_.at(i).getType(), TokenType::VOID, TokenType::INT, TokenType::BOOL, 
+                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) {
+                    tmp->types.push_back(tokens_.at(i));        
+                }
+                else {
+                    tmp->types.push_back(tokens_.at(i - 1));
+                }
+                stmt.push_back(std::move(tmp));
+                i = current;
+            }
+            else 
+                break;
+        }
+        catch(...) { break; }
+    }
+    return stmt;
 }
 /** ----------------------------------------
  * @brief A method that parses class methods and free functions 
@@ -368,20 +389,20 @@ ContextFreeGrammar::Statement* parser::classDeclaration() {
 ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
     Vector<Token> parameters;
     Token name;
+    if (match(TokenType::PUBLIC, TokenType::PRIVATE, TokenType::PROTECTED)) 
+        consume(TokenType::SEMICOLON, "Expected ':' specifier.");
     if (type != nullptr) {
         // Must be free functions being parsed
         name = tokens_.at(current - 2);
-        //auto temp = table->newSymbols();
-        //temp->functions.f_type = type->getLexeme();
-        //temp->functions.f_id = name.getLexeme();
-        //table->insert(name.getLexeme().c_str(), std::move(*temp));
+        //table->type = type->getLexeme().c_str();
+        //table->insert(name.getLexeme().c_str(), std::move(*table));
     }
     else {
         // Must be methods that are getting parsed
         //Token op = previous();
         //type = std::move(&op);
         if (match(TokenType::BOOL, TokenType::CHAR, TokenType::STRING, 
-                    TokenType::DOUBLE, TokenType::VOID, TokenType::INT)) {
+                    TokenType::DOUBLE, TokenType::VOID, TokenType::INT, TokenType::USER_TYPE)) {
             name = consume(TokenType::IDENTIFIER, String("Expect " + String(kind) + " name.").c_str());
             //auto temp = table->newSymbols();
             //temp->functions.f_type = type->getLexeme();
@@ -390,7 +411,7 @@ ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
         }
         else 
             throw parseError<parser>(peek(), "Method name must have a return type before it");
-        consume(LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());   
+        consume(TokenType::LEFT_PAREN, String("Expect '(' after " + String(kind) + " name.").c_str());   
     }
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
@@ -414,7 +435,7 @@ ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
       } while (match(TokenType::COMMA));
     }
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
-    consume(LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
     Vector<ContextFreeGrammar::Statement*> body = block();
     return new ContextFreeGrammar::Functions(name, parameters, body);
 }

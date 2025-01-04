@@ -35,7 +35,7 @@ void Interpreter::interpreter::execute(ContextFreeGrammar::Statement *stmt) {
 */
 interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpreter::interpreter() {
     try {
-        for (auto &it: stmt) {
+        for (const auto it: stmt) {
             if (auto conv = dynamic_cast<ContextFreeGrammar::Statement*>(it))
                 execute(conv);
         }
@@ -224,18 +224,36 @@ Any Interpreter::interpreter::visitBlockStmt(ContextFreeGrammar::Block *stmt) {
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction> methods;
-    for (auto method : stmt->methods) {
+    Map<String, NuclearLang::NukeProperties> properties;
+    NuclearLang::NukeProperties* property;
+    int j = 0;
+    for (int i = 0; i < stmt->methods.size(); i++) {
         bool temp;
-        if (method->op.getLexeme() == String("init")) temp = true;
+        if (stmt->methods.at(i)->op.getLexeme() == String("init")) temp = true;
         else temp = false;
         NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(
-            method, 
+            stmt->methods.at(i), 
             environment, 
             temp
         );
-      methods.insert_or_assign(method->op.getLexeme(), std::move(*function));
+        if (i < stmt->properties.size() && !stmt->properties.empty()) { 
+            NuclearLang::NukeProperties* property = new NuclearLang::NukeProperties(
+                    stmt->properties.at(i)->types.at(i),
+                    stmt->properties.at(i)
+            );
+            properties.insert_or_assign(stmt->op.getLexeme(), std::move(*property));
+            j++;
+        }  
+      methods.insert_or_assign(stmt->methods.at(i)->op.getLexeme(), std::move(*function));
     }
-    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods);
+    for (int i = j; i < stmt->properties.size(); i++) {
+        NuclearLang::NukeProperties* property = new NuclearLang::NukeProperties(
+                stmt->types.at(i),
+                stmt->properties.at(i)
+        );
+        properties.insert_or_assign(stmt->op.getLexeme(), std::move(*property));
+    }
+    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, properties);
     environment->assign(stmt->op, std::move(klass));
     return nullptr;
 }
@@ -287,7 +305,10 @@ Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
     int* distance = nullptr;
     try {
-        distance = new int(locals.count(expr));
+        if (locals.size() != 0)
+            distance = new int(locals.count(expr));
+        else 
+            distance = nullptr;
     } catch(...) {}
     if (distance != nullptr) {
       return environment->getAt(std::move(*distance), name.getLexeme());
@@ -367,7 +388,7 @@ Any Interpreter::interpreter::visitThisExpr(ContextFreeGrammar::This *expr) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool interpreter::instanceof(const Any& object) {
+bool interpreter::instanceof(const Any object) {
     try {
         if (isNumeric<T>(object)) return true;
         else if (isOther<T>(object)) return true;

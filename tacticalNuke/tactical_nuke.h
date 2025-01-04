@@ -89,19 +89,43 @@ namespace NuclearLang {
       inline static  Environment::environment* closure = nullptr;  
     };
     class NukeClass: public NukeCallable<NukeClass>, protected runtimeerror<NukeClass> {
-        public:
-          template<typename A, typename B>
-          explicit NukeClass(A name, B methods) noexcept {
-            this->name = new A(name);
-            this->methods = new B(methods);
-          };
-          ~NukeClass() noexcept = default;
-          Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
-          static int arity(int argc = 0);
-          static NukeFunction* findMethod(void* name);
-          void* name = nullptr;
-          inline static void* methods = nullptr;
-        private:
+      public:
+        /// @brief 
+        /// @tparam A 
+        /// @tparam B 
+        /// @tparam C 
+        /// @param name Is a string instance  
+        /// @param methods Is a map with a string and value being NukeFunction
+        /// @param properties Is a map with a string and value being NukeProperties
+        template<typename A, typename B, typename C>
+        explicit NukeClass(A name, B methods, C properties) noexcept {
+          this->name = new A(name);
+          this->methods = new B(methods);
+          this->properties = new C(properties);
+        };
+        ~NukeClass() noexcept = default;
+        Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
+        static int arity(int argc = 0);
+        static NukeFunction* findMethod(void* name);
+        void* name = nullptr;
+        inline static void* methods = nullptr;
+        inline static void* properties = nullptr;
+      private:
+          
+    };
+    class NukeProperties: protected runtimeerror<NukeProperties> {
+      public:
+        // typename A = Token
+        // typename B = ContextFreeGrammar::Statement*
+        template<typename A, typename B>
+        explicit NukeProperties(A type, B name) noexcept {
+          this->type = new A(type);
+          this->name = new B(name);
+        };
+        ~NukeProperties() noexcept = default;
+        inline static void* type = nullptr;
+        inline static void* name = nullptr;
+      private:
           
     };
     class NukeInstance {
@@ -115,7 +139,7 @@ namespace NuclearLang {
         inline static NukeClass* getKlass() { return klass; };
       private:
         inline static NukeClass* klass = nullptr;
-        inline static Map<String, Any>* fields = new Map<String, Any>();
+        inline static Map<String, Any> fields{};
     };
 };
 #endif 

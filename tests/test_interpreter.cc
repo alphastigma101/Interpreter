@@ -390,6 +390,68 @@ TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
     }
     
 }
+
+/*TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFields) {
+    Scanner scanner(R"(
+        containment Bot {
+            string a;
+            string b;
+            string talk() {
+                if (a) {
+                    radiate "Hello!";
+                }
+                else {
+                    radiate "Set the property 'a' to talk to me!";
+                }
+            }
+            string weather() {
+                if (b) {
+                    radiate "The weather could be nice outside today. If it is not, you should wear a jacket!";
+                }
+                else {
+                    radiate "Set the property b to get advice about handling cold/hot weather in your area!"
+                }
+            }
+            string c;
+            string d;
+            string bye() {
+                if (c) {
+                    radiate "Have a good day!";
+                }
+                else {
+                    radiate "Set the property 'c' for me to say goodbye."
+                }
+            }
+            string add() {
+                if (d) {
+                    radiate 2 + 2 + 4
+                }
+                else {
+                    radiate "Set the property 'd' to see me do some simple math"
+                }
+            }
+        }
+        Bot().a = "Hello bot";
+        Bot().b = "It is cold where I live at";
+        Bot().c = "Goodbye Bot!";
+        Bot().d = "Do some simple math";
+        Bot().talk();
+        Bot().weather();
+        Bot().bye();
+        Bot().add();
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    try {
+        interpreter interp(res);
+    }
+    catch(NuclearLang::NukeReturn& e) {
+        EXPECT_EQ(e.value, "Not crunch crunch crunch!");
+    }
+    
+}*/
 TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     Scanner scanner(R"(
         containment Bacon {

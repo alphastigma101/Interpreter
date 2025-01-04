@@ -68,6 +68,14 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
     endScope();
     currentFunction = enclosingFunction;
 }
+
+void Resolver::resolver::resolveProperties(ContextFreeGrammar::Statement *stmt) {
+    beginScope();
+    declare(stmt->op);
+    define(stmt->op);
+    this->resolve(stmt);
+    endScope();
+}
 /** ---------------------------------------------------------------------------------
  * @brief Creates a new lexical scope by allocating a map on the stack.
  * 
@@ -156,13 +164,20 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     define(stmt->op);
     beginScope();
     scopes->peek().insert_or_assign("this", true);
-    for (auto method : stmt->methods) {
+    int j = 0;
+    for (int i = 0; i < stmt->methods.size(); i++) {
       FunctionType declaration = FunctionType::METHOD;
-      if (method->op.getLexeme() == String("init")) {
+      if (stmt->methods.at(i)->op.getLexeme() == String("init")) {
         declaration = FunctionType::INITIALIZER;
       }
-       resolveFunction(method, declaration); 
+      resolveFunction(stmt->methods.at(i), declaration);
+      if (i < stmt->properties.size() && !stmt->properties.empty()) { 
+        this->resolve(stmt->properties.at(i));
+        j++;
+      }  
+
     }
+    for (int i = j; i < stmt->properties.size(); i++) this->resolve(stmt->properties.at(i)); 
     currentClass = enclosingClass;
     endScope();
     return nullptr;

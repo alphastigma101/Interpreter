@@ -255,7 +255,7 @@ Any ContextFreeGrammar::Call::visit(Any visitor) {
  * 
  * -------------------------------
 */
-ContextFreeGrammar::Set::Set(Expr* object_, const Token& op_, Expr* value_) {
+ContextFreeGrammar::Set::Set(ContextFreeGrammar::Expr* object_, const Token op_, ContextFreeGrammar::Expr* value_) {
     this->object = std::move(object_);
     this->value = std::move(value_);
     this->op = std::move(op_);
@@ -586,9 +586,10 @@ Any ContextFreeGrammar::Functions::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
+ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods, Vector<ContextFreeGrammar::Statement*> properties_) {
     this->op = std::move(name);
     this->methods = std::move(methods);
+    this->properties = std::move(properties_);
 }
 
 Any ContextFreeGrammar::Class::visit(Any visitor) {

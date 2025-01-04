@@ -33,7 +33,7 @@ namespace Parser {
         private:
             inline static Token token;
             inline static String message;
-            inline static Symbol::Table* table = new Symbol::Table();
+            inline static Symbol::Table* table;
     };
     class parser: protected parseError<parser>, public logging<parser> {
         /** ----------------------------------------------------------------------------------------------------------------------------
@@ -84,6 +84,7 @@ namespace Parser {
             ContextFreeGrammar::Statement* function(const char* function, Token* type = nullptr);
             ContextFreeGrammar::Statement* returnStatement();
             ContextFreeGrammar::Statement* classDeclaration();
+            Vector<ContextFreeGrammar::Statement*> classProperties();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
@@ -156,6 +157,10 @@ namespace Parser {
             */
             template<typename... Args>
             inline bool match(Args... types) {  return (... || (check(types) ? (advance(), true) : false)); };
+            template<typename... Types>
+            inline bool isOneOf(TokenType type, Types... types) {
+                return ((type == types) || ...);
+            };
             inline Token consume(const TokenType type, const String message) {
                 if (check(type)) return advance();
                 throw parseError<parser>(peek(), message);

@@ -88,7 +88,10 @@ void Scanner::scanToken() {
     char c = advance();
     switch (c) {
         // Single-character tokens
-        case '$': dependcies(); break;
+        case '$':
+            advance(); // advance it  
+            dependcies(); 
+            break;
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
@@ -248,10 +251,21 @@ void Scanner::number_() {
  * --------------------------------------
  */
 void Scanner::dependcies() {
-    // Search for mushroomcloud and create a token for it like so: addToken(TokenType::MUSHROOMCLOUD, depend);
-    // Use the string_(); to search for the "" around a file and use addToken(TokenType::FILE, file);
+    // Search for mushroomcloud and create a token for it like so: 
+    String temp = source.substr(start + 1, current - start - 2);
+    if (temp == String("mushroomcloud"))
+        addToken(TokenType::MUSHROOMCLOUD, temp);
     while (peek() != (peek() == '"' ? '"' : '\'') && !isAtEnd()) {
         if (peek() == '\n') line++;
         advance();
     }
+    temp = source.substr(start + 1, current - start - 2); // get the file path
+    try {
+        // use std::filesystem to attempt to open up the file
+        // if success, create a new thread that will start parsing all the code from that file 
+        // and add it to the tokens member variable. When appending to the same vector, memory access is needed and syncing 
+        // So atomic and or mutex will be needed 
+
+    }
+    catch(...) {}
 }
