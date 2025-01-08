@@ -155,6 +155,8 @@ Any Resolver::resolver::visitBlockStmt(ContextFreeGrammar::Block* stmt) {
  * 
  * @param stmt A raw pointer to an abstract class called Statement
  * 
+ * @details the key entry "this" can have another entry that could be its field or properties
+ *          Fields are member variables while properties can be methods
  * @return returns nullptr 
 */
 Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
@@ -175,7 +177,6 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
         this->resolve(stmt->properties.at(i));
         j++;
       }  
-
     }
     for (int i = j; i < stmt->properties.size(); i++) this->resolve(stmt->properties.at(i)); 
     currentClass = enclosingClass;

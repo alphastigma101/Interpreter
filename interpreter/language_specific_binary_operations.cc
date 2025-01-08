@@ -33,6 +33,19 @@ bool binaryOperations::isEqual(Any a, Any b) {
     return bothEqual(a,b);
 }
 
+bool BinaryOperations::binaryOperations::isInt(const String value) {
+    size_t processed = 0;
+    std::stoi(value, &processed);
+    if (processed == value.length()) return true;
+    return false;
+}
+
+bool BinaryOperations::binaryOperations::isDouble(const String value) {
+    auto result = double();
+    auto i = std::istringstream(value);
+    i >> result;      
+    return !i.fail() && i.eof();
+}
 
 /** ---------------------------------------------------------------
  * @brief A method that checks two objects to see if they are equal too
@@ -188,3 +201,4 @@ Any binaryOperations::toOther(Any value) {
     throw new catcher<binaryOperations>("Unsupported Type!");*/
     return nullptr;
 }
+

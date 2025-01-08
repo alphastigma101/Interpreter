@@ -83,20 +83,11 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isNumeric(const Any value) {
-                size_t processed = 0;
                 String str = std::any_cast<String>(value);
-                if (str.find(".") == String::npos && typeid(T) == typeid(int)) {
-                    str = std::any_cast<String>(value);
-                    std::stoi(str, &processed);
-                    // If we processed the whole string, it's a valid integer
-                    if (processed == str.length()) return true;
-                }
-                else if (str.find(".") != String::npos && typeid(T) == typeid(double)) {
-                    auto result = double();
-                    auto i = std::istringstream(str);
-                    i >> result;      
-                    return !i.fail() && i.eof();
-                }
+                if (str.find(".") == String::npos && typeid(T) == typeid(int))
+                    return isInt(std::move(str));
+                else if (str.find(".") != String::npos && typeid(T) == typeid(double))
+                    return isDouble(std::move(str));
                 return false;
             };
             static bool isEqual(Any a, Any b);
@@ -144,7 +135,8 @@ namespace BinaryOperations {
             static Any toNumeric(Any value); 
             static Any toOther(Any value);
         private:
-            //bool isInt();
+            static bool isInt(const String value);
+            static bool isDouble(const String value);
     };
 };
 using namespace BinaryOperations;
