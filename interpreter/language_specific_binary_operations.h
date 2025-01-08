@@ -69,9 +69,9 @@ namespace BinaryOperations {
             */
             inline static Map<String, Vector<String>> logs_{};
             template<typename T>
-            static bool instanceof(const Any& object);
+            static bool instanceof(const Any object);
         protected:
-            static void checkNumberOperands(Token& op, Any& left, Any& right);
+            static void checkNumberOperands(Token op, Any left, Any right);
             /** ---------------------------------------------------------------
              * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)
              * 
@@ -83,27 +83,23 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isNumeric(const Any value) {
-                try {
-                    String temp = std::move(std::any_cast<String>(value));
-                    for (int i = 0; i < temp.length() - 1; i++) {
-                        if (temp[i] == '.') {
-                            try {
-                                if (typeid(std::stod(temp)) == typeid(T)) return true;
-                                return false;
-                            }
-                            catch(...) { return false; }
-                        }
-                    }
-                    try {
-                        if (typeid(std::stoi(temp)) == typeid(T)) return true;
-                        return false;
-                    }
-                    catch(...) { return false; }
-                } catch (...) { return false; }
-                throw catcher<binaryOperations>("Failed to convert value into a Numeric Value!");    
+                size_t processed = 0;
+                String str = std::any_cast<String>(value);
+                if (str.find(".") == String::npos && typeid(T) == typeid(int)) {
+                    str = std::any_cast<String>(value);
+                    std::stoi(str, &processed);
+                    // If we processed the whole string, it's a valid integer
+                    if (processed == str.length()) return true;
+                }
+                else if (str.find(".") != String::npos && typeid(T) == typeid(double)) {
+                    auto result = double();
+                    auto i = std::istringstream(str);
+                    i >> result;      
+                    return !i.fail() && i.eof();
+                }
+                return false;
             };
-            static bool isEqual(Any& a, Any& b);
-            inline static bool isString(const Any value) { return value.type() == typeid(String);};
+            static bool isEqual(Any a, Any b);
             static bool bothEqual(const Any a, const Any b);
             /** ---------------------------------------------------------------
              * @brief A complex method that will check the generic type T is a type that Tatical Nuke Suppports
@@ -117,7 +113,7 @@ namespace BinaryOperations {
             */
             template<typename T>
             inline static bool isOther(const Any value) {
-                if (value.type() == typeid(std::vector<T>)) {
+                if (value.type() == typeid(Vector<T>)) {
                     return true;
                 }
                 if (value.type() == typeid(T*)) {
@@ -145,8 +141,10 @@ namespace BinaryOperations {
              * @param value is a any object type that provides type safe checking
              * --------------------------------------------------------------
             */
-            static Any toNumeric(Any& value); 
-            static Any toOther(Any& value);
+            static Any toNumeric(Any value); 
+            static Any toOther(Any value);
+        private:
+            //bool isInt();
     };
 };
 using namespace BinaryOperations;

@@ -10,7 +10,7 @@
  * @return True if a and b are equal. Otherwise, return false 
  * ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
-void binaryOperations::checkNumberOperands(Token& op, Any& left, Any& right) {
+void binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
     if (instanceof<double>(left) && instanceof<double>(right)) return;
     else if (instanceof<int>(left) && instanceof<int>(right)) return;
     throw new runtimeerror<binaryOperations>(op, "Operands must be numbers.");
@@ -18,20 +18,22 @@ void binaryOperations::checkNumberOperands(Token& op, Any& left, Any& right) {
 /** -----------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if one object equals the other
  * 
- * @param a: Is a fancy pointer that points to the object that is passed to at run time. 
+ * @param a: Is a Any that references to an object that is passed to at run time. 
  *           If not careful with this, it could lead to segfault
- * @param b: Is a fancy pointer that points to the object that is passed to at run time.
+ * @param b: Is a Any that references to an object that is passed to at run time.
  *           If not careful with this, it could lead to segfault.
  * 
  * @return True if a and b are equal. Otherwise, return false 
  * 
  * -----------------------------------------------------------------------------------------------------------------------------------------------
 */
-bool binaryOperations::isEqual(Any& a, Any& b) {
-    if (a.has_value() && b.has_value()) return true;
+bool binaryOperations::isEqual(Any a, Any b) {
+    if (!a.has_value() && !b.has_value()) return true;
     if (!a.has_value()) return false;
     return bothEqual(a,b);
 }
+
+
 /** ---------------------------------------------------------------
  * @brief A method that checks two objects to see if they are equal too
  *
@@ -44,23 +46,15 @@ bool binaryOperations::isEqual(Any& a, Any& b) {
 bool binaryOperations::bothEqual(const Any a, const Any b) {
     try {
         try {
-            if (instanceof<int>(a) && instanceof<int>(b)) {
-                String&& mutable_a = std::move(std::any_cast<String>(a));
-                String&& mutable_b = std::move(std::any_cast<String>(b));
-                int temp_a = std::stoi(std::move(mutable_a));
-                int temp_b = std::stoi(std::move(mutable_b));
-                return temp_a == temp_b;
-            }
-            if (instanceof<double>(a) && instanceof<double>(b)) {
-                String&& mutable_a = std::move(std::any_cast<String>(a));
-                String&& mutable_b = std::move(std::any_cast<String>(b));
-                double temp_a = std::stod(std::move(mutable_a));
-                double temp_b = std::stod(std::move(mutable_b));
-                return temp_a == temp_b;
-            }
+            if (instanceof<int>(a) && instanceof<int>(b))
+                return std::any_cast<int>(a) == std::any_cast<int>(b);
+            if (instanceof<double>(a) && instanceof<double>(b))
+                return std::any_cast<double>(a) == std::any_cast<double>(b);
+            else
+                return std::any_cast<String>(a) == std::any_cast<String>(b);
         }
         catch(...) { return false; }
-        throw new catcher<binaryOperations>(
+        throw catcher<binaryOperations>(
             String(String("In binaryOperations bothEqual method, unsupported type detected! ") + "\n\t"  
             + std::any_cast<String>(a) + "," + std::any_cast<String>(b)).c_str()
         );
@@ -80,24 +74,27 @@ bool binaryOperations::bothEqual(const Any a, const Any b) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool binaryOperations::instanceof(const Any& object) {
+bool binaryOperations::instanceof(const Any object) {
     try {
-        if (isNumeric<T>(object)) return true;
+        if (typeid(T) == typeid(int) || typeid(T) == typeid(double)) {
+            if (isNumeric<T>(object)) return true;
+        }
         else if (isOther<T>(object)) return true;
         return false;
     } catch (...) {
         return false;
     }
 }
+
 /** ---------------------------------------------------------------
  * @brief A simple method that converts the parameter object into a supported type
  *
  * @param value Some kind of value that must be a supported type
  *
- * @details The supported types are double for more precision and integer. 
+ * @details The supported types are double for more precision and integer.
  * ----------------------------------------------------------------
-*/
-Any binaryOperations::toNumeric(Any& value) {
+ */
+Any binaryOperations::toNumeric(Any value) {
     String temp = std::any_cast<String>(value);
     // Check to see if string is a precision type and to converting it
     for (int i = 0; i < temp.length() - 1; i++) {
@@ -124,7 +121,7 @@ Any binaryOperations::toNumeric(Any& value) {
     return nullptr;
 }
 
-Any binaryOperations::toOther(Any& value) {
+Any binaryOperations::toOther(Any value) {
     /*String temp = std::any_cast<String>(value);
     auto toList = [&temp]() -> Any {
         try {

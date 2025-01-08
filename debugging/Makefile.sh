@@ -84,7 +84,7 @@ g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=0 -c ../symbolTable/symbol-
 echo "Creating debugging object files and executables for interpreter"
 g++ -g -std=c++20 $INCLUDE -D ENABLE_VISITOR_PATTERN=1 -D ENABLE_RESOLVER=0 -c ../interpreter/interpreter.cc -o interpreter.o
 g++ -g -std=c++20  $INCLUDE -c ../debugging/debug_interpreter.cc -o debug_interpreter.o
-g++ -g -std=c++20  nuke.o symbol.o resolver.o stack.o scanner.o parser.o interpreter.o context_free_grammar.o  environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  debug_interpreter.o -o exec_debug_interpreter
+g++ -g -std=c++20  nuke.o symbol.o resolver.o stack.o scanner.o parser.o context_free_grammar.o  environment.o language_specific_truthy_operations.o language_specific_unary_operations.o language_specific_binary_operations.o token.o  interpreter.o debug_interpreter.o -o exec_debug_interpreter
 g++ -g -std=c++20  $INCLUDE  -c ../tests/test_interpreter.cc -o test_interpreter.o
 g++ -g -std=c++20  nuke.o symbol.o resolver.o stack.o interpreter.o scanner.o parser.o context_free_grammar.o environment.o token.o test_interpreter.o language_specific_binary_operations.o language_specific_unary_operations.o language_specific_truthy_operations.o  -o test_interpreter $LDFLAGS
 

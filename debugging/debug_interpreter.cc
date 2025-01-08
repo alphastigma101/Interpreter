@@ -107,25 +107,26 @@ int main(int argc, char **argv) {
         "}\n"
             "radiate a;"
     );*/
-     Scanner scanner(R"(
+    Scanner scanner(R"(
         containment Bacon {
             string choice;
             string eat() {
-                if (choice != "Crunch crunch crunch!" and choice != "") {
+                if (choice != "Crunch crunch crunch!") {
                     radiate choice;
                 }
                 else {
-                    radiate "Crunch crunch crunch!";
+                    radiate "Not Crunch crunch crunch!";
                 }
             }
         }
+        Bacon().choice = "Crunch crunch crunch!";
         Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    resolver->resolve(res);
+    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    //resolver->resolve(res);
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;

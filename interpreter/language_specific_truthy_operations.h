@@ -64,7 +64,7 @@ namespace TruthyOperations {
             template<typename T>
             static bool isOther(const Any value);*/
         protected:
-            static bool isTruthy(const Any& object);
+            static bool isTruthy(const Any object);
     };
 };
 using namespace TruthyOperations;

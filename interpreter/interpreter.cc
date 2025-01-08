@@ -119,8 +119,8 @@ Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
                 return std::to_string(std::any_cast<double>(toNumeric(left)) + std::any_cast<double>(toNumeric(right)));
             if (instanceof<int>(left) && instanceof<int>(right))
                 return std::to_string(std::any_cast<int>(toNumeric(left)) + std::any_cast<int>(toNumeric(right)));
-            if (instanceof<String>(left) && instanceof<String>(right)) return std::any_cast<String>(left) + std::any_cast<String>(right);
-            throw new runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
+            return std::any_cast<String>(left) + std::any_cast<String>(right);
+            throw runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
             checkNumberOperands(expr->op, left, right);
@@ -390,11 +390,15 @@ Any Interpreter::interpreter::visitThisExpr(ContextFreeGrammar::This *expr) {
 template<typename T>
 bool interpreter::instanceof(const Any object) {
     try {
-        if (isNumeric<T>(object)) return true;
+        if (typeid(T) == typeid(int) || typeid(T) == typeid(double)) {
+            if (isNumeric<T>(object)) return true;
+            //throw catcher<Interpreter::interpreter>("Unknown Type!");
+        }
+        //else if (typeid(T) == typeid(String)) 
         else if (isOther<T>(object)) return true;
         return false;
-    } catch (...) {
-        throw catcher<Interpreter::interpreter>("Unknown Type!");
+    } catch (catcher<Interpreter::interpreter>& e)  {
+        std::cout << e.what() << std::endl;
     }
     return false;
 }

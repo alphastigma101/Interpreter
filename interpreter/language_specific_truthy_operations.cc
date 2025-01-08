@@ -19,13 +19,14 @@ static bool isOther(const Any value);
     Otherwise, return false
  * ---------------------------------------------------------------------------------------------------------
 */
-bool truthyOperations::isTruthy(const Any& object) {
+bool truthyOperations::isTruthy(const Any object) {
     if (!object.has_value()) return false;
     try {
-        std::string value = std::any_cast<std::string>(object);
-        if (value == "true") return true;
-        if (value == "false") return false;
-        if (value == "null" || value == "nil") return false;
+        if (object.type() == typeid(bool)) return std::any_cast<bool>(object);
+        String value = std::any_cast<String>(object);
+        if (value == String("true")) return true;
+        if (value == String("false")) return false;
+        if (value == String("null") || value == String("nil")) return false;
         try {
             int intValue = std::stoi(value);
             return intValue != 0;

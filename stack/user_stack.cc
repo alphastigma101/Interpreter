@@ -24,7 +24,7 @@ Map<String, bool>& Stack::stack::peek() {
             return arr.at(i);
         }
     }
-    return arr.at(top);
+    throw catcher<Stack::stack>("Map was not found!");
 }
 
 // Function to check if the stack is empty

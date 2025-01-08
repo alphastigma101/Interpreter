@@ -190,9 +190,11 @@ int NuclearLang::NukeClass::arity(int argc) {
 */
 void NuclearLang::NukeInstance::set(Token name, Any value) { fields.insert_or_assign(name.getLexeme(), value); }
 /** ---------------------------------------------------------------
- * @brief ... 
+ * @brief searches for methods/properties that have been defined with a certain instance 
  * 
  * @param name An lvalue of the token class 
+ * 
+ * @details Will throw an exception if a property has not been defined globally
  * 
  * @return None. It instead throws an exception  
 */
