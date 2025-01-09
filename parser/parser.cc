@@ -426,6 +426,9 @@ ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
     Vector<ContextFreeGrammar::Statement*> body = block();
+    // types needs to be passed into the Functions contructor 
+    // So with the constructor Var 
+    // Then the visit methods need to be updated
     return new ContextFreeGrammar::Functions(name, parameters, body);
 }
 /** -----------------------------------------------------------------------------

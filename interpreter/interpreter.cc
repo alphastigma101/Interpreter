@@ -264,8 +264,14 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
     return nullptr;
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
-    NukeFunction* function = new NukeFunction(stmt, environment, false);
+    NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(stmt, environment, false);
     environment->define(stmt->op.getLexeme(), std::move(function));
+    try {
+        // Get the type globably 
+        globalType = stmt->properties.at(globals->count(stmt->op.getLexeme()))->op.getLexeme();
+        std::cout << globalType << std::endl;
+    }
+    catch(...) {}
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -318,6 +324,7 @@ Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Exp
     }
 }
 Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
+    // TODO: Need to get the type locally.
     Any value = nullptr;
     if (stmt->initializer != nullptr) {
       value = evaluate(stmt->initializer);

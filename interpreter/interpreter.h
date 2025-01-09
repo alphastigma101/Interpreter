@@ -62,7 +62,8 @@ namespace Interpreter {
             truthyOperations* tO = new truthyOperations();
             inline static binaryOperations* bO = new binaryOperations();
             unaryOperations* uO = new unaryOperations();
-            String type;
+            String globalType;
+            String localType;
             void execute(ContextFreeGrammar::Statement* stmt);
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;

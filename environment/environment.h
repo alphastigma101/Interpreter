@@ -8,9 +8,8 @@ namespace Environment {
         *        It will map the identifier to its values.
         * ---------------------------------------- 
     */
-    class environment: protected catcher<environment>, protected runtimeerror<environment> {
+    class environment: protected runtimeerror<environment> {
         public:
-            friend class catcher<environment>;
             friend class runtimeerror<environment>;
             friend class EnvironmentTest;
             explicit environment() = default;
@@ -24,6 +23,7 @@ namespace Environment {
             void assignAt(const int distance, Token name, Any value);
             static void assign(Token name, const Any value);
             inline static Map<String, Any> getMap() { return env; };
+            inline static int count(String key) { return env.count(key); };
         protected:
             static const void* getType();
             static const char* what(const void* type = getType(), const char* msg = runtimeerror<environment>::getMsg()) throw();
