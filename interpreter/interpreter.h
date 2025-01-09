@@ -2,9 +2,7 @@
 #define _INTERPRETER_H_
 #include <language_specific_truthy_operations.h>
 namespace Interpreter {
-    class interpreter: 
-                       public Visitor<interpreter>, protected truthyOperations, 
-                    protected binaryOperations, protected unaryOperations, protected NuclearLang::NukeFunction,
+    class interpreter: public Visitor<interpreter>, protected NuclearLang::NukeFunction,
                     public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
             friend class catcher<interpreter>; // Useful for one error
@@ -16,9 +14,6 @@ namespace Interpreter {
             */
             explicit interpreter(Vector<ContextFreeGrammar::Statement*> stmt);
             ~interpreter() noexcept = default;
-            //truthyOperations* tO = new truthyOperations();
-            //binaryOperations* bO = new binaryOperations();
-            //unaryOperations* uO = new unaryOperations();
             Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
             Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
             Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
@@ -46,26 +41,37 @@ namespace Interpreter {
             inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
                 Environment::environment* previous = this->globals;
                 this->globals = environment;
-                for (const auto statement : statements) {
-                    execute(statement);
+                try {
+                    for (const auto statement : statements) {
+                        if (statement != nullptr) 
+                            execute(statement);
+                        else 
+                            throw catcher<interpreter>("Inside of executeBlock() interpreter, a nullptr was detected!");
+                    }
+                    this->globals = previous;
                 }
-                this->globals = previous;
+                catch(catcher<interpreter>& e) {
+                    std::cout << e.what() << std::endl;
+                    exit(0);
+                }
             };
             inline Environment::environment* getEnv() { return globals; };
             inline static int arity(int argc = 0) { return argc;};
             static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
+            truthyOperations* tO = new truthyOperations();
+            inline static binaryOperations* bO = new binaryOperations();
+            unaryOperations* uO = new unaryOperations();
+            String type;
             void execute(ContextFreeGrammar::Statement* stmt);
-            inline static Check<interpreter> check{};
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;
             inline static Environment::environment* environment = globals;
-            inline static Map<ContextFreeGrammar::Expr*, int> locals{}; //= new Map<ContextFreeGrammar::Expr*, int>();
+            inline static Map<ContextFreeGrammar::Expr*, int> locals{};
             template<typename T>
             static bool instanceof(const Any object);
         protected:
             Any evaluate(ContextFreeGrammar::Expr* conv);
-           
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 
@@ -79,37 +85,7 @@ namespace Interpreter {
              * ---------------------------------------
             */
             inline static const char* what(const char* msg = catcher<interpreter>::getMsg()) throw() { return msg; };
-            /** --------------------------------------
-             * @brief A method that is overloaded here from this class 
-             * 
-             * @details The runtimeerror class will call this method and it will output something to the temrinal
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output error message
-             * @param type A temp object that will eventually be destroyed once it leaves the scope. 
-             *             It also calls in a statically inlined method to get the TokenType
-             * 
-             * @return a concated string back to the caller method
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw() {
-                static String output;
-                try {
-                    if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-                        output = search->second.c_str() + String(msg);
-                        return output.c_str();
-                    }
-                    else 
-                        throw catcher<interpreter>("In interpreter class: Error! conversion has failed!");
-                }
-                catch(catcher<interpreter>& e) {
-                    std::cout << "Logs have been updated!" << std::endl;
-                    logging<interpreter> logs(e.what());
-                    logs_ = logs.getLogs();
-                    logs.rotate();
-                }
-                return output.c_str();
-            };
+            static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw();       
     };
 };
 using namespace Interpreter;

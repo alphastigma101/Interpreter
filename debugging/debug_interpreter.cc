@@ -108,19 +108,53 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Bacon {
-            string choice;
-            string eat() {
-                if (choice != "Crunch crunch crunch!") {
-                    radiate choice;
+        containment Bot {
+            string a;
+            string b;
+            string talk() {
+                if (a) {
+                    radiate "Hello!";
                 }
                 else {
-                    radiate "Not Crunch crunch crunch!";
+                    radiate "Set the property a to talk to me!";
+                }
+            }
+            string weather() {
+                if (b) {
+                    radiate "The weather could be nice outside today. If it is not, you should wear a jacket!";
+                }
+                else {
+                    radiate "Set the property b to get advice about handling cold/hot weather in your area!"
+                }
+            }
+            string c;
+            string d;
+            string bye() {
+                if (c) {
+                    radiate "Have a good day!";
+                }
+                else {
+                    radiate "Set the property 'c' for me to say goodbye."
+                }
+            }
+            string add() {
+                if (d) {
+                    radiate 2 + 2 + 4
+                }
+                else {
+                    radiate "Set the property 'd' to see me do some simple math"
                 }
             }
         }
-        Bacon().choice = "Crunch crunch crunch!";
-        Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
+        Bot().a = "Hello bot";
+        Bot().b = "It is cold where I live at";
+        Bot().c = "Goodbye Bot!";
+        Bot().d = "Do some simple math";
+        Bot().talk();
+        Bot().weather();
+        Bot().bye();
+        Bot().add();
+        )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);

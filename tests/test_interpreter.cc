@@ -382,13 +382,38 @@ TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    try {
-        interpreter interp(res);
-    }
-    catch(NuclearLang::NukeReturn& e) {
-        EXPECT_EQ(e.value, "Not crunch crunch crunch!");
-    }
-    
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"Not crunch crunch crunch!\"");
+}
+TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
+    Scanner scanner(R"(
+        containment Bacon {
+            string choice;
+            string eat() {
+                if (choice != "Crunch crunch crunch!") {
+                    radiate choice;
+                }
+                else {
+                    radiate "Not crunch crunch crunch!";
+                }
+            }
+        }
+        Bacon().choice = "Crunch crunch crunch!";
+        Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"Not crunch crunch crunch!\"");
 }
 
 /*TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFields) {

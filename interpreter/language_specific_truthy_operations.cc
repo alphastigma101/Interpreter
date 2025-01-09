@@ -1,15 +1,4 @@
 #include <language_specific_truthy_operations.h>
-// TODO: Use Crtp to group up the code but also allow the flexibility
-// Refer to context_free_grammar.h Evaluation class. Basically, create Conv<Derived> conv; Check<Derived> check
-// Embed the methods back into the classes respectively and replace each method with conv.<name of method>
-// Create some static template free functions to avoid ambugity
-// For now. Until the Crtp classes inside interface are used 
-template<typename T>
-static bool instanceof(const Any& object);
-template<typename T>
-static bool isNumeric(const Any value);
-template<typename T>
-static bool isOther(const Any value);
 /** ---------------------------------------------------------------------------------------------------------
  * @brief Is a method that will return an concrete type if the language the user specifies supports truthy/falsy
           Depending on the language, truthy can be an int, string, bool or NULL
@@ -55,9 +44,10 @@ bool truthyOperations::isTruthy(const Any object) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool isNumeric(const Any value) {
+bool truthyOperations::isNumeric(const void* value) {
     try {
-        String temp = std::move(std::any_cast<String>(value));
+        auto& v = *reinterpret_cast<const Any*>(value);
+        String temp = std::move(std::any_cast<String>(v));
         for (int i = 0; i < temp.length() - 1; i++) {
             if (temp[i] == '.') {
                 try {
@@ -87,7 +77,7 @@ bool isNumeric(const Any value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool isOther(const Any value) {
+bool truthyOperations::isOther(const void* value) {
     /*if (auto search = any_visitor.find(value); search != any_visitor.end())
         return true;
     else
@@ -104,7 +94,7 @@ bool isOther(const Any value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool instanceof(const Any& object) {
+bool truthyOperations::instanceof(const void* object) {
     try {
         if (isNumeric<T>(object)) return true;
         else if (isOther<T>(object)) return true;

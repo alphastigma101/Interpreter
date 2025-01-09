@@ -35,19 +35,17 @@ namespace NuclearLang {
     public:
       template<typename T>
       explicit NukeReturn(T value) {
-        try { 
-          this->value = new T(value);
-          
-        }
-        catch(...) {
-          std::cout << "Bad Cast!" << std::endl;
-        } 
+        this->value = new T(value);
       };
       ~NukeReturn() noexcept = default;
       void* value = nullptr; // Turning this into inline static void* value = nullptr; will make the return value the same
       explicit NukeReturn() noexcept = default;
+    protected:
+      static const void* getType(); 
+      static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeReturn>::getMsg()) throw();
+
   };
-  class NukeFunction: public NukeCallable<NukeFunction>, public NukeReturn {
+  class NukeFunction: public NukeCallable<NukeFunction>, protected NukeReturn {
     public:
       explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, bool isInitializer) {
         this->closure = std::move(closure);
@@ -88,7 +86,7 @@ namespace NuclearLang {
       
       inline static  Environment::environment* closure = nullptr;  
     };
-    class NukeClass: public NukeCallable<NukeClass>, protected runtimeerror<NukeClass> {
+    class NukeClass: protected NukeFunction, protected runtimeerror<NukeClass> {
       public:
         /// @brief 
         /// @tparam A 
@@ -110,6 +108,9 @@ namespace NuclearLang {
         void* name = nullptr;
         inline static void* methods = nullptr;
         inline static void* properties = nullptr;
+      protected:
+        static const void* getType(); 
+        static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeClass>::getMsg()) throw();
       private:
           
     };

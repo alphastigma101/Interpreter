@@ -1,14 +1,4 @@
 #include <language_specific_unary_operations.h>
-#include <context_free_grammar.h>
-// TODO: Use Crtp to group up the code but also allow the flexibility
-// Create some static template free functions to avoid ambugity
-// For now. Until the Crtp classes inside interface are used 
-template<typename T>
-static bool instanceof(const Any& object);
-template<typename T>
-static bool isNumeric(const Any value);
-template<typename T>
-static bool isOther(const Any value);
 /** ----------------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if the value inside the any container is supported
  * 
@@ -18,10 +8,10 @@ static bool isOther(const Any value);
  * @returns: Returns nothing. 
  * ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
-void unaryOperations::checkNumberOperand(Token& op, const Any& object) {
-    if (instanceof<double>(object)) return;
-    if (instanceof<int>(object)) return;
-    throw new runtimeerror<unaryOperations>(op, "Operand must be a number.");
+void unaryOperations::checkNumberOperand(Token op, const Any object) {
+    if (instanceof<double>(&object)) return;
+    if (instanceof<int>(&object)) return;
+    throw runtimeerror<Interpreter::interpreter>(op, "Operand must be a number.");
 }
 /** ---------------------------------------------------------------
  * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)
@@ -33,9 +23,10 @@ void unaryOperations::checkNumberOperand(Token& op, const Any& object) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool isNumeric(const Any value) {
+bool unaryOperations::isNumeric(const void* value) {
+    auto& v = *reinterpret_cast<const Any*>(value); 
     try {
-        String temp = std::move(std::any_cast<String>(value));
+        String temp = std::move(std::any_cast<String>(std::move(v)));
         for (int i = 0; i < temp.length() - 1; i++) {
             if (temp[i] == '.') {
                 try {
@@ -65,7 +56,7 @@ bool isNumeric(const Any value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool isOther(const Any value) {
+bool unaryOperations::isOther(const void* value) {
     /*if (auto search = any_visitor.find(value); search != any_visitor.end())
         return true;
     else
@@ -82,7 +73,7 @@ bool isOther(const Any value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool instanceof(const Any& object) {
+bool unaryOperations::instanceof(const void* object) {
     try {
         if (isNumeric<T>(object)) return true;
         else if (isOther<T>(object)) return true;

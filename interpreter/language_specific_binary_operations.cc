@@ -11,9 +11,9 @@
  * ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
 void binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
-    if (instanceof<double>(left) && instanceof<double>(right)) return;
-    else if (instanceof<int>(left) && instanceof<int>(right)) return;
-    throw new runtimeerror<binaryOperations>(op, "Operands must be numbers.");
+    if (instanceof<double>(&left) && instanceof<double>(&right)) return;
+    else if (instanceof<int>(&left) && instanceof<int>(&right)) return;
+    throw runtimeerror<Interpreter::interpreter>(op.getType(), "Operands must be numbers.");
 }
 /** -----------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if one object equals the other
@@ -59,20 +59,21 @@ bool BinaryOperations::binaryOperations::isDouble(const String value) {
 bool binaryOperations::bothEqual(const Any a, const Any b) {
     try {
         try {
-            if (instanceof<int>(a) && instanceof<int>(b))
+            if (instanceof<int>(&a) && instanceof<int>(&b))
                 return std::any_cast<int>(a) == std::any_cast<int>(b);
-            if (instanceof<double>(a) && instanceof<double>(b))
+            if (instanceof<double>(&a) && instanceof<double>(&b))
                 return std::any_cast<double>(a) == std::any_cast<double>(b);
             else
                 return std::any_cast<String>(a) == std::any_cast<String>(b);
         }
         catch(...) { return false; }
-        throw catcher<binaryOperations>(
+        throw catcher<Interpreter::interpreter>(
             String(String("In binaryOperations bothEqual method, unsupported type detected! ") + "\n\t"  
             + std::any_cast<String>(a) + "," + std::any_cast<String>(b)).c_str()
         );
     }
-    catch(catcher<binaryOperations>& e) {
+    catch(catcher<Interpreter::interpreter>& e) {
+        std::cout << e.what() << std::endl;
         return false;
     }
     return false;
@@ -87,7 +88,7 @@ bool binaryOperations::bothEqual(const Any a, const Any b) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool binaryOperations::instanceof(const Any object) {
+bool binaryOperations::instanceof(const void* object) {
     try {
         if (typeid(T) == typeid(int) || typeid(T) == typeid(double)) {
             if (isNumeric<T>(object)) return true;
@@ -116,7 +117,7 @@ Any binaryOperations::toNumeric(Any value) {
                 return std::stod(temp);
             }
             catch(...) { 
-                throw new catcher<binaryOperations>(
+                throw catcher<Interpreter::interpreter>(
                     String(String("In binaryOperations toNumeric method, invalid percision type! ") + "\n\t"  
                     + std::any_cast<String>(value)).c_str()
                 );
@@ -126,7 +127,7 @@ Any binaryOperations::toNumeric(Any value) {
     // Try to convert the string into an integer 
     try { return std::stoi(temp); }
     catch(...) { 
-        throw new catcher<binaryOperations>(
+        throw catcher<Interpreter::interpreter>(
             String(String("In binaryOperations toNumeric method, invalid integer type! ") + "\n\t"  
             + std::any_cast<String>(value)).c_str()
         );
@@ -201,4 +202,3 @@ Any binaryOperations::toOther(Any value) {
     throw new catcher<binaryOperations>("Unsupported Type!");*/
     return nullptr;
 }
-

@@ -22,8 +22,11 @@ namespace Environment {
             environment* ancestor(int distance);
             Any getAt(const int distance, String name);
             void assignAt(const int distance, Token name, Any value);
-            static void assign(Token name, const Any& value);
+            static void assign(Token name, const Any value);
             inline static Map<String, Any> getMap() { return env; };
+        protected:
+            static const void* getType();
+            static const char* what(const void* type = getType(), const char* msg = runtimeerror<environment>::getMsg()) throw();
         private:
             /** --------------------------------------------------------------------------
                 * @brief A map that holds a map and a vector 

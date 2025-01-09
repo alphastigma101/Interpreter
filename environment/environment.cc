@@ -20,15 +20,20 @@ Environment::environment::environment(Environment::environment* enclosing) {
  * -------------------------------------
 */
 Any Environment::environment::get(Token name) {
-    if (auto search = env.find(name.getLexeme()); search != env.end())
-        return search->second;
-    if (enclosing != nullptr) return enclosing->get(name);
-    if (auto search = env.find(String("this")); search != env.end()) {
-        auto instance = std::any_cast<NuclearLang::NukeInstance*>(search->second);
-        return instance->get(name); 
+    try {
+        if (auto search = env.find(name.getLexeme()); search != env.end())
+            return search->second;
+        if (enclosing != nullptr) return enclosing->get(name);
+        if (auto search = env.find(String("this")); search != env.end()) {
+            auto instance = std::any_cast<NuclearLang::NukeInstance*>(search->second);
+            return instance->get(name); 
+        }
+        throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
     }
-    
-    throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
+    catch(runtimeerror<Environment::environment>& e) {
+        std::cout << e.getMsg() << std::endl;
+        exit(0);
+    }
 }
 /** -----------------------------------
  * @brief Method that defines/re-defines the variable 
@@ -69,16 +74,31 @@ void Environment::environment::assignAt(const int distance, Token name, Any valu
  * @return Returns the name of the variable otherwise returns null if not found. 
  * -------------------------------------
 */
-void Environment::environment::assign(Token name, const Any& value) {
-    if (auto search = env.find(name.getLexeme()); search != env.end()) {
-        env.insert_or_assign(name.getLexeme(), value);
-        return;  
+void Environment::environment::assign(Token name, const Any value) {
+    try {
+        if (auto search = env.find(name.getLexeme()); search != env.end()) {
+            env.insert_or_assign(name.getLexeme(), value);
+            return;  
+        }
+        //if (newEnv->assign(name.getLexeme(), value, nullptr)) return;
+        if (enclosing != nullptr) {
+            enclosing->assign(name, value);
+            return;
+        }
+        throw runtimeerror<Environment::environment>(name.getType(),
+            String("Undefined variable '" + name.getLexeme() + "'.").c_str());
     }
-    //if (newEnv->assign(name.getLexeme(), value, nullptr)) return;
-    if (enclosing != nullptr) {
-      enclosing->assign(name, value);
-      return;
+    catch(runtimeerror<Environment::environment>& e) {
+        std::cout << e.getMsg() << std::endl;
+        exit(0);
     }
-    throw runtimeerror<Environment::environment>(name.getType(),
-        String("Undefined variable '" + name.getLexeme() + "'.").c_str());
+}
+
+const void* Environment::environment::getType() {
+    return reinterpret_cast<TokenType*>(runtimeerror<Environment::environment>::type);
+}
+
+const char* Environment::environment::what(const void *type, const char *msg) throw() {
+    auto a = reinterpret_cast<const TokenType*>(type);
+    return String("Error: " + std::move(tokenTypeStrings.at(*a)) + String(msg)).c_str();
 }

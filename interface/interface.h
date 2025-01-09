@@ -21,13 +21,12 @@ class Check {
     public:
         ~Check() noexcept = default;
         template<typename T>
-        inline T isNumeric(const T value) { return static_cast<Type*>(this)->isNumeric(value);};
+        inline bool isNumeric(const void* value) { return static_cast<Type*>(this)->template isNumeric<T>(value);};
+        inline bool isString(const void* value) {return static_cast<Type*>(this)->isString(value);};
         template<typename T>
-        inline T isString(const T value) {return static_cast<Type*>(this)->isString(value);};
+        inline bool isOther(const void* value) { return static_cast<Type*>(this)->template isOther<T>(value);};
         template<typename T>
-        inline T isOther(const T value) { return static_cast<Type*>(this)->isOther(value);};
-        template<typename T>
-        inline T instanceof(const T& object) { return static_cast<Type*>(this)->template instanceof<T>(object);};
+        inline bool instanceof(const void* object) { return static_cast<Type*>(this)->template instanceof<T>(object);};
 };
 
 template <typename Derived>

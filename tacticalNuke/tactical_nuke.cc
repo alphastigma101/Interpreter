@@ -1,4 +1,3 @@
-#include <tactical_nuke.h>
 #include <scanner.h>
 #include <context_free_grammar.h>
 #include <parser.h>
@@ -7,7 +6,7 @@
 #include <filesystem>
 #include <system_error>
 #include <fstream>
-#include <tactical_nuke.h>
+#include "tactical_nuke.h"
 void* NuclearLang::NukeFunction::declaration = nullptr;
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
@@ -206,7 +205,6 @@ Any NuclearLang::NukeInstance::get(Token name) {
   if (method != nullptr) return method->bind(this);
   throw runtimeerror<NuclearLang::NukeClass>(name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
 }
-
 void *NuclearLang::NukeInstance::getProperties(void *name) {
   auto temp = reinterpret_cast<String*>(name);
   auto properties = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(klass->properties);
@@ -215,7 +213,6 @@ void *NuclearLang::NukeInstance::getProperties(void *name) {
   }
   return nullptr;
 }
-
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
   auto* nameStr = reinterpret_cast<String*>(name);
@@ -232,7 +229,6 @@ NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
  * @return returns nullptr 
 */
 void NuclearLang::NukeFunction::moveCursor(int x, int y) { std::cout << "\033[" << y << ";" << x << "H"; }
-
 void NuclearLang::NukeFunction::drawStickFigures() {
   std::cout << "   O   O   \n";
   std::cout << "   |   |   \n";
@@ -344,25 +340,43 @@ void NuclearLang::NukeFunction::launch() {
 
   // Simulate dropping
   for (int i = 0; i < 15; i++) {
-      // Clear previous position of falling object
-      moveCursor(0, i - 1);
-      std::cout << String(20, ' ') << std::endl;  // Clear previous position, this is not working!
-      
-      // Draw falling object at new position
-      moveCursor(0, i);
-      drawNuke(0);
-      //drawMiniatureNukeGrid(i, i);
-      
-      
-      // Redraw stick figures (they stay in place)
-      moveCursor(0, groundLevel);
-      drawStickFigures();
-      if (i == groundLevel) break;
-      
-      //this_thread::sleep_for(chrono::milliseconds(500));
+    // Clear previous position of falling object
+    moveCursor(0, i - 1);
+    std::cout << String(20, ' ') << std::endl;  // Clear previous position, this is not working!
+    
+    // Draw falling object at new position
+    moveCursor(0, i);
+    drawNuke(0);
+    //drawMiniatureNukeGrid(i, i);
+    
+    
+    // Redraw stick figures (they stay in place)
+    moveCursor(0, groundLevel);
+    drawStickFigures();
+    if (i == groundLevel) break;
+    
+    //this_thread::sleep_for(chrono::milliseconds(500));
   }
   // Draw explosion where the stick figures were
   clearScreen();
   drawExplosion();
   return;
+}
+
+const void *NuclearLang::NukeClass::getType() {
+  return reinterpret_cast<Token*>(runtimeerror<NuclearLang::NukeClass>::type);
+}
+const char *NuclearLang::NukeClass::what(const void *type, const char *msg) throw() {
+  auto& temp = *reinterpret_cast<const Token*>(type);
+  Token op = std::move(temp);
+  return String("Error in NukeReturn. Failed to interpret: " + op.getLexeme() + String(msg)).c_str();
+}
+
+const void *NuclearLang::NukeReturn::getType() {
+  return reinterpret_cast<Token*>(runtimeerror<NuclearLang::NukeReturn>::type);
+}
+const char *NuclearLang::NukeReturn::what(const void *type, const char *msg) throw() {
+  auto& temp = *reinterpret_cast<const Token*>(type);
+  Token op = std::move(temp);
+  return String("Error in NukeReturn. Failed to interpret: " + op.getLexeme() + String(msg)).c_str();
 }
