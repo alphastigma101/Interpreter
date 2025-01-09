@@ -239,8 +239,8 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
         );
         if (i < stmt->properties.size() && !stmt->properties.empty()) { 
             NuclearLang::NukeProperties* property = new NuclearLang::NukeProperties(
-                    stmt->properties.at(i)->types.at(i),
-                    stmt->properties.at(i)
+                stmt->properties.at(i)->types.at(0),
+                stmt->properties.at(i)
             );
             properties.insert_or_assign(stmt->op.getLexeme(), std::move(*property));
             j++;

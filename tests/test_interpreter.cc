@@ -434,7 +434,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
                     radiate "The weather could be nice outside today. If it is not, you should wear a jacket!";
                 }
                 else {
-                    radiate "Set the property b to get advice about handling cold/hot weather in your area!"
+                    radiate "Set the property b to get advice about handling cold/hot weather in your area!";
                 }
             }
             string c;
@@ -444,15 +444,15 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
                     radiate "Have a good day!";
                 }
                 else {
-                    radiate "Set the property 'c' for me to say goodbye."
+                    radiate "Set the property 'c' for me to say goodbye.";
                 }
             }
             string add() {
                 if (d) {
-                    radiate 2 + 2 + 4
+                    radiate 2 + 2 + 4;
                 }
                 else {
-                    radiate "Set the property 'd' to see me do some simple math"
+                    radiate "Set the property 'd' to see me do some simple math";
                 }
             }
         }
