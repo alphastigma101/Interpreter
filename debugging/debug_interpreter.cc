@@ -108,15 +108,16 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Cake {
-            string taste() {
-                string adjective = "delicious";
-                radiate "The " + this.flavor + " cake is " + adjective + "!";
+        containment Thing {
+            Thing getCallback() {
+                Thing localFunction() {
+                    radiate this;
+                }
+                return localFunction;
             }
         }
-        Cake cake = Cake();
-        cake.flavor = "German chocolate";
-        cake.taste(); // Prints "The German chocolate cake is delicious!".
+        Thing callback = Thing().getCallback();
+        callback();
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();

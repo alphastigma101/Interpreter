@@ -1,6 +1,6 @@
 //#include <interpreter.h>
 #include <context_free_grammar.h>
-#include "interpreter.h"
+#include <interpreter.h>
 #define ENABLE_VISITOR_PATTERN 1
 Environment::environment* interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
@@ -70,6 +70,7 @@ Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
     else if (auto var = dynamic_cast<ContextFreeGrammar::Variable*>(conv)) return conv->accept(this);
     else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) return conv->accept(this);
     else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) return conv->accept(this);
+    else if (auto this_ = dynamic_cast<ContextFreeGrammar::This*>(conv)) return conv->accept(this);
     throw catcher<interpreter>("Unexpected type in evaluate function");
 }
 /** ---------------------------------------------------------------------------
@@ -171,7 +172,8 @@ Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
         }
         return function->call(this, arguments); 
     }
-    throw runtimeerror<Interpreter::interpreter>(expr->paren, "Can only call functions and classes.");
+    String error = String(" [Line Error ") + std::to_string(expr->op.getLine()) + String( "]:") + String(" Can only call functions and classes."); 
+    throw runtimeerror<Interpreter::interpreter>(expr->paren, error.c_str());
 }
 
 Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
@@ -372,9 +374,19 @@ Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     if (stmt->initializer != nullptr) {
       value = evaluate(stmt->initializer);
     }
-    if (Fields.empty())
-        Fields.push_back(stmt->op.getLexeme());
-    globals->define(stmt->op.getLexeme(), value);
+    if (value.type() == typeid(void*)) {
+        // Could be either NukeClass or NukeFunction
+        void* tmp = std::any_cast<void*>(value);
+        auto nukeFunction = reinterpret_cast<NuclearLang::NukeFunction*>(tmp);
+        if (nukeFunction != nullptr)
+            globals->define(stmt->op.getLexeme(), std::move(nukeFunction));
+        else {
+            auto nukeClass = reinterpret_cast<NuclearLang::NukeClass*>(tmp);
+            globals->define(stmt->op.getLexeme(), std::move(nukeClass));
+        }
+    }
+    else 
+        globals->define(stmt->op.getLexeme(), value);
     return nullptr;
 }
 Any interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {

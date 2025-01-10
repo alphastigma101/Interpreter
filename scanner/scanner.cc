@@ -42,6 +42,7 @@ const Unordered<String, TokenType> Scanner::keywords = {
     {"bool", TokenType::BOOL},
     {"void", TokenType::VOID},
     {"signed", TokenType::SIGNED},
+    {"this", TokenType::THIS},
     {"unsigned", TokenType::UNSIGNED},
     {"while",  TokenType::WHILE},
     {"break", TokenType::BREAK},

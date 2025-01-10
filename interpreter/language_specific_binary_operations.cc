@@ -34,9 +34,12 @@ bool binaryOperations::isEqual(Any a, Any b) {
 }
 
 bool BinaryOperations::binaryOperations::isInt(const String value) {
-    size_t processed = 0;
-    std::stoi(value, &processed);
-    if (processed == value.length()) return true;
+    try {
+        size_t processed = 0;
+        std::stoi(value, &processed);
+        if (processed == value.length()) return true;
+    }
+    catch(...) {}
     return false;
 }
 

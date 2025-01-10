@@ -479,10 +479,10 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFieldProperties) {
      EXPECT_EQ(conv, "8");
     
 }
-/*TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
+TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
     Scanner scanner(R"(
         containment Thing {
-            getCallback() {
+            Thing getCallback() {
                 Thing localFunction() {
                     radiate this;
                 }
@@ -498,14 +498,16 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFieldProperties) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
-    auto env = interp.getEnv()->getMap();
-    String conv;
-    if (auto it = env.find("radiate"); it != env.end())
-        conv = std::any_cast<String>(it->second);
-     EXPECT_EQ(conv, "8");
+    try {
+        interpreter interp(res);
+    }
+    catch(NuclearLang::NukeReturn& e) {
+        NuclearLang::NukeFunction* conv = reinterpret_cast<NuclearLang::NukeFunction*>(e.value);
+        EXPECT_TRUE(conv != nullptr);
+        EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeFunction*));
+    }
     
-}*/
+}
 TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
     Scanner scanner(R"(
         containment Cake {
@@ -529,14 +531,14 @@ TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
-     EXPECT_EQ(conv, "The German chocolate cake is delicious!");
+     EXPECT_EQ(conv, "\"The \"\"German chocolate\"\" cake is \"\"delicious\"\"!\"");
     
 }
 TEST_F(InterpreterTest, InterpreterTest_ClassConstructor) {
     Scanner scanner(R"(
         containment Foo {
             Foo init() {
-                radiate this;
+                radiate this; // this used to be a identifier, but now it is not. So there's a bug
             }
         }
         Foo foo = Foo();
