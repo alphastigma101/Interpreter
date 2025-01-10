@@ -59,11 +59,13 @@ namespace Interpreter {
             inline static int arity(int argc = 0) { return argc;};
             static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
+            Vector<Any> Fields;
             truthyOperations* tO = new truthyOperations();
             inline static binaryOperations* bO = new binaryOperations();
             unaryOperations* uO = new unaryOperations();
             String globalType;
             String localType;
+            Token className;
             void execute(ContextFreeGrammar::Statement* stmt);
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;

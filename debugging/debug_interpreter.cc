@@ -108,52 +108,15 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Bot {
-            string a;
-            string b;
-            string talk() {
-                if (a) {
-                    radiate "Hello!";
-                }
-                else {
-                    radiate "Set the property a to talk to me!";
-                }
-            }
-            string weather() {
-                if (b) {
-                    radiate "The weather could be nice outside today. If it is not, you should wear a jacket!";
-                }
-                else {
-                    radiate "Set the property b to get advice about handling cold/hot weather in your area!";
-                }
-            }
-            string c;
-            string d;
-            string bye() {
-                if (c) {
-                    radiate "Have a good day!";
-                }
-                else {
-                    radiate "Set the property c for me to say goodbye";
-                }
-            }
-            string add() {
-                if (d) {
-                    radiate 2 + 2 + 4;
-                }
-                else {
-                    radiate "Set the property d to see me do some simple math";
-                }
+        containment Cake {
+            string taste() {
+                string adjective = "delicious";
+                radiate "The " + this.flavor + " cake is " + adjective + "!";
             }
         }
-        Bot().a = "Hello bot";
-        Bot().b = "It is cold where I live at";
-        Bot().c = "Goodbye Bot!";
-        Bot().d = "Do some simple math";
-        Bot().talk();
-        Bot().weather();
-        Bot().bye();
-        Bot().add();
+        Cake cake = Cake();
+        cake.flavor = "German chocolate";
+        cake.taste(); // Prints "The German chocolate cake is delicious!".
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();

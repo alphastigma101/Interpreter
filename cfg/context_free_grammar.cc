@@ -586,10 +586,9 @@ Any ContextFreeGrammar::Functions::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods, Vector<ContextFreeGrammar::Statement*> properties_) {
+ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
     this->op = std::move(name);
     this->methods = std::move(methods);
-    this->properties = std::move(properties_);
 }
 
 Any ContextFreeGrammar::Class::visit(Any visitor) {

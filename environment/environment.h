@@ -22,7 +22,7 @@ namespace Environment {
             Any getAt(const int distance, String name);
             void assignAt(const int distance, Token name, Any value);
             static void assign(Token name, const Any value);
-            inline static Map<String, Any> getMap() { return env; };
+            inline static Map<String, Any>& getMap() { return env; };
             inline static int count(String key) { return env.count(key); };
         protected:
             static const void* getType();

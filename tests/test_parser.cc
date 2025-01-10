@@ -80,6 +80,24 @@ TEST_F(ParserTest, ParserTest_UserAccess) {
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at '.': Expect a name. Got ';' instead.", p.getMessage());
 }
+TEST_F(ParserTest, ParserTest_MissingType) {
+    Scanner scanner(R"(
+        containment Cake {
+            taste() {
+                string adjective = "delicious";
+                radiate "The " + this.flavor + " cake is " + adjective + "!";
+            }
+        }
+        Cake cake = Cake();
+        cake.flavor = "German chocolate";
+        cake.taste(); // Prints "The German chocolate cake is delicious!".
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    EXPECT_EQ("[line 3] Error at 'taste': Method name must have a return type before it Got ';' instead.", p.getMessage());
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

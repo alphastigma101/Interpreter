@@ -205,13 +205,23 @@ Any NuclearLang::NukeInstance::get(Token name) {
   if (method != nullptr) return method->bind(this);
   throw runtimeerror<NuclearLang::NukeClass>(name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
 }
-void *NuclearLang::NukeInstance::getProperties(void *name) {
-  auto temp = reinterpret_cast<String*>(name);
-  auto properties = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(klass->properties);
-  if (auto search = properties->find(*temp); search != properties->end()) {
+/** -------------------------------------
+ * @brief search the class instance to aquire the field and properties types 
+ * 
+ * @param name is a void pointer that points to the identifier to search in the map
+ *             It must be an instance of a class called Token
+ * 
+ * @return None.
+ * 
+ * --------------------------------------
+*/
+void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
+  auto temp = reinterpret_cast<Token*>(name);
+  auto properties = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(klass->fieldProperties);
+  if (auto search = properties->find(temp->getLexeme()); search != properties->end()) {
     return &(reinterpret_cast<NuclearLang::NukeProperties&>(search->second));
   }
-  return nullptr;
+  throw runtimeerror<NuclearLang::NukeClass>();
 }
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);

@@ -45,7 +45,22 @@ namespace NuclearLang {
       static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeReturn>::getMsg()) throw();
 
   };
-  class NukeFunction: public NukeCallable<NukeFunction>, protected NukeReturn {
+  class NukeInstance {
+      public:
+        explicit NukeInstance() = default;
+        explicit NukeInstance(NukeClass* klass) noexcept {
+          this->klass = std::move(klass);
+        };
+        ~NukeInstance() noexcept = default;
+        static void set(Token name, Any value);
+        Any get(Token name);
+        inline static NukeClass* getKlass() { return klass; };
+        static void* getClassFieldProperties(void* name);
+      private:
+        inline static NukeClass* klass = nullptr;
+        inline static Map<String, Any> fields{};
+  };
+  class NukeFunction: public NukeCallable<NukeFunction>, protected NukeReturn, public NukeInstance {
     public:
       explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, bool isInitializer) {
         this->closure = std::move(closure);
@@ -96,10 +111,10 @@ namespace NuclearLang {
         /// @param methods Is a map with a string and value being NukeFunction
         /// @param properties Is a map with a string and value being NukeProperties
         template<typename A, typename B, typename C>
-        explicit NukeClass(A name, B methods, C properties) noexcept {
+        explicit NukeClass(A name, B methods, C fieldProperties_) noexcept {
           this->name = new A(name);
           this->methods = new B(methods);
-          this->properties = new C(properties);
+          this->fieldProperties = new C(fieldProperties_);
         };
         ~NukeClass() noexcept = default;
         Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
@@ -107,7 +122,7 @@ namespace NuclearLang {
         static NukeFunction* findMethod(void* name);
         void* name = nullptr;
         inline static void* methods = nullptr;
-        inline static void* properties = nullptr;
+        inline static void* fieldProperties = nullptr;
       protected:
         static const void* getType(); 
         static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeClass>::getMsg()) throw();
@@ -117,31 +132,25 @@ namespace NuclearLang {
     class NukeProperties: protected runtimeerror<NukeProperties> {
       public:
         // typename A = Token
-        // typename B = ContextFreeGrammar::Statement*
-        template<typename A, typename B>
-        explicit NukeProperties(A type, B name) noexcept {
-          this->type = new A(type);
-          this->name = new B(name);
+        // typename B = Token
+        // typename C = Token
+        template<typename A, typename B, typename C>
+        explicit NukeProperties(A fieldType_, B fieldName_, C propertyType_ = nullptr) noexcept {
+          if (&fieldType_ != nullptr && &fieldName_ != nullptr) { 
+            this->fieldType = new A(fieldType_);
+            this->fieldName = new B(fieldName_);
+          }
+          if (&propertyType_ != nullptr) 
+            this->propertyType = new C(propertyType_);
         };
         ~NukeProperties() noexcept = default;
-        inline static void* type = nullptr;
-        inline static void* name = nullptr;
+        inline static void* fieldName = nullptr;
+        inline static void* fieldType = nullptr;
+        inline static void* propertyType = nullptr;
+        inline static void* stmtFields = nullptr;
       private:
           
     };
-    class NukeInstance {
-      public:
-        explicit NukeInstance(NukeClass* klass) noexcept {
-          this->klass = std::move(klass);
-        };
-        ~NukeInstance() noexcept = default;
-        static void set(Token name, Any value);
-        Any get(Token name);
-        inline static NukeClass* getKlass() { return klass; };
-        static void* getProperties(void* name); 
-      private:
-        inline static NukeClass* klass = nullptr;
-        inline static Map<String, Any> fields{};
-    };
+    
 };
 #endif 

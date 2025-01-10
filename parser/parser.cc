@@ -300,6 +300,22 @@ ContextFreeGrammar::Statement* parser::expressionStatement() {
 Vector<ContextFreeGrammar::Statement*> parser::block() {
     Vector<ContextFreeGrammar::Statement*> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        // Check to see if there is any fields declared inside of the function
+        // TODO: The code should work or might need some modifications, but it does what it is supposed to do
+        // TODO: It needs to be placed somewhere else to handle cases when the class property contains statement fields 
+        /*if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) { 
+            auto vector = classFields();
+            for (int i = 0; i < vector.size(); i++) {
+                if (!statements.empty())
+                    statements.back()->fields.push_back(vector.at(i));
+                else {
+                    statements.push_back(vector.at(i));
+                    statements.back()->fields.push_back(vector.at(i));
+                } 
+
+            }
+            //fields.insert(properties.size(), classFields().begin(), classFields().end());
+        }*/
         auto expr = declarations();
         statements.push_back(std::move(expr));
     }
@@ -312,12 +328,9 @@ Vector<ContextFreeGrammar::Statement*> parser::block() {
  * ---------------------------------------------------------------------------
 */
 ContextFreeGrammar::Statement* parser::declarations() {
-    //auto expreco = ecosystem(); // TODO: Get the parser to work first with parsing variables and what not then add this feature into it 
     try {
-        // NOTE: the if statement
-        // You can probably create a node class that can capture the return types and later on be visited
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
-                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) return varDeclaration(); /* return new Types(varDeclaration());*/
+                TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) return varDeclaration();
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
@@ -338,28 +351,37 @@ ContextFreeGrammar::Statement* parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
     Vector<ContextFreeGrammar::Functions*> methods;
-    Vector<ContextFreeGrammar::Statement*> properties;
+    Vector<ContextFreeGrammar::Statement*> fields;
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
-        if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) properties = std::move(classProperties()); 
+        if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) { 
+            auto vector = classFields();
+            for (int i = 0; i < vector.size(); i++) {
+                fields.push_back(vector.at(i));
+            }
+            //fields.insert(properties.size(), classFields().begin(), classFields().end());
+        }
         methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method")));
+        methods.back()->types.push_back(tokens_.at(current - 1)); // get the property types here
     }
     consume(RIGHT_BRACE, "Expect '}' after class body.");
-    return new ContextFreeGrammar::Class(name, methods, properties);
+    return new ContextFreeGrammar::Class(name, methods);
 }
-Vector<ContextFreeGrammar::Statement*> parser::classProperties() {
+Vector<ContextFreeGrammar::Statement*> parser::classFields() {
     Vector<ContextFreeGrammar::Statement*> stmt;
     for (int i = current; i < tokens_.size(); i++) {
         try {
-            if (tokens_.at(i + 1).getType() != TokenType::LEFT_PAREN) {
-                auto tmp = declarations();
+            if (!isOneOf(tokens_.at(i + 1).getType(), TokenType::LEFT_PAREN, TokenType::RIGHT_BRACE, TokenType::RETURN, TokenType::RADIATE)) {
+                auto fieldProperties = declarations();
                 if (isOneOf(tokens_.at(i).getType(), TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                  TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) {
-                    tmp->types.push_back(tokens_.at(i));        
+                    auto tmp = fieldProperties;
+                    fieldProperties->fields.push_back(std::move(tmp));
+                    fieldProperties->fields.back()->types.push_back(tokens_.at(i)); // add the field type to the vector called fields        
                 }
                 else {
-                    tmp->types.push_back(tokens_.at(i - 1));
+                    fieldProperties->types.push_back(tokens_.at(i - 1));
                 }
-                stmt.push_back(std::move(tmp));
+                stmt.push_back(std::move(fieldProperties));
                 i = current;
             }
             else 
@@ -367,7 +389,7 @@ Vector<ContextFreeGrammar::Statement*> parser::classProperties() {
         }
         catch(...) { break; }
     }
-    return stmt;
+    return std::move(stmt);
 }
 /** ----------------------------------------
  * @brief A method that parses class methods and free functions 
@@ -426,9 +448,6 @@ ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before " + String(kind) + " body.");
     Vector<ContextFreeGrammar::Statement*> body = block();
-    // types needs to be passed into the Functions contructor 
-    // So with the constructor Var 
-    // Then the visit methods need to be updated
     return new ContextFreeGrammar::Functions(name, parameters, body);
 }
 /** -----------------------------------------------------------------------------

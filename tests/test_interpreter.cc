@@ -416,7 +416,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
     EXPECT_EQ(conv, "\"Not crunch crunch crunch!\"");
 }
 
-/*TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFields) {
+TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFieldProperties) {
     Scanner scanner(R"(
         containment Bot {
             string a;
@@ -426,7 +426,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
                     radiate "Hello!";
                 }
                 else {
-                    radiate "Set the property 'a' to talk to me!";
+                    radiate "Set the property a to talk to me!";
                 }
             }
             string weather() {
@@ -444,7 +444,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
                     radiate "Have a good day!";
                 }
                 else {
-                    radiate "Set the property 'c' for me to say goodbye.";
+                    radiate "Set the property c for me to say goodbye";
                 }
             }
             string add() {
@@ -452,7 +452,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
                     radiate 2 + 2 + 4;
                 }
                 else {
-                    radiate "Set the property 'd' to see me do some simple math";
+                    radiate "Set the property d to see me do some simple math";
                 }
             }
         }
@@ -469,14 +469,97 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
     Vector<Token> tokens = scanner.ScanTokens();
     parser p(tokens);
     auto res = p.parse();
-    try {
-        interpreter interp(res);
-    }
-    catch(NuclearLang::NukeReturn& e) {
-        EXPECT_EQ(e.value, "Not crunch crunch crunch!");
-    }
+    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    //resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+     EXPECT_EQ(conv, "8");
+    
+}
+/*TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
+    Scanner scanner(R"(
+        containment Thing {
+            getCallback() {
+                Thing localFunction() {
+                    radiate this;
+                }
+                return localFunction;
+            }
+        }
+        Thing callback = Thing().getCallback();
+        callback();
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+     EXPECT_EQ(conv, "8");
     
 }*/
+TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
+    Scanner scanner(R"(
+        containment Cake {
+            string taste() {
+                string adjective = "delicious";
+                radiate "The " + this.flavor + " cake is " + adjective + "!";
+            }
+        }
+        Cake cake = Cake();
+        cake.flavor = "German chocolate";
+        cake.taste(); // Prints "The German chocolate cake is delicious!".
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+     EXPECT_EQ(conv, "The German chocolate cake is delicious!");
+    
+}
+TEST_F(InterpreterTest, InterpreterTest_ClassConstructor) {
+    Scanner scanner(R"(
+        containment Foo {
+            Foo init() {
+                radiate this;
+            }
+        }
+        Foo foo = Foo();
+        radiate foo.init();
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    NuclearLang::NukeInstance* conv;
+    try {
+        if (auto it = env.find("radiate"); it != env.end())
+            conv = std::any_cast<NuclearLang::NukeInstance*>(it->second);
+    }
+    catch(...) {}
+    EXPECT_TRUE(conv != nullptr);
+    EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeInstance*));
+    
+}
 TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     Scanner scanner(R"(
         containment Bacon {

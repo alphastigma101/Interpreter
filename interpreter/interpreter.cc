@@ -210,6 +210,14 @@ Any Interpreter::interpreter::visitGroupingExpr(ContextFreeGrammar::Grouping *ex
 }
 
 Any Interpreter::interpreter::visitBlockStmt(ContextFreeGrammar::Block *stmt) {
+    // TODO: The code should work or might need some modifications, but it does what it is supposed to do
+    // TODO: It needs to be placed somewhere else to handle cases when the class property contains statement fields 
+    // Code below should work for properties defined inside of the class and for free functions
+    /*if (!stmt->body->fields.empty()) {
+        for (const auto it: stmt->body->fields) {
+            Fields.push_back(it);
+        }
+    }*/
     executeBlock(stmt->statements, new Environment::environment(*globals));
     return nullptr;
 }
@@ -225,8 +233,8 @@ Any Interpreter::interpreter::visitBlockStmt(ContextFreeGrammar::Block *stmt) {
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction> methods;
-    Map<String, NuclearLang::NukeProperties> properties;
-    NuclearLang::NukeProperties* property;
+    Map<String, NuclearLang::NukeProperties> fieldProperties;
+    NuclearLang::NukeProperties* propertyFields;
     int j = 0;
     for (int i = 0; i < stmt->methods.size(); i++) {
         bool temp;
@@ -237,25 +245,37 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
             environment, 
             temp
         );
-        if (i < stmt->properties.size() && !stmt->properties.empty()) { 
-            NuclearLang::NukeProperties* property = new NuclearLang::NukeProperties(
-                stmt->properties.at(i)->types.at(0),
-                stmt->properties.at(i)
+        if (i < stmt->fields.size() && !stmt->fields.empty()) {
+            propertyFields = new NuclearLang::NukeProperties(
+                &(stmt->fields.at(i)->types.at(0)),
+                &(stmt->fields.at(i)->op),
+                &(stmt->methods.at(i)->types.at(0))
             );
-            properties.insert_or_assign(stmt->op.getLexeme(), std::move(*property));
+            fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
             j++;
+        }
+        else {
+            // There are more properties than fields
+            propertyFields = new NuclearLang::NukeProperties(
+                nullptr,
+                nullptr,
+                &(stmt->methods.at(i)->types.at(0))
+            );
+            fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
         }  
       methods.insert_or_assign(stmt->methods.at(i)->op.getLexeme(), std::move(*function));
     }
-    for (int i = j; i < stmt->properties.size(); i++) {
-        NuclearLang::NukeProperties* property = new NuclearLang::NukeProperties(
-                stmt->types.at(i),
-                stmt->properties.at(i)
+    for (int i = j; i < stmt->fields.size(); i++) {
+        propertyFields = new NuclearLang::NukeProperties(
+            stmt->fields.at(i)->types.at(0),
+            stmt->fields.at(i),
+            nullptr
         );
-        properties.insert_or_assign(stmt->op.getLexeme(), std::move(*property));
+        fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
     }
-    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, properties);
+    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, propertyFields);
     environment->assign(stmt->op, std::move(klass));
+    className = stmt->op;
     return nullptr;
 }
 Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
@@ -265,13 +285,36 @@ Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
 }
 Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(stmt, environment, false);
+    /*if (&className != nullptr) {
+        NuclearLang::NukeClass* property;
+        Map<String, String> stmtFields;
+        if (auto search = globals->getMap().find(className.getLexeme()); search != globals->getMap().end())
+            property = std::any_cast<NuclearLang::NukeClass*>(search->second);
+        else 
+            throw;
+        auto map = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(property->fieldProperties);
+        for (int i = 0; i < stmt->body->fields.size(); i++) {
+            // Find the property name that has the statement fields
+            if (auto search = map->find(stmt->op.getLexeme()); search != map->end()) {
+                if (search->second.stmtFields == nullptr)
+                    search->second.stmtFields = new Map<String, String>();
+                auto tmp = reinterpret_cast<Map<String, String>*>(search->second.stmtFields);
+                stmtFields = *tmp;
+                stmtFields[std::any_cast<String>(Fields.at(i))] = stmt->body->fields.at(i)->op.getLexeme();
+            }
+        }
+        if (auto search = map->find(stmt->op.getLexeme()); search != map->end())
+            if (!stmtFields.empty())
+                search->second.stmtFields = std::move(&stmtFields); 
+
+    }*/
     environment->define(stmt->op.getLexeme(), std::move(function));
-    try {
+    /*try {
         // Get the type globably 
         globalType = stmt->properties.at(globals->count(stmt->op.getLexeme()))->op.getLexeme();
         std::cout << globalType << std::endl;
     }
-    catch(...) {}
+    catch(...) {}*/
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -329,6 +372,8 @@ Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     if (stmt->initializer != nullptr) {
       value = evaluate(stmt->initializer);
     }
+    if (Fields.empty())
+        Fields.push_back(stmt->op.getLexeme());
     globals->define(stmt->op.getLexeme(), value);
     return nullptr;
 }

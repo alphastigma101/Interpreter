@@ -267,13 +267,12 @@ namespace ContextFreeGrammar {
             */
             Statement* thenBranch = nullptr;
             /** --------------------------------------------------------
-             * @brief A token class instance wrapped in a unique_ptr. 
-             *        It is included with the node that was created
+             * @brief Becomes not nullptr when an else branch exists. 
              * ---------------------------------------------------------
             */
             Statement* elseBranch = nullptr;
             /** --------------------------------------------------------
-             * @brief initializer represents the value.
+             * @brief The body statement. Any field or property that is within the {}
              * ---------------------------------------------------------
             */
             Statement* body = nullptr;
@@ -283,25 +282,25 @@ namespace ContextFreeGrammar {
             */
             Expr* value = nullptr;
             /** --------------------------------------------------------
-             * @brief initializer represents the value.
+             * @brief Holds class instance of the targeted function 
              * ---------------------------------------------------------
             */
             Vector<Token> params{};
             /** --------------------------------------------------------
-             * @brief initializer represents the value.
+             * @brief Can be the properties of a class or a free function
              * ---------------------------------------------------------
             */
             Vector<Functions*> methods{};
             /** --------------------------------------------------------
-             * @brief initializer represents the value.
-             * ---------------------------------------------------------
-            */
-            Vector<Statement*> properties{};
-            /** --------------------------------------------------------
-             * @brief initializer represents the value.
+             * @brief ....
              * ---------------------------------------------------------
             */
             Vector<Token> types{};
+            /** --------------------------------------------------------
+             * @brief ....
+             * ---------------------------------------------------------
+            */
+            Vector<Statement*> fields{};
             /** --------------------------------------------------------
              * @brief A token class instance wrapped in a unique_ptr. 
              *        It is included with the node that was created
@@ -372,7 +371,7 @@ namespace ContextFreeGrammar {
     };
     class Class: public Statement  {
         public:
-            explicit Class(Token name, Vector<Functions*> methods, Vector<Statement*> properties_);
+            explicit Class(Token name, Vector<Functions*> methods);
             ~Class() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);

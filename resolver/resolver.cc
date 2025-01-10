@@ -173,12 +173,12 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
         declaration = FunctionType::INITIALIZER;
       }
       resolveFunction(stmt->methods.at(i), declaration);
-      if (i < stmt->properties.size() && !stmt->properties.empty()) { 
-        this->resolve(stmt->properties.at(i));
+      if (i < stmt->fields.size() && !stmt->fields.empty()) { 
+        this->resolve(stmt->fields.at(i));
         j++;
       }  
     }
-    for (int i = j; i < stmt->properties.size(); i++) this->resolve(stmt->properties.at(i)); 
+    for (int i = j; i < stmt->fields.size(); i++) this->resolve(stmt->fields.at(i)); 
     currentClass = enclosingClass;
     endScope();
     return nullptr;

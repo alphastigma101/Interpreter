@@ -1,7 +1,6 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 #include <abstraction_tree_syntax.h>
-#include <symbol-table.h>
 namespace Parser {
     template<class Derived>
     class parseError {
@@ -33,7 +32,6 @@ namespace Parser {
         private:
             inline static Token token;
             inline static String message;
-            inline static Symbol::Table* table;
     };
     class parser: protected parseError<parser>, public logging<parser> {
         /** ----------------------------------------------------------------------------------------------------------------------------
@@ -85,6 +83,7 @@ namespace Parser {
             ContextFreeGrammar::Statement* returnStatement();
             ContextFreeGrammar::Statement* classDeclaration();
             Vector<ContextFreeGrammar::Statement*> classProperties();
+            Vector<ContextFreeGrammar::Statement*> classFields();
             Vector<ContextFreeGrammar::Statement*> block();
         protected:
             /** ----------------------------------------------------------------------------------------------------------
