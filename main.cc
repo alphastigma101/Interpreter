@@ -1,6 +1,3 @@
-//#include <abstraction_tree_syntax.h>
-//#include <scanner.h>
-//#include <parser.h>
 #include <interpreter.h>
 #include <resolver.h>
 

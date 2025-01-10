@@ -590,7 +590,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     EXPECT_EQ(conv, "\"Crunch crunch crunch!\"");
 }
 
-/*TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
+TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
    Scanner scanner(R"(
         containment Bacon {
             string eat() {
@@ -613,38 +613,11 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
-    if (auto it = env.find("Bacon"); it != env.end()) {
-        auto nuclear = std::any_cast<NuclearLang::NukeClass*>(it->second);
-        auto res = *(String*)nuclear->name;
-        auto map = *(Map<String, NuclearLang::NukeFunction>*)nuclear->methods;
-        if (auto search = map.find("eat"); search != map.end()) {
-          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
-        }
-        EXPECT_EQ(conv, "Crunch crunch crunch!");
-        if (auto search = map.find("sleep"); search != map.end()) {
-          conv = search->second.declaration->statements.at(0)->initializer->op.getLexeme();  
-        }
-        EXPECT_EQ(conv, "Sleep sleep sleep!");
-    }
-}*/
-
-/*TEST_F(InterpreterTest, InterpreterTest_ClassInstance) {
-    Scanner scanner(R"(containment DevonshireCream {
-        serveOn() {
-            return "Scones";
-        }
-    }
-    radiate DevonshireCream;)");
-    Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
-    auto res = p.parse();
-    interpreter interp(res);
-    auto env = interp.getEnv()->getMap();
-    String conv;
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
-    EXPECT_EQ(conv, "10");
-}*/
+     EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
+}
+
 
 
 int main(int argc, char **argv) {

@@ -1,0 +1,7 @@
+containment Foo {
+    Foo init() {
+        radiate this; // this used to be a identifier, but now it is not. So there's a bug
+    }
+}
+Foo foo = Foo();
+radiate foo.init();

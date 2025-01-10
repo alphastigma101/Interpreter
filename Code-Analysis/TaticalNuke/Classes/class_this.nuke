@@ -1,0 +1,9 @@
+containment Cake {
+    string taste() {
+        string adjective = "delicious";
+        radiate "The " + this.flavor + " cake is " + adjective + "!";
+    }
+}
+Cake cake = Cake();
+cake.flavor = "German chocolate";
+cake.taste(); // Prints "The German chocolate cake is delicious!".

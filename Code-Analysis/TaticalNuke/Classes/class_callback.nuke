@@ -1,0 +1,10 @@
+containment Thing {
+    Thing getCallback() {
+        Thing localFunction() {
+            radiate this;
+        }
+        return localFunction;
+    }
+}
+Thing callback = Thing().getCallback();
+callback();

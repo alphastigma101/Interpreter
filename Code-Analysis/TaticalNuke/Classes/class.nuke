@@ -1,1 +1,3 @@
-containment hell { public: void people(int b, double c, string e);};
+containment Bagel {}
+Bagel bagel = Bagel();
+radiate bagel; // Prints "Bagel instance"
