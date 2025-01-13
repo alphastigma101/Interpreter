@@ -4,7 +4,7 @@
 #include <tactical_nuke.h>
 #include <stdexcept>
 namespace BinaryOperations {
-    class binaryOperations: public Check<binaryOperations> {
+    class binaryOperations: public Check<binaryOperations>, public Conv<binaryOperations> {
         public:
             friend class Interpreter::interpreter;
             // Default constructor
@@ -84,5 +84,4 @@ namespace BinaryOperations {
             static bool isDouble(const String value);
     };
 };
-using namespace BinaryOperations;
 #endif 

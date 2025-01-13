@@ -8,7 +8,7 @@
     Otherwise, return false
  * ---------------------------------------------------------------------------------------------------------
 */
-bool truthyOperations::isTruthy(const Any object) {
+bool TruthyOperations::truthyOperations::isTruthy(const Any object) {
     if (!object.has_value()) return false;
     try {
         if (object.type() == typeid(bool)) return std::any_cast<bool>(object);
@@ -44,7 +44,7 @@ bool truthyOperations::isTruthy(const Any object) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool truthyOperations::isNumeric(const void* value) {
+bool TruthyOperations::truthyOperations::isNumeric(const void* value) {
     try {
         auto& v = *reinterpret_cast<const Any*>(value);
         String temp = std::move(std::any_cast<String>(v));
@@ -77,7 +77,7 @@ bool truthyOperations::isNumeric(const void* value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool truthyOperations::isOther(const void* value) {
+bool TruthyOperations::truthyOperations::isOther(const void* value) {
     /*if (auto search = any_visitor.find(value); search != any_visitor.end())
         return true;
     else
@@ -94,7 +94,7 @@ bool truthyOperations::isOther(const void* value) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool truthyOperations::instanceof(const void* object) {
+bool TruthyOperations::truthyOperations::instanceof(const void* object) {
     try {
         if (isNumeric<T>(object)) return true;
         else if (isOther<T>(object)) return true;

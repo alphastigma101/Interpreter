@@ -10,7 +10,7 @@
  * @return True if a and b are equal. Otherwise, return false 
  * ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
-void binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
+void BinaryOperations::binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
     if (instanceof<double>(&left) && instanceof<double>(&right)) return;
     else if (instanceof<int>(&left) && instanceof<int>(&right)) return;
     throw runtimeerror<Interpreter::interpreter>(op.getType(), "Operands must be numbers.");
@@ -27,7 +27,7 @@ void binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
  * 
  * -----------------------------------------------------------------------------------------------------------------------------------------------
 */
-bool binaryOperations::isEqual(Any a, Any b) {
+bool BinaryOperations::binaryOperations::isEqual(Any a, Any b) {
     if (!a.has_value() && !b.has_value()) return true;
     if (!a.has_value()) return false;
     return bothEqual(a,b);
@@ -59,7 +59,7 @@ bool BinaryOperations::binaryOperations::isDouble(const String value) {
  * @details .....
  * ----------------------------------------------------------------
 */
-bool binaryOperations::bothEqual(const Any a, const Any b) {
+bool BinaryOperations::binaryOperations::bothEqual(const Any a, const Any b) {
     try {
         try {
             if (instanceof<int>(&a) && instanceof<int>(&b))
@@ -91,7 +91,7 @@ bool binaryOperations::bothEqual(const Any a, const Any b) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool binaryOperations::instanceof(const void* object) {
+bool BinaryOperations::binaryOperations::instanceof(const void* object) {
     try {
         if (typeid(T) == typeid(int) || typeid(T) == typeid(double)) {
             if (isNumeric<T>(object)) return true;
@@ -111,7 +111,7 @@ bool binaryOperations::instanceof(const void* object) {
  * @details The supported types are double for more precision and integer.
  * ----------------------------------------------------------------
  */
-Any binaryOperations::toNumeric(Any value) {
+Any BinaryOperations::binaryOperations::toNumeric(Any value) {
     String temp = std::any_cast<String>(value);
     // Check to see if string is a precision type and to converting it
     for (int i = 0; i < temp.length() - 1; i++) {
@@ -138,7 +138,7 @@ Any binaryOperations::toNumeric(Any value) {
     return nullptr;
 }
 
-Any binaryOperations::toOther(Any value) {
+Any BinaryOperations::binaryOperations::toOther(Any value) {
     /*String temp = std::any_cast<String>(value);
     auto toList = [&temp]() -> Any {
         try {

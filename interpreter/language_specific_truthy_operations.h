@@ -2,7 +2,7 @@
 #define _LANGUAGE_SPECIFIC_TRUTHY_OPERATIONS_H_
 #include <language_specific_unary_operations.h>
 namespace TruthyOperations {
-    class truthyOperations: public Check<unaryOperations> {
+    class truthyOperations: public Check<unaryOperations>, public Conv<truthyOperations> {
         public:
             friend class Interpreter::interpreter;
             truthyOperations() = default;
@@ -20,5 +20,4 @@ namespace TruthyOperations {
             
     };
 };
-using namespace TruthyOperations;
 #endif

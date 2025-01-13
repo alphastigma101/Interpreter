@@ -464,7 +464,6 @@ ContextFreeGrammar::Expression::Expression(ContextFreeGrammar::Expr* initalizer)
 
 Any ContextFreeGrammar::Expression::visit(Any visitor) {
     #if ENABLE_VISITOR_PATTERN
-        //#pragma message "visitExpressionStatement is being compiled!"
         if (visitor.type() == typeid(Interpreter::interpreter*))
             if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
                 return visit->visitExpressionStmt(dynamic_cast<ContextFreeGrammar::Expression*>(this));

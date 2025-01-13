@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <system_error>
 #include <fstream>
-#include "tactical_nuke.h"
 void* NuclearLang::NukeFunction::declaration = nullptr;
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
@@ -18,7 +17,7 @@ void* NuclearLang::NukeFunction::declaration = nullptr;
 void NuclearLang::Nuke::run(const char* source) {
   Scanner scanner(source); // Create a new scanner instance
   Vector<Token> tokens = scanner.ScanTokens();
-  parser p(tokens);
+  Parser::parser p(tokens);
   auto stmt = p.parse();
   if (hadError) return;
   /*std::thread build([&stmt]() {
@@ -376,6 +375,7 @@ void NuclearLang::NukeFunction::launch() {
 const void *NuclearLang::NukeClass::getType() {
   return reinterpret_cast<Token*>(runtimeerror<NuclearLang::NukeClass>::type);
 }
+
 const char *NuclearLang::NukeClass::what(const void *type, const char *msg) throw() {
   auto& temp = *reinterpret_cast<const Token*>(type);
   Token op = std::move(temp);

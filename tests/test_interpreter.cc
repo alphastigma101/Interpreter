@@ -12,7 +12,7 @@ class InterpreterTest : public ::testing::Test {
 TEST_F(InterpreterTest, Adding) {
     Scanner scanner("int d = (34.000000 + 15.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -26,7 +26,7 @@ TEST_F(InterpreterTest, Adding) {
 TEST_F(InterpreterTest, Substract) {
     Scanner scanner("int b = (34.000000 - 15.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -40,7 +40,7 @@ TEST_F(InterpreterTest, Substract) {
 TEST_F(InterpreterTest, Multiplication) {
     Scanner scanner("int c = (34.000000 * 15.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -53,7 +53,7 @@ TEST_F(InterpreterTest, Multiplication) {
 TEST_F(InterpreterTest, ComplexAddAndDivide) {
     Scanner scanner("double z = ((34.000000 + 15.000000) / 3.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -66,7 +66,7 @@ TEST_F(InterpreterTest, ComplexAddAndDivide) {
 TEST_F(InterpreterTest, AddDivideMultiple) {
     Scanner scanner("int a = ((34.000000 + 15.000000) / (12.000000 * 6.000000));");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -80,7 +80,7 @@ TEST_F(InterpreterTest, AddDivideMultiple) {
 TEST_F(InterpreterTest, Complex) {
     Scanner scanner("int y = (((34.000000 + 15.000000) * 2.000000) - (12.000000 / (3.000000 + 1.000000))) + ((45.000000 * 2.000000) / 3.000000);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -94,7 +94,7 @@ TEST_F(InterpreterTest, Complex) {
 TEST_F(InterpreterTest, Integers) {
     Scanner scanner("int x = (((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -107,7 +107,7 @@ TEST_F(InterpreterTest, Integers) {
 TEST_F(InterpreterTest, Comparison) {
     Scanner scanner("int w = (34 > 15);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -125,7 +125,7 @@ TEST_F(InterpreterTest, BlockScope) {
         "}"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -136,7 +136,7 @@ TEST_F(InterpreterTest, BlockScope) {
     if (auto it = env.find("b"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"outer b\"");
-}
+} 
 TEST_F(InterpreterTest, InterpreterTest_BlockScopePrint) {
     Scanner scanner(
         "string a = \"outer a\";\n"
@@ -148,7 +148,7 @@ TEST_F(InterpreterTest, InterpreterTest_BlockScopePrint) {
             "radiate a;"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -171,7 +171,7 @@ TEST_F(InterpreterTest, InterpreterTest_Initializers) {
             "radiate a;"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -194,7 +194,7 @@ TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
             "radiate a;"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -209,7 +209,7 @@ TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
 /*TEST_F(InterpreterTest, NoVariable) {
     Scanner scanner("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -221,7 +221,7 @@ TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
 TEST_F(InterpreterTest, PrintStmt) {
     Scanner scanner("radiate 24;");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -234,7 +234,7 @@ TEST_F(InterpreterTest, LogicalOr) {
     // Single String
     Scanner scanner("radiate 'hi' or 2;");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -247,7 +247,7 @@ TEST_F(InterpreterTest, LogicalAnd) {
     // Single String
     Scanner scanner("radiate 'hi' and 2;");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -259,7 +259,7 @@ TEST_F(InterpreterTest, LogicalAnd) {
 TEST_F(InterpreterTest, IfStatement) {
     Scanner scanner("if (10 > 1) radiate 'hi';");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -271,7 +271,7 @@ TEST_F(InterpreterTest, IfStatement) {
 TEST_F(InterpreterTest, ElseStatement) {
     Scanner scanner("if (false) radiate 'hi'; if (false) radiate 0; if (false) radiate 1; else radiate 'bye';");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -283,7 +283,7 @@ TEST_F(InterpreterTest, ElseStatement) {
 TEST_F(InterpreterTest, ForLoop) {
     Scanner scanner("for (int i = 0; i < 10; i = i + 1) { radiate i; }");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -295,7 +295,7 @@ TEST_F(InterpreterTest, ForLoop) {
 TEST_F(InterpreterTest, WhileLoop) {
     Scanner scanner("{ int i = 0;  while (i < 10) { radiate i; i = i + 1; }}");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -305,9 +305,10 @@ TEST_F(InterpreterTest, WhileLoop) {
     EXPECT_EQ(conv, "10");
 }
 TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
+    // TODO: Make a recrusion test case
     Scanner scanner("int foo(int a, int b, int c) { return a + b + c; } foo(10, 20, 30);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     try {
         interpreter interp(res);
@@ -319,7 +320,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
 TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
     Scanner scanner("string bar(string a) { return a; } bar('hello!');");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     try {
         interpreter interp(res);
@@ -332,7 +333,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
 TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int a) {return a;} foo(100);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     try {
         interpreter interp(res);
@@ -349,7 +350,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassInstances) {
         radiate bagel; // Prints "Bagel instance".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -380,7 +381,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
         Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -406,7 +407,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
         Bacon().eat(); // Prints out "Not crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     interpreter interp(res);
     auto env = interp.getEnv()->getMap();
@@ -467,7 +468,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFieldProperties) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     //resolver->resolve(res);
@@ -494,7 +495,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -522,7 +523,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -546,7 +547,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassConstructor) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -572,7 +573,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
         Bacon().eat(); // Prints "Crunch crunch crunch!".)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -606,7 +607,7 @@ TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);

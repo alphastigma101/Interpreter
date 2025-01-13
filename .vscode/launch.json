@@ -10,6 +10,7 @@
             "name": "C/C++ Runner: Debug Session",
             "type": "cppdbg",
             "request": "launch",
+            //"args": ["../Code-Analysis/TaticalNuke/Classes/class.nuke"],
             "args": [],
             "stopAtEntry": false,
             "externalConsole": false,

@@ -60,9 +60,9 @@ namespace Interpreter {
             static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
             Vector<Any> Fields;
-            truthyOperations* tO = new truthyOperations();
-            inline static binaryOperations* bO = new binaryOperations();
-            unaryOperations* uO = new unaryOperations();
+            TruthyOperations::truthyOperations* tO = new TruthyOperations::truthyOperations();
+            inline static BinaryOperations::binaryOperations* bO = new BinaryOperations::binaryOperations();
+            UnaryOperations::unaryOperations* uO = new UnaryOperations::unaryOperations();
             String globalType;
             String localType;
             Token className;

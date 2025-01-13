@@ -16,28 +16,28 @@ class ParserTest : public testing::Test {
 TEST_F(ParserTest,  ParserTest_MissingSemiColon) {
     Scanner scan("double z = 90.0000");
     Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 1] Error at end: Expect ';' after variable declaration. Got '90.0000' instead.", p.getMessage());
 }
 TEST_F(ParserTest, ParserTest_ClosePara_Test) {
     Scanner scan("(");
     Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 1] Error at end: Expect expression. Got '(' instead.", p.getMessage());
 }
 TEST_F(ParserTest, ParserTest_CloseParaAroundLiteral_Test) {
     Scanner scan("(56;");
     Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 1] Error at ';': Expect ')' after expression. Got ';' instead.", p.getMessage());
 }
 TEST_F(ParserTest, ParserTest_ExtraPara_Test) {
     Scanner scan("double z = ((34.000000 + 15.000000) / 3.000000))");
     Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 1] Error at ')': Expect ';' after variable declaration. Got ')' instead.", p.getMessage());
 }
@@ -45,7 +45,7 @@ TEST_F(ParserTest, ParserTest_ExtraPara_Test) {
 TEST_F(ParserTest, ParserTest_Semicolon_Test) {
     Scanner scan(";");
     Vector<Token> tokens = scan.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 1] Error at ';': Expect expression. Got ';' instead.", p.getMessage());
 }
@@ -56,7 +56,7 @@ TEST_F(ParserTest, ParserTest_UserTypes) {
         Bagel Bagel = Bagel(); // Should throw an execption)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at 'Bagel': Expect a name. Got ';' instead.", p.getMessage());
 }
@@ -66,7 +66,7 @@ TEST_F(ParserTest, ParserTest_UserInstance) {
         Bagel = Bagel(); // Should throw an execption because it is missing an identifier)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at '=': Expect a name. Got ';' instead.", p.getMessage());
 }
@@ -76,7 +76,7 @@ TEST_F(ParserTest, ParserTest_UserAccess) {
         Bagel. = Bagel(); // Should throw an execption because it is missing an identifier)"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at '.': Expect a name. Got ';' instead.", p.getMessage());
 }
@@ -94,7 +94,7 @@ TEST_F(ParserTest, ParserTest_MissingType) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     EXPECT_EQ("[line 3] Error at 'taste': Method name must have a return type before it Got ';' instead.", p.getMessage());
 }

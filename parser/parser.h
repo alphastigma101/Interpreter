@@ -6,7 +6,7 @@ namespace Parser {
     class parseError {
         public:
             friend class parser;
-            explicit parseError<Derived>(const Token& t, const String& msg) {
+            explicit parseError<Derived>(const Token t, const String msg) {
                 token = std::move(t);
                 message = std::move(msg);
             };
@@ -50,7 +50,7 @@ namespace Parser {
              * @details moves data over to tokens_  from tokens
              * ----------------------------------------------------------------------------------------------------------
             */
-            explicit parser(std::vector<Token>& tokens) {  tokens_ = std::move(tokens); };
+            explicit parser(std::vector<Token> tokens) {  tokens_ = std::move(tokens); };
             Vector<ContextFreeGrammar::Statement*> parse();
             void printNodes();
             inline static String getMessage() { return message; };

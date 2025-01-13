@@ -83,7 +83,7 @@ Vector<String> blocks = {
 static void Adding() {
     Scanner scanner("int x = (((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);");
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
-    parser p(tokens);
+    Parser::parser p(tokens);
     auto res = p.parse();
     //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     //resolver->resolve(res);

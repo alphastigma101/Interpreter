@@ -2,7 +2,7 @@
 //template struct Variant<Unique<ContextFreeGrammar::Binary>, Unique<ContextFreeGrammar::Unary>, 
                         //Unique<ContextFreeGrammar::Grouping>, Unique<ContextFreeGrammar::Literal>, 
                         //Unique<ContextFreeGrammar::Import>>>; // define the underlying of ContextFreeGrammar::ExprTypes
-ContextFreeGrammar::Expr* parser::assignment() {
+ContextFreeGrammar::Expr* Parser::parser::assignment() {
     auto expr = logicalOr();
     if (match(TokenType::EQUAL)) {
       Token equals = previous();
@@ -18,7 +18,7 @@ ContextFreeGrammar::Expr* parser::assignment() {
     }
     return expr;
 }
-ContextFreeGrammar::Expr* parser::logicalOr() {
+ContextFreeGrammar::Expr* Parser::parser::logicalOr() {
     auto expr = logicalAnd();
     while (match(TokenType::OR)) {
       Token op = previous();
@@ -27,7 +27,7 @@ ContextFreeGrammar::Expr* parser::logicalOr() {
     }
     return expr;
 }
-ContextFreeGrammar::Expr* parser::logicalAnd() {
+ContextFreeGrammar::Expr* Parser::parser::logicalAnd() {
     auto expr = equality();
     while (match(TokenType::AND)) {
       Token op = previous();
@@ -49,7 +49,7 @@ ContextFreeGrammar::Expr* parser::logicalAnd() {
  *
  * ---------------------------------------------------------------------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::equality()  {
+ContextFreeGrammar::Expr* Parser::parser::equality()  {
     // Recursion left !=
     auto expr = comparison();
     while (match(TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL)) {
@@ -66,7 +66,7 @@ ContextFreeGrammar::Expr* parser::equality()  {
  * @return term()
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::comparison() {
+ContextFreeGrammar::Expr* Parser::parser::comparison() {
     auto expr = term();
     while (match(TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS, TokenType::LESS_EQUAL)) {
         const Token op = previous();
@@ -83,7 +83,7 @@ ContextFreeGrammar::Expr* parser::comparison() {
  * @details expr is a shared_ptr wrapped with variant that holds Binary, Unary, Grouping, and Literal instances
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::term() {
+ContextFreeGrammar::Expr* Parser::parser::term() {
     auto expr = factor();
     while (match(TokenType::MINUS, TokenType::PLUS)) {
         const Token op = previous();
@@ -102,7 +102,7 @@ ContextFreeGrammar::Expr* parser::term() {
    Ex: Factor can handle the () but Grouping is needed so it can get the nested () expression as it's own 
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::factor() {
+ContextFreeGrammar::Expr* Parser::parser::factor() {
     auto expr = unary(); 
     while (match(TokenType::SLASH, TokenType::STAR, TokenType::MODULO)) {
         const Token op = previous();
@@ -119,7 +119,7 @@ ContextFreeGrammar::Expr* parser::factor() {
  * @details expr is a shared_ptr that wraps around a variant that holds Binary, Unary, Grouping, and Literal instances
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::unary() {
+ContextFreeGrammar::Expr* Parser::parser::unary() {
     if (match(TokenType::BANG, TokenType::MINUS)) {
         const Token op = previous();
         auto right = unary();
@@ -127,7 +127,7 @@ ContextFreeGrammar::Expr* parser::unary() {
     }
     return call();
 }
-ContextFreeGrammar::Expr* parser::finishCall(ContextFreeGrammar::Expr* callee) {
+ContextFreeGrammar::Expr* Parser::parser::finishCall(ContextFreeGrammar::Expr* callee) {
     Vector<ContextFreeGrammar::Expr*> arguments;
     if (!check(RIGHT_PAREN)) {
         do {
@@ -140,7 +140,7 @@ ContextFreeGrammar::Expr* parser::finishCall(ContextFreeGrammar::Expr* callee) {
     Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
     return new ContextFreeGrammar::Call(callee, paren, arguments);
 }
-ContextFreeGrammar::Expr* parser::call() {
+ContextFreeGrammar::Expr* Parser::parser::call() {
     auto expr = primary();
     while (true) { 
         if (match(TokenType::LEFT_PAREN)) {
@@ -160,7 +160,7 @@ ContextFreeGrammar::Expr* parser::call() {
  * @return expr after going through a series of if statements or will through an exception of '(' or ')'  
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::primary() {
+ContextFreeGrammar::Expr* Parser::parser::primary() {
     if (match(TokenType::FALSE)) return new ContextFreeGrammar::Literal(previous());
     if (match(TokenType::TRUE)) return new ContextFreeGrammar::Literal(previous());
     if (match(TokenType::NIL)) return new ContextFreeGrammar::Literal(previous());
@@ -187,7 +187,7 @@ ContextFreeGrammar::Expr* parser::primary() {
  * @return equality()
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::expression() { return assignment(); }
+ContextFreeGrammar::Expr* Parser::parser::expression() { return assignment(); }
 /** --------------------------------------------------------------------------
  * @brief A grammar rule that will bind the statement and hold the value 
  *
@@ -199,7 +199,7 @@ ContextFreeGrammar::Expr* parser::expression() { return assignment(); }
  * @return statement() or nullptr
  * --------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::statement() {
+ContextFreeGrammar::Statement* Parser::parser::statement() {
     if (match(TokenType::FOR)) return forStatement();
     if (match(TokenType::IF)) return ifStatement();
     if (match(TokenType::CONTAINMENT)) return classDeclaration();
@@ -214,7 +214,7 @@ ContextFreeGrammar::Statement* parser::statement() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::forStatement() {
+ContextFreeGrammar::Statement* Parser::parser::forStatement() {
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'.");
     ContextFreeGrammar::Statement* initializer;
     if (match(TokenType::SEMICOLON)) {
@@ -252,7 +252,7 @@ ContextFreeGrammar::Statement* parser::forStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::ifStatement() {
+ContextFreeGrammar::Statement* Parser::parser::ifStatement() {
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
     auto condition = expression();
     consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition."); 
@@ -268,12 +268,12 @@ ContextFreeGrammar::Statement* parser::ifStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::printStatement() {
+ContextFreeGrammar::Statement* Parser::parser::printStatement() {
     auto value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
     return new ContextFreeGrammar::Print(std::move(value));
 }
-ContextFreeGrammar::Statement* parser::returnStatement() {
+ContextFreeGrammar::Statement* Parser::parser::returnStatement() {
     Token keyword = previous();
     ContextFreeGrammar::Expr* value;
     if (!check(TokenType::SEMICOLON)) {
@@ -287,7 +287,7 @@ ContextFreeGrammar::Statement* parser::returnStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::expressionStatement() {
+ContextFreeGrammar::Statement* Parser::parser::expressionStatement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     return new ContextFreeGrammar::Expression(std::move(expr));
@@ -297,7 +297,7 @@ ContextFreeGrammar::Statement* parser::expressionStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-Vector<ContextFreeGrammar::Statement*> parser::block() {
+Vector<ContextFreeGrammar::Statement*> Parser::parser::block() {
     Vector<ContextFreeGrammar::Statement*> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
         // Check to see if there is any fields declared inside of the function
@@ -327,7 +327,7 @@ Vector<ContextFreeGrammar::Statement*> parser::block() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::declarations() {
+ContextFreeGrammar::Statement* Parser::parser::declarations() {
     try {
       if (match(TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                 TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) return varDeclaration();
@@ -347,7 +347,7 @@ ContextFreeGrammar::Statement* parser::declarations() {
         return nullptr;
     }
 }
-ContextFreeGrammar::Statement* parser::classDeclaration() {
+ContextFreeGrammar::Statement* Parser::parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
     Vector<ContextFreeGrammar::Functions*> methods;
@@ -366,7 +366,7 @@ ContextFreeGrammar::Statement* parser::classDeclaration() {
     consume(RIGHT_BRACE, "Expect '}' after class body.");
     return new ContextFreeGrammar::Class(name, methods);
 }
-Vector<ContextFreeGrammar::Statement*> parser::classFields() {
+Vector<ContextFreeGrammar::Statement*> Parser::parser::classFields() {
     Vector<ContextFreeGrammar::Statement*> stmt;
     for (int i = current; i < tokens_.size(); i++) {
         try {
@@ -408,7 +408,7 @@ Vector<ContextFreeGrammar::Statement*> parser::classFields() {
  *  
  * @return Returns an allocated Derived class called Functions 
 */
-ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
+ContextFreeGrammar::Statement* Parser::parser::function(const char* kind, Token* type) {
     Vector<Token> parameters,types;
     Token name;
     if (match(TokenType::PUBLIC, TokenType::PRIVATE, TokenType::PROTECTED)) {
@@ -466,7 +466,7 @@ ContextFreeGrammar::Statement* parser::function(const char* kind, Token* type) {
  * For more information, see the Bison manual: https://www.gnu.org/software/bison/manual/bison.html#Grammar-File
  * ------------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::varDeclaration() {
+ContextFreeGrammar::Statement* Parser::parser::varDeclaration() {
     Token type = previous();
     const Token name = consume(TokenType::IDENTIFIER, "Expect a name.");
     ContextFreeGrammar::Expr* initializer = nullptr;
@@ -484,7 +484,7 @@ ContextFreeGrammar::Statement* parser::varDeclaration() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Statement* parser::whileStatement() {
+ContextFreeGrammar::Statement* Parser::parser::whileStatement() {
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
     auto condition = expression();
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
@@ -496,7 +496,7 @@ ContextFreeGrammar::Statement* parser::whileStatement() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::methods() {
+ContextFreeGrammar::Expr* Parser::parser::methods() {
     /*if(match(TokenType::IDENTIFIER)) {
         const Token op = previous();
         auto right = new Methods(std::move(arguments()), std::move(op));
@@ -510,7 +510,7 @@ ContextFreeGrammar::Expr* parser::methods() {
  * 
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Expr* parser::ecosystem() {
+ContextFreeGrammar::Expr* Parser::parser::ecosystem() {
     auto expr = ecosystem();
     //while(TokenType::IMPORT) {
 
@@ -526,7 +526,7 @@ ContextFreeGrammar::Expr* parser::ecosystem() {
  * @return Either return from all the recrusive calls if nothing was thrown, otherwise return null 
  * --------------------------------------------------------------------------
 */
-Vector<ContextFreeGrammar::Statement*> parser::parse() {
+Vector<ContextFreeGrammar::Statement*> Parser::parser::parse() {
     Vector<ContextFreeGrammar::Statement*> statements;
     try { 
         while (!isAtEnd()) {
@@ -558,7 +558,7 @@ Vector<ContextFreeGrammar::Statement*> parser::parse() {
  * 
  * @return Calls in the report helper method
 */
-String parser::error() {
+String Parser::parser::error() {
     if (token.getType() == TokenType::END_OF_FILE) { return report(token.getLine(), " at end", message);}
     return report(token.getLine(), " at '" + token.getLexeme() + "'", message);
 }
@@ -572,7 +572,7 @@ String parser::error() {
  * @return Returns the error that occured
  * -------------------------------------------------------------------------------------- 
 */            
-String parser::report(int line, const String where, const String message) throw() {
+String Parser::parser::report(int line, const String where, const String message) throw() {
     String err = "[line " + std::to_string(line) + "] Error" + where +  ": " + message;
     #if ENABLE_LOGGING
         logging<parser> logs(err);
@@ -582,7 +582,7 @@ String parser::report(int line, const String where, const String message) throw(
     #endif
     return err;
 }
-void parser::printNodes() {
+void Parser::parser::printNodes() {
     ///nodes = std::move(cTree);
     /*for (int i = 0; i < nodes.size(); i++) {
         auto& [intVal, pairVal] = nodes[i];
