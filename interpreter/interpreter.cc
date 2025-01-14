@@ -1,15 +1,13 @@
-//#include <interpreter.h>
 #include <context_free_grammar.h>
 #include <interpreter.h>
-#define ENABLE_VISITOR_PATTERN 1
-Environment::environment* interpreter::globals = new Environment::environment();
+Environment::environment* Interpreter::interpreter::globals = new Environment::environment();
 /** ------------------------------------------------
  * @brief Default constructor that calls in native functions 
  * 
  * @details Native functions are built in and come with the language  
  * 
 */
-interpreter::interpreter() {
+Interpreter::interpreter::interpreter() {
     globals->define(String("launch"), new NuclearLang::NukeCallable<NukeFunction>());
     globals->define(String("fussion"), new NuclearLang::NukeCallable<NukeFunction>());
     globals->define(String("fission"), new NuclearLang::NukeCallable<NukeFunction>());
@@ -21,7 +19,7 @@ interpreter::interpreter() {
  * @param arguments A vector that contains a list of arguments of user-defined function 
  * 
  */
-Any interpreter::call(Interpreter::interpreter* interpreter, Vector<Any> arguments) {
+Any Interpreter::interpreter::call(Interpreter::interpreter* interpreter, Vector<Any> arguments) {
     launch();
     return Any(); 
 }
@@ -34,7 +32,7 @@ void Interpreter::interpreter::execute(ContextFreeGrammar::Statement *stmt) {
  * @brief Calls in evaluate mehtod to begin the evaluation 
  * 
 */
-interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpreter::interpreter() {
+Interpreter::interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): Interpreter::interpreter::interpreter() {
     try {
         for (const auto it: stmt) {
             if (auto conv = dynamic_cast<ContextFreeGrammar::Statement*>(it))
@@ -59,7 +57,7 @@ interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stmt): interpret
  * @param temp A type safe union that is useful to return multiple types inside a conatinaer 
  * 
  */
-Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
+Any Interpreter::interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
     if (auto call = dynamic_cast<ContextFreeGrammar::Call*>(conv)) return conv->accept(this);
     else if (auto binary = dynamic_cast<ContextFreeGrammar::Binary*>(conv)) return conv->accept(this);
     else if (auto literal = dynamic_cast<ContextFreeGrammar::Literal*>(conv)) return conv->accept(this);
@@ -71,6 +69,7 @@ Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
     else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) return conv->accept(this);
     else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) return conv->accept(this);
     else if (auto this_ = dynamic_cast<ContextFreeGrammar::This*>(conv)) return conv->accept(this);
+    else if (auto super = dynamic_cast<ContextFreeGrammar::Super*>(conv)) return conv->accept(this);
     throw catcher<interpreter>("Unexpected type in evaluate function");
 }
 /** ---------------------------------------------------------------------------
@@ -82,7 +81,7 @@ Any interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
  *
  * ---------------------------------------------------------------------------
 */
-Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
+Any Interpreter::interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     Any left = evaluate(expr->left);
     Any right = evaluate(expr->right);
     switch (expr->op.getType()) {
@@ -143,7 +142,7 @@ Any interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     return nullptr;
 }
 
-Any interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
+Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
     auto callee = evaluate(expr->callee);
     Vector<Any> arguments;
     for (auto it : expr->arguments) {
@@ -187,7 +186,7 @@ Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
         "Only instances have properties.");
 }
 
-Any interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
+Any Interpreter::interpreter::visitUnaryExpr(ContextFreeGrammar::Unary* expr) {
     Any right = evaluate(expr->right);
     switch (expr->op.getType()) {
         case BANG:
@@ -233,10 +232,21 @@ Any Interpreter::interpreter::visitBlockStmt(ContextFreeGrammar::Block *stmt) {
  * @return returns nullptr
  */
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
-    environment->define(stmt->op.getLexeme(), nullptr);
     Map<String, NuclearLang::NukeFunction> methods;
     Map<String, NuclearLang::NukeProperties> fieldProperties;
     NuclearLang::NukeProperties* propertyFields;
+    Any superclass = nullptr;
+    if (stmt->superclass != nullptr) {
+        superclass = evaluate(stmt->superclass);
+        if (!(superclass.type() == typeid(NuclearLang::NukeClass*))) {
+            throw runtimeerror<Interpreter::interpreter>(stmt->superclass->op, "Superclass must be a class.");
+        }
+    }
+    environment->define(stmt->op.getLexeme(), nullptr);
+    if (stmt->superclass != nullptr) {
+      environment = new Environment::environment(environment);
+      environment->define("super", superclass);
+    }
     int j = 0;
     for (int i = 0; i < stmt->methods.size(); i++) {
         bool temp;
@@ -275,17 +285,20 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
         );
         fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
     }
-    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, propertyFields);
+    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, superclass, propertyFields);
+    if (!(superclass.has_value())) {
+      environment = environment->enclosing;
+    }
     environment->assign(stmt->op, std::move(klass));
     className = stmt->op;
     return nullptr;
 }
-Any interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
+Any Interpreter::interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {
     if (auto conv = dynamic_cast<ContextFreeGrammar::Expression*>(stmt))
         evaluate(conv->expression);
     return nullptr;
 }
-Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
+Any Interpreter::interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(stmt, environment, false);
     /*if (&className != nullptr) {
         NuclearLang::NukeClass* property;
@@ -328,7 +341,7 @@ Any interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
  * 
  * ---------------------------------------------------------------------------
 */
-Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
+Any Interpreter::interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
     if (auto conv = dynamic_cast<ContextFreeGrammar::Print*>(stmt))
         globals->define("radiate", evaluate(conv->initializer));
     return nullptr;
@@ -342,7 +355,7 @@ Any interpreter::visitPrintStmt(ContextFreeGrammar::Print* stmt) {
  * 
  * ---------------------------------------------------------------------------
 */
-Any interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
+Any Interpreter::interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     Any value = nullptr;
     if (stmt->value != nullptr) { 
         value = evaluate(stmt->value);
@@ -351,7 +364,7 @@ Any interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) {
     throw new NuclearLang::NukeReturn(value);
 }
 
-Any interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
+Any Interpreter::interpreter::visitVariableExpr(ContextFreeGrammar::Variable* expr) {
     return lookUpVariable(expr->op, expr);
 }
 Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Expr *expr) {
@@ -368,7 +381,7 @@ Any Interpreter::interpreter::lookUpVariable(Token name, ContextFreeGrammar::Exp
       return globals->get(name);
     }
 }
-Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
+Any Interpreter::interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     // TODO: Need to get the type locally.
     Any value = nullptr;
     if (stmt->initializer != nullptr) {
@@ -389,13 +402,13 @@ Any interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
         globals->define(stmt->op.getLexeme(), value);
     return nullptr;
 }
-Any interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
+Any Interpreter::interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {
     while (tO->isTruthy(evaluate(stmt->condition))) {
         execute(stmt->body);
     }
     return nullptr;
 }
-Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
+Any Interpreter::interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
     Any value = evaluate(expr->right);
     int* distance = nullptr;
     try {
@@ -409,7 +422,7 @@ Any interpreter::visitAssignExpr(ContextFreeGrammar::Assign* expr) {
     }
     return value;
 }
-Any interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {
+Any Interpreter::interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {
     Any res = evaluate(stmt->condition);
     if (tO->isTruthy(res)) {
         execute(stmt->thenBranch);
@@ -418,7 +431,7 @@ Any interpreter::visitIfStmt(ContextFreeGrammar::If* stmt) {
     }
     return nullptr;
 }
-Any interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
+Any Interpreter::interpreter::visitLogicalExpr(ContextFreeGrammar::Logical* expr) {
     Any left = evaluate(expr->left);
     if (expr->op.getType() == TokenType::OR) {
       if (tO->isTruthy(left)) return left;
@@ -439,6 +452,29 @@ Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr) {
     return value;
 }
 
+Any Interpreter::interpreter::visitSuperExpr(ContextFreeGrammar::Super *expr) {
+    int* distance = nullptr;
+    try {
+        if (locals.size() != 0)
+            distance = new int(locals.count(expr));
+        else 
+            distance = nullptr;
+    } catch(...) {}
+    if (distance != nullptr) {
+        NuclearLang::NukeClass* superclass = std::any_cast<NuclearLang::NukeClass*>(environment->getAt(
+        *distance, String("super")));
+        NuclearLang::NukeInstance* object = std::any_cast<NuclearLang::NukeInstance*>(environment->getAt(
+        *distance - 1, String("this")));
+        auto name = expr->method.getLexeme();
+        NuclearLang::NukeFunction* method = superclass->findMethod(&name);
+        if (method == nullptr) {
+            throw runtimeerror<Interpreter::interpreter>(expr->method,  String("Undefined property '" + expr->method.getLexeme() + String("'.")).c_str());
+        }
+        return method->bind(object);
+    }
+    return nullptr;
+}
+
 Any Interpreter::interpreter::visitThisExpr(ContextFreeGrammar::This *expr) {
     return lookUpVariable(expr->op, expr);
 }
@@ -453,7 +489,7 @@ Any Interpreter::interpreter::visitThisExpr(ContextFreeGrammar::This *expr) {
  * ----------------------------------------------------------------
 */
 template<typename T>
-bool interpreter::instanceof(const Any object) {
+bool Interpreter::interpreter::instanceof(const Any object) {
     try {
         if (typeid(T) == typeid(int) || typeid(T) == typeid(double)) {
             if (bO->isNumeric<T>(&object)) return true;

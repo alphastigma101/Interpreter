@@ -14,7 +14,7 @@ TEST_F(InterpreterTest, Adding) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("d"); it != env.end())
@@ -28,7 +28,7 @@ TEST_F(InterpreterTest, Substract) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("b"); it != env.end())
@@ -42,7 +42,7 @@ TEST_F(InterpreterTest, Multiplication) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("c"); it != env.end())
@@ -55,7 +55,7 @@ TEST_F(InterpreterTest, ComplexAddAndDivide) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("z"); it != env.end())
@@ -68,7 +68,7 @@ TEST_F(InterpreterTest, AddDivideMultiple) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("a"); it != env.end())
@@ -82,7 +82,7 @@ TEST_F(InterpreterTest, Complex) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("y"); it != env.end())
@@ -96,7 +96,7 @@ TEST_F(InterpreterTest, Integers) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("x"); it != env.end())
@@ -109,7 +109,7 @@ TEST_F(InterpreterTest, Comparison) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("w"); it != env.end())
@@ -127,7 +127,7 @@ TEST_F(InterpreterTest, BlockScope) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("a"); it != env.end())
@@ -150,7 +150,7 @@ TEST_F(InterpreterTest, InterpreterTest_BlockScopePrint) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -173,7 +173,7 @@ TEST_F(InterpreterTest, InterpreterTest_Initializers) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -196,7 +196,7 @@ TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -211,7 +211,7 @@ TEST_F(InterpreterTest, InterpreterTest_ShadowedVariableArithmetic) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("(((34 + 15) * -2) - (-12 / (3 + 1))) + ((45 * 2) / 3);"); it != env.end())
@@ -223,7 +223,7 @@ TEST_F(InterpreterTest, PrintStmt) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -236,7 +236,7 @@ TEST_F(InterpreterTest, LogicalOr) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -249,7 +249,7 @@ TEST_F(InterpreterTest, LogicalAnd) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -261,7 +261,7 @@ TEST_F(InterpreterTest, IfStatement) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -273,7 +273,7 @@ TEST_F(InterpreterTest, ElseStatement) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -285,7 +285,7 @@ TEST_F(InterpreterTest, ForLoop) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("i"); it != env.end())
@@ -297,7 +297,7 @@ TEST_F(InterpreterTest, WhileLoop) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("i"); it != env.end())
@@ -311,7 +311,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
     Parser::parser p(tokens);
     auto res = p.parse();
     try {
-        interpreter interp(res);
+        Interpreter::interpreter interp(res);
     }
     catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "60");
@@ -323,7 +323,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
     Parser::parser p(tokens);
     auto res = p.parse();
     try {
-        interpreter interp(res);
+        Interpreter::interpreter interp(res);
     }
     catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "'hello!'");
@@ -336,7 +336,7 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     Parser::parser p(tokens);
     auto res = p.parse();
     try {
-        interpreter interp(res);
+        Interpreter::interpreter interp(res);
     }
     catch(NuclearLang::NukeReturn& e) {
         EXPECT_EQ(e.value, "'hello!'");
@@ -354,7 +354,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassInstances) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("bagel"); it != env.end()) {
@@ -383,7 +383,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassFields) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -409,7 +409,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassGetAndSet) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -470,9 +470,9 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMultipleFieldProperties) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::Interpreter::interpreter());
     //resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -500,7 +500,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
     try {
-        interpreter interp(res);
+        Interpreter::interpreter interp(res);
     }
     catch(NuclearLang::NukeReturn& e) {
         NuclearLang::NukeFunction* conv = reinterpret_cast<NuclearLang::NukeFunction*>(e.value);
@@ -527,7 +527,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
@@ -551,7 +551,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassConstructor) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     NuclearLang::NukeInstance* conv;
     try {
@@ -577,7 +577,7 @@ TEST_F(InterpreterTest, InterpreterTest_ClassMethod) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("Bacon"); it != env.end()) {
@@ -603,7 +603,6 @@ TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
         }
         Bacon().eat(); // Prints "Crunch crunch crunch!".
         Bacon().sleep(); // Prints "Sleep sleep sleep!"
-
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
@@ -611,15 +610,67 @@ TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
-     EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
+    EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
 }
-
-
+/*TEST_F(InterpreterTest, InterpreterTest_SuperClassesAndSubclasses) {
+   Scanner scanner(R"(
+        containment Doughnut {
+            string cook() {
+                radiate "Fry until golden brown.";
+            }
+        }
+        containment BostonCream < Doughnut {}
+        BostonCream().cook();
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    Parser::parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"Fry until golden brown.\"");
+}
+TEST_F(InterpreterTest, InterpreterTest_Super) {
+   Scanner scanner(R"(
+        containment A {
+            string method() {
+                radiate "A method";
+            }
+        }
+        containment B < A {
+            string method() {
+                radiate "B method";
+            }
+            B test() {
+                super.method();
+            }
+        }
+        containment C < B {}
+        C().test();
+        )"
+    );
+    Vector<Token> tokens = scanner.ScanTokens();
+    Parser::parser p(tokens);
+    auto res = p.parse();
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto it = env.find("radiate"); it != env.end())
+        conv = std::any_cast<String>(it->second);
+    EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
+}*/
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

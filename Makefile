@@ -1,81 +1,103 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -g -std=c++17 -fconcepts -w
+CXXFLAGS := -g -std=c++23 
 LDFLAGS := -L $(HOME)/Interpreter/tests -lgtest -lgtest_main -pthread
 
 # Include directories
-INCLUDES := -I types/ -I logging/ -I asm/ -I catch/ -I tokens/ \
-            -I interface/ -I ast/ -I cfg/ -I declarations/ -I definitions/ -I runtime/ -I interpreter/ \
-            -I scanner/ -I parser/ -I threading/ -I addon/ -I environment/ -I tacticalNuke/
+INCLUDES := -I types/ -I logging/ -I catch/ -I tokens/ -I interface/ -I ast/ -I cfg/ -I declarations/ -I definitions/ -I runtime/ -I interpreter/ -I scanner/ \
+			-I parser/ -I threading/ -I environment/ -I tacticalNuke/ \
+			-I resolver/ -I stack/
 
 ########
 # Compiler flags for specific components
-DEBUG_AST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1
-DEBUG_INTERPRETER_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1 -DENABLE_TREE_DEBUGGING=1
-CFG_FLAGS := -DENABLE_TREE_BUILD=1 -DENABLE_TATICAL_NUKE=1
-INTERPRETER_FLAGS := -DENABLE_EVALUATED_EXPRESSIONS=1
-TEST_FLAGS := -DENABLE_TESTING=1 -DENABLE_LOGGING_TEST=1
-ENV_FLAGS := -DENABLE_ENV=1 -DENABLE_EVALUATED_EXPRESSIONS=1
+ENABLE_LOGGING := -D ENABLE_LOGGING=1
+ENABLE_VISITOR_PATTERN := -D ENABLE_VISITOR_PATTERN=1
+DISABLE_VISITOR_PATTERN := -D ENABLE_VISITOR_PATTERN=0
 
 ########
 # Source file definitions
-SRC_FILES_DEBUG_LOGGING := logging/logging.cc debugging/debug_logging.cc
-SRC_FILES_DEBUG_TOKENS := logging/logging.cc tokens/token.cc debugging/debug_tokens.cc
-SRC_FILES_DEBUG_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc debugging/debug_scanner.cc
-SRC_FILES_DEBUG_AST := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc debugging/debug_ast.cc
-SRC_FILES_DEBUG_PARSER := logging/logging.cc tokens/token.cc parser/parser.cc scanner/scanner.cc cfg/context_free_grammar.cc debugging/debug_parser.cc
-SRC_FILES_DEBUG_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
-		       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
-		       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
-		       environment/environment.cc debugging/debug_environment.cc
-SRC_FILES_DEBUG_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+SRC_FILES_DEBUG_TOKENS := tokens/token.cc debugging/debug_tokens.cc
+SRC_FILES_DEBUG_SCANNER := tokens/token.cc scanner/scanner.cc debugging/debug_scanner.cc
+SRC_FILES_DEBUG_AST := tokens/token.cc scanner/scanner.cc parser/parser.cc ast/abstraction_tree_syntax.cc debugging/debug_abstraction_syntax_tree.cc
+SRC_FILES_DEBUG_PARSER := tokens/token.cc parser/parser.cc scanner/scanner.cc debugging/debug_parser.cc
+#SRC_FILES_DEBUG_ENV := tokens/token.cc tacticalNuke/tactical_nuke.cc environment/environment.cc debugging/debug_environment.cc
+SRC_FILES_DEBUG_RESOLVER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
 			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
+			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc debugging/debug_resolver.cc 
+SRC_FILES_DEBUG_STACK := stack/user_stack.cc debugging/debug_user_stack.cc 
+SRC_FILES_DEBUG_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
 			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc debugging/debug_interpreter.cc
 
-SRC_FILES_TEST_LOGGING := logging/logging.cc tests/test_logging.cc
-SRC_FILES_TEST_TOKENS := logging/logging.cc tokens/token.cc tests/test_token.cc
-SRC_FILES_TEST_SCANNER := logging/logging.cc tokens/token.cc scanner/scanner.cc tests/test_scanner.cc
-SRC_FILES_TEST_AST := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_ast.cc
-SRC_FILES_TEST_PARSER := logging/logging.cc tokens/token.cc scanner/scanner.cc tests/test_parser.cc
-SRC_FILES_TEST_ENV := logging/logging.cc tokens/token.cc scanner/scanner.cc cfg/context_free_grammar.cc parser/parser.cc \
-		      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
-		      interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
-		      environment/environment.cc tests/test_environment.cc
-SRC_FILES_TEST_INTERPRETER := logging/logging.cc tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc interpreter/interpreter.cc \
-			      interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
-			      interpreter/language_specific_truthy_operations.cc tests/test_interpreter.cc
 
-SRC_FILES_INTERPRETER := logging/logging.cc tokens/token.cc scanner/scanner.cc ast/abstraction_tree_syntax.cc cfg/context_free_grammar.cc parser/parser.cc \
-                         interpreter/interpreter.cc interpreter/language_specific_unary_operations.cc \
-                         interpreter/language_specific_binary_operations.cc interpreter/language_specific_truthy_operations.cc \
-                         main.cc
+SRC_FILES_TEST_TOKENS := tokens/token.cc tests/test_token.cc
+SRC_FILES_TEST_SCANNER := tokens/token.cc scanner/scanner.cc tests/test_scanner.cc
+SRC_FILES_TEST_AST :=  tokens/token.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_abstraction_tree_syntax.cc
+SRC_FILES_TEST_PARSER := tokens/token.cc scanner/scanner.cc parser/parser.cc tests/test_parser.cc
+#SRC_FILES_TEST_ENV := environment/environment.cc tests/test_environment.cc
+SRC_FILES_TEST_BINARY := tokens/token.cc parser/parser.cc scanner/scanner.cc interpreter/language_specific_binary_operations.cc tests/test_binaryOperations.cc
+SRC_FILES_TEST_UNARY := tokens/token.cc parser/parser.cc scanner/scanner.cc interpreter/language_specific_unary_operations.cc tests/test_unaryOperations.cc
+SRC_FILES_TEST_TRUTHY := tokens/token.cc parser/parser.cc scanner/scanner.cc interpreter/language_specific_truthy_operations.cc tests/test_truthyOperations.cc
+SRC_FILES_TEST_TACTICALNUKE :=  tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
+			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc tests/test_tacticalNuke.cc
+SRC_FILES_TEST_STACK := stack/user_stack.cc tests/test_user_stack.cc
+SRC_FILES_TEST_RESOLVER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
+			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
+				   resolver/resolver.cc tests/test_resolver.cc
+SRC_FILES_TEST_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
+			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc tests/test_interpreter.cc
+
+
+
+# Create an executable that runs the actual interpreter
+SRC_FILES_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
+			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
+				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
+			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc \
+				   main.cc
 
 # Convert source files to object files
-OBJ_FILES_DEBUG_LOGGING := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_LOGGING))
 OBJ_FILES_DEBUG_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_TOKENS))
 OBJ_FILES_DEBUG_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_SCANNER))
 OBJ_FILES_DEBUG_AST := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_AST))
 OBJ_FILES_DEBUG_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_PARSER))
-OBJ_FILES_DEBUG_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_ENV))
+#OBJ_FILES_DEBUG_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_ENV))
+OBJ_FILES_DEBUG_STACK := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_STACK))
+OBJ_FILES_DEBUG_RESOLVER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_RESOLVER))
 OBJ_FILES_DEBUG_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_INTERPRETER))
 
 
-OBJ_FILES_TEST_LOGGING := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_LOGGING))
 OBJ_FILES_TEST_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TOKENS))
 OBJ_FILES_TEST_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_SCANNER))
 OBJ_FILES_TEST_AST := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_AST))
 OBJ_FILES_TEST_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_PARSER))
-OBJ_FILES_TEST_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_ENV))
+OBJ_FILES_TEST_BINARY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_BINARY))
+OBJ_FILES_TEST_UNARY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_UNARY))
+OBJ_FILES_TEST_TRUTHY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TRUTHY))
+#OBJ_FILES_TEST_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_ENV))
+OBJ_FILES_TEST_TACTICALNUKE := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TACTICALNUKE))
+OBJ_FILES_TEST_STACK := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_STACK))
+OBJ_FILES_TEST_RESOLVER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_RESOLVER))
 OBJ_FILES_TEST_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_INTERPRETER))
 
 OBJ_FILES_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
 
 # All binaries
-BINARIES := exec_debug_logging exec_debug_tokens exec_debug_scanner exec_debug_ast \
-            exec_debug_parser exec_debug_interpreter exec_debug_environment \
-	    exec_test_logging exec_test_tokens exec_test_scanner exec_test_ast \
-	    exec_test_parser exec_test_environment exec_test_interpreter \
-            exec_interpreter
+BINARIES := exec_debug_tokens exec_debug_scanner exec_debug_ast \
+            exec_debug_parser exec_debug_interpreter \
+			exec_debug_stack exec_debug_resolver \
+			exec_test_tokens exec_test_scanner exec_test_ast exec_test_parser \
+			exec_test_binaryOperations exec_test_unaryOperations exec_test_truthyOperations \
+			exec_test_tacticalnuke exec_test_stack exec_test_resolver \
+			exec_test_interpreter exec_interpreter
 
 .PHONY: all clean
 
@@ -83,61 +105,103 @@ all: $(BINARIES)
 
 # Special compilation rules
 cfg/context_free_grammar.o: cfg/context_free_grammar.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CFG_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
 
 environment/environment.o: environment/environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENV_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tacticalNuke/tacticalNuke.o: tacticalNuke/tactical_nuke.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+stack/user_stack.o: stack/user_stack.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+resolver/resolver.o: resolver/resolver.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
 
 interpreter/interpreter.o: interpreter/interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(INTERPRETER_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
 
-debugging/debug_ast.o: debugging/debug_ast.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_AST_FLAGS) -c $< -o $@
+debugging/debug_abstraction_syntax_tree.o: debugging/debug_abstraction_syntax_tree.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c cfg/context_free_grammar.cc -o cfg/test_context_free_grammar.o 
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
 
 debugging/debug_parser.o: debugging/debug_parser.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
 
 debugging/debug_environment.o: debugging/debug_environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
 
 debugging/debug_interpreter.o: debugging/debug_interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEBUG_INTERPRETER_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+tests/test_token.o: tests/test_token.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_scanner.o: tests/test_scanner.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_abstraction_syntax_tree.o: tests/test_abstraction_syntax_tree.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_parser.o: tests/test_parser.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_binaryOperations.o: tests/test_binaryOperations.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_unaryOperations.o: tests/test_unaryOperations.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_truthyOperations.o: tests/test_truthyOperations.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_environment.o: tests/test_environment.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_tacticalNuke.o: tests/test_tacticalNuke.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_user_stack.o: tests/test_user_stack.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_resolver.o: tests/test_resolver.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_interpreter.o: tests/test_interpreter.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
 
 main.o: main.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
-
-tests/test_%.o: tests/test_%.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
 
 # Default object compilation
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 # Debug executables
-exec_debug_logging: $(OBJ_FILES_DEBUG_LOGGING)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 exec_debug_tokens: $(OBJ_FILES_DEBUG_TOKENS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 exec_debug_scanner: $(OBJ_FILES_DEBUG_SCANNER)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 exec_debug_ast: $(OBJ_FILES_DEBUG_AST)
-	$(CXX) $(CXXFLAGS)  $(INCLUDES) $^ -o $@
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@
 
 exec_debug_parser: $(OBJ_FILES_DEBUG_PARSER)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@
+
+#exec_debug_environment: $(OBJ_FILES_DEBUG_ENV)
+
+exec_debug_stack: $(OBJ_FILES_DEBUG_STACK)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
-exec_debug_environment: $(OBJ_FILES_DEBUG_ENV)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
-
+exec_debug_resolver: $(OBJ_FILES_DEBUG_RESOLVER)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ 
+	
 exec_debug_interpreter: $(OBJ_FILES_DEBUG_INTERPRETER)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
-
-# Test executables
-exec_test_logging: $(OBJ_FILES_TEST_LOGGING)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 exec_test_tokens: $(OBJ_FILES_TEST_TOKENS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
@@ -146,12 +210,29 @@ exec_test_scanner: $(OBJ_FILES_TEST_SCANNER)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 exec_test_ast: $(OBJ_FILES_TEST_AST)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
 
 exec_test_parser: $(OBJ_FILES_TEST_PARSER)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+
+exec_test_binaryOperations: $(OBJ_FILES_TEST_BINARY)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+
+exec_test_unaryOperations: $(OBJ_FILES_TEST_UNARY)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+
+exec_test_truthyOperations: $(OBJ_FILES_TEST_TRUTHY)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+
+#exec_test_environment: $(OBJ_FILES_TEST_ENV)
+
+exec_test_tacticalnuke: $(OBJ_FILES_TEST_TACTICALNUKE)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-exec_test_environment: $(OBJ_FILES_TEST_ENV)
+exec_test_stack: $(OBJ_FILES_TEST_STACK)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+
+exec_test_resolver: $(OBJ_FILES_TEST_RESOLVER)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 exec_test_interpreter: $(OBJ_FILES_TEST_INTERPRETER)

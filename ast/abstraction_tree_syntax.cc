@@ -6,6 +6,7 @@ template<typename Type>
 String AbstractionTreeSyntax::generateAst<Type>::codeStr = "\0";
 template<typename Type>
 Unique<Atomic<const char*>> AbstractionTreeSyntax::generateAst<Type>::accessCodeStr = nullptr;
+String file_name;
 
 /** -----------------------------------------------------------------------------------------
  * @brief The default constructor that calls in generateAst to start creating the .txt file 
@@ -26,7 +27,7 @@ ast::ast(Vector<ContextFreeGrammar::Statement*>& stmt) noexcept {
 */
 String ast::buildTree(Vector<ContextFreeGrammar::Statement*>& stmt) {
     for (auto &it: stmt) {
-        if (auto stmt = dynamic_cast<Statement*>(it))
+        if (auto stmt = dynamic_cast<ContextFreeGrammar::Statement*>(it))
             outputDir_ += std::any_cast<String>(it->accept(stmt));
     }
     return outputDir_;

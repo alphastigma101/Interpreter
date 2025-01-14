@@ -87,7 +87,7 @@ static void Adding() {
     auto res = p.parse();
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    interpreter interp(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("x"); it != env.end())
@@ -108,24 +108,21 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Thing {
-            Thing getCallback() {
-                Thing localFunction() {
-                    radiate this;
-                }
-                return localFunction;
+        containment Doughnut {
+            string cook() {
+                radiate "Fry until golden brown.";
             }
         }
-        Thing callback = Thing().getCallback();
-        callback();
+        containment BostonCream < Doughnut {}
+        BostonCream().cook();
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    //resolver->resolve(res);
-    interpreter interp(res);
+    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    resolver->resolve(res);
+    Interpreter::interpreter interp(res);
     auto env = interp.getEnv()->getMap();
     String conv;
     if (auto it = env.find("radiate"); it != env.end())

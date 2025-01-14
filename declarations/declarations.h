@@ -84,6 +84,7 @@ namespace ContextFreeGrammar {
     class Get;
     class Set;
     class This;
+    class Super;
     class Import;
 };
 /** ---------------------------------------------------------------------------
@@ -170,10 +171,6 @@ using ExprVariant = Variant<ContextFreeGrammar::Expr*, Unique<ContextFreeGrammar
 namespace Logging {
     template<typename Derived>
     class logging;
-};
-namespace Lists {
-    class linkedList;
-    struct Node;
 };
 namespace Stack {
     class stack;

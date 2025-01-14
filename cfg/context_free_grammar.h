@@ -83,6 +83,7 @@ namespace ContextFreeGrammar {
             */
             Expr* value = nullptr;
             Vector<Any> arguments{};
+            Token method;
             virtual Any accept(Any visitor) = 0;
     };
     class Binary: public Expr {
@@ -129,6 +130,17 @@ namespace ContextFreeGrammar {
             Any visit(Any visitor);
         protected:
             explicit Set() = default;
+        private:
+            String parenthesize(String name, Expr* left, Expr* right);     
+    };
+    class Super: public Expr, protected Visitor<Super> {
+        public:
+            explicit Super(const Token keyword, const Token method);
+            ~Super() noexcept = default;
+            inline Any accept(Any visitor) override { return visit(visitor); };
+            Any visit(Any visitor);
+        protected:
+            explicit Super() = default;
         private:
             String parenthesize(String name, Expr* left, Expr* right);     
     };
@@ -307,6 +319,12 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Expr* expression = nullptr;
+            /** --------------------------------------------------------
+             * @brief expression represents the left/right binary nodes.
+             *        It does not represent its own nodes. Used with Grouping class
+             * ---------------------------------------------------------
+            */
+            Expr* superclass = nullptr;
             virtual Any accept(Any visitor) = 0;
     };
     class Print: public Statement {
@@ -371,7 +389,7 @@ namespace ContextFreeGrammar {
     };
     class Class: public Statement  {
         public:
-            explicit Class(Token name, Vector<Functions*> methods);
+            explicit Class(Token name, Expr* superclass, Vector<Functions*> methods);
             ~Class() noexcept = default;
             inline Any accept(Any visitor) override { return visit(visitor); };
             Any visit(Any visitor);

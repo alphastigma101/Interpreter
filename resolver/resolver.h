@@ -24,13 +24,14 @@ namespace Resolver {
             Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
             Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
             Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            Any visitSuperExpr(ContextFreeGrammar::Super* expr);
             Any visitThisExpr(ContextFreeGrammar::This* expr);
             Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
             Any visitFunctionStmt(ContextFreeGrammar::Functions* stmt);
             Any visitIfStmt(ContextFreeGrammar::If* stmt);
             Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
             Any visitReturnStmt(ContextFreeGrammar::Return* stmt);
-            void resolve(Vector<ContextFreeGrammar::Statement*>& statements);
+            void resolve(Vector<ContextFreeGrammar::Statement*> statements);
         protected:
             explicit resolver() noexcept = default;
         private:
@@ -42,7 +43,8 @@ namespace Resolver {
             };
             enum ClassType {
                 EMPTY,
-                CLASS
+                CLASS,
+                SUBCLASS
             };
             inline static Interpreter::interpreter* interp = nullptr;
             void resolve(ContextFreeGrammar::Statement* stmt);

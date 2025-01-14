@@ -19,7 +19,7 @@ enum TokenType {
     // KeyWords
     FALSE, TRUE, RETURN, BREAK,
     STATIC, CATCH, THROW, CONST, TRY, EXCEPT,
-    SIGNED, UNSIGNED,
+    SIGNED, UNSIGNED, SUPER,
     // Primitive Types
     INT, DOUBLE, CHAR, VOID, BOOL, NIL, 
     CHAR32, CHAR16, 

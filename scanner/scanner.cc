@@ -43,6 +43,7 @@ const Unordered<String, TokenType> Scanner::keywords = {
     {"void", TokenType::VOID},
     {"signed", TokenType::SIGNED},
     {"this", TokenType::THIS},
+    {"super", TokenType::SUPER},
     {"unsigned", TokenType::UNSIGNED},
     {"while",  TokenType::WHILE},
     {"break", TokenType::BREAK},
@@ -174,7 +175,8 @@ void Scanner::identifier() {
             if (tokens.at(i).getLexeme() == String("containment")) {
                 try {
                     String temp = source.substr(start, current - start + 1);
-                    if (tokens.at(i + 1).getLexeme() == text && temp.find('(') == String::npos) {
+                    if (tokens.at(i + 1).getLexeme() == text && temp.find('(') == String::npos
+                    && source.substr(start - 2, current - start + 2).find('<') == String::npos) {
                         addToken(TokenType::USER_TYPE, text);
                         return;
                     }

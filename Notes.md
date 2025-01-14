@@ -4,6 +4,7 @@
     - [Sources](#sources)
 2. [Pragmas](#pragmas)
     - [Sources](#sources)
+3. [MakeFile](#Makefile)
 
 ### Objected-Orientated And Functional Languages
 * That’s what the paradigm name literally says—an object-oriented language wants you to orient your code along the rows of types. A functional language instead encourages you to lump each column’s worth of code together into a function.
@@ -38,3 +39,9 @@
     * *https://en.cppreference.com/w/cpp/language/translation_phases#Phase_3*
 * **preproccessor replace**:
     * *https://en.cppreference.com/w/cpp/preprocessor/replace*
+### Makefile
+* Example of using wildcards for a Makefile: 
+```
+tests/test_%.o: tests/test_%.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_FLAGS) -c $< -o $@
+```

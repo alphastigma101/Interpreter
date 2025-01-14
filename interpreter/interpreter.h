@@ -29,6 +29,7 @@ namespace Interpreter {
             Any visitIfStmt(ContextFreeGrammar::If* stmt);
             Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
             Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            Any visitSuperExpr(ContextFreeGrammar::Super* expr);
             Any visitThisExpr(ContextFreeGrammar::This* expr);
             Any visitWhileStmt(ContextFreeGrammar::While* stmt);
             Any visitCallExpr(ContextFreeGrammar::Call* expr);
@@ -91,5 +92,4 @@ namespace Interpreter {
             static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw();       
     };
 };
-using namespace Interpreter;
 #endif

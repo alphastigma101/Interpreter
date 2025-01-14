@@ -337,6 +337,26 @@ Any ContextFreeGrammar::This::visit(Any visitor) {
         return nullptr;
     #endif
 }
+ContextFreeGrammar::Super::Super(const Token keyword, const Token method) {
+    this->op = std::move(keyword);
+    this->method = std::move(method);
+}
+
+Any ContextFreeGrammar::Super::visit(Any visitor) {
+    #if ENABLE_VISITOR_PATTERN
+        if (visitor.type() == typeid(Interpreter::interpreter*))
+            if (auto visit = std::any_cast<Interpreter::interpreter*>(visitor)) {
+                return visit->visitSuperExpr(dynamic_cast<ContextFreeGrammar::Super*>(this));
+            }
+        if (visitor.type() == typeid(Resolver::resolver*))
+            if (auto visit = std::any_cast<Resolver::resolver*>(visitor)) {
+                return visit->visitSuperExpr(dynamic_cast<ContextFreeGrammar::Super*>(this));
+            }
+        return nullptr; 
+    #else 
+        return nullptr;
+    #endif
+}
 
 /** -----------------------------
  * @brief Creates a node called Print
@@ -585,9 +605,10 @@ Any ContextFreeGrammar::Functions::visit(Any visitor) {
  *
  * ---------------------------------------------------------------------------
 */
-ContextFreeGrammar::Class::Class(Token name, Vector<ContextFreeGrammar::Functions*> methods) {
+ContextFreeGrammar::Class::Class(Token name, ContextFreeGrammar::Expr* superclass, Vector<ContextFreeGrammar::Functions*> methods) {
     this->op = std::move(name);
     this->methods = std::move(methods);
+    this->superclass = std::move(superclass);
 }
 
 Any ContextFreeGrammar::Class::visit(Any visitor) {

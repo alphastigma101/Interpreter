@@ -114,11 +114,12 @@ namespace NuclearLang {
         /// @param name Is a string instance  
         /// @param methods Is a map with a string and value being NukeFunction
         /// @param properties Is a map with a string and value being NukeProperties
-        template<typename A, typename B, typename C>
-        explicit NukeClass(A name, B methods, C fieldProperties_) noexcept {
+        template<typename A, typename B, typename C, typename D>
+        explicit NukeClass(A name, B methods, C superclass, D fieldProperties_) noexcept {
           this->name = new A(name);
           this->methods = new B(methods);
-          this->fieldProperties = new C(fieldProperties_);
+          this->superclass = new C(superclass);
+          this->fieldProperties = new D(fieldProperties_);
         };
         ~NukeClass() noexcept = default;
         Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
@@ -127,6 +128,7 @@ namespace NuclearLang {
         void* name = nullptr;
         inline static void* methods = nullptr;
         inline static void* fieldProperties = nullptr;
+        inline static void* superclass = nullptr;
       protected:
         static const void* getType(); 
         static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeClass>::getMsg()) throw();

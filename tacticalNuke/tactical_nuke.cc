@@ -27,7 +27,7 @@ void NuclearLang::Nuke::run(const char* source) {
   if (hadError) return;
   Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
   resolver->resolve(stmt);
-  interpreter interp(stmt);
+  Interpreter::interpreter interp(stmt);
   auto env = interp.getEnv()->getMap();
   //for (const auto& it: env) {
     //std::cout << std::any_cast<String>(it.second) << std::endl;
@@ -260,10 +260,14 @@ void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
   throw runtimeerror<NuclearLang::NukeClass>();
 }
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
-  auto* methodMap = reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
-  auto* nameStr = reinterpret_cast<String*>(name);
-  if (methodMap->find(*nameStr) != methodMap->end()) {
-    return &methodMap->at(*nameStr);
+  auto& methodMap = *reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
+  auto& nameStr = *reinterpret_cast<String*>(name);
+  if (methodMap.find(nameStr) != methodMap.end()) {
+    return &methodMap.at(nameStr);
+  }
+  if (superclass != nullptr) {
+    if (reinterpret_cast<Any*>(superclass)->type() == typeid(NuclearLang::NukeClass*))
+      return std::any_cast<NuclearLang::NukeClass*>(*reinterpret_cast<Any*>(superclass))->findMethod(name);
   }
   return nullptr;
 }

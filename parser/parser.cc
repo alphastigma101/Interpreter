@@ -129,7 +129,7 @@ ContextFreeGrammar::Expr* Parser::parser::unary() {
 }
 ContextFreeGrammar::Expr* Parser::parser::finishCall(ContextFreeGrammar::Expr* callee) {
     Vector<ContextFreeGrammar::Expr*> arguments;
-    if (!check(RIGHT_PAREN)) {
+    if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (arguments.size() >= 255) {
                 throw parseError<parser>(peek(), "Can't have more than 255 arguments.");
@@ -137,7 +137,7 @@ ContextFreeGrammar::Expr* Parser::parser::finishCall(ContextFreeGrammar::Expr* c
             arguments.push_back(expression());
         } while (match(TokenType::COMMA));
     }
-    Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
     return new ContextFreeGrammar::Call(callee, paren, arguments);
 }
 ContextFreeGrammar::Expr* Parser::parser::call() {
@@ -172,6 +172,12 @@ ContextFreeGrammar::Expr* Parser::parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return new ContextFreeGrammar::Grouping(expr);
     }
+    if (match(TokenType::SUPER)) {
+      Token keyword = previous();
+      consume(TokenType::DOT, "Expect '.' after 'super'.");
+      Token method = consume(TokenType::IDENTIFIER, "Expect superclass method name.");
+      return new ContextFreeGrammar::Super(keyword, method);
+    }
     if (match(TokenType::THIS)) return new ContextFreeGrammar::This(previous());
     if (match(TokenType::IDENTIFIER)) {
         Token&& op = previous();
@@ -205,7 +211,7 @@ ContextFreeGrammar::Statement* Parser::parser::statement() {
     if (match(TokenType::CONTAINMENT)) return classDeclaration();
     if (match(TokenType::RADIATE)) return printStatement();
     if (match(TokenType::RETURN)) return returnStatement();
-    if (match(WHILE)) return whileStatement();
+    if (match(TokenType::WHILE)) return whileStatement();
     if (match(TokenType::LEFT_BRACE)) return new ContextFreeGrammar::Block(block());
     return expressionStatement();
 }
@@ -334,7 +340,7 @@ ContextFreeGrammar::Statement* Parser::parser::declarations() {
       return statement();
     } catch (parseError<parser>& e) {
         synchronize();
-        auto err = String(error() + String(" Got '") + String(previous().getLexeme()) + String("' instead."));
+        auto err = String(error());
         #if ENABLE_LOGGING
             std::cout << "Logs have been updated!" << std::endl;
             logging<parser> logs(std::move(err));
@@ -348,10 +354,15 @@ ContextFreeGrammar::Statement* Parser::parser::declarations() {
     }
 }
 ContextFreeGrammar::Statement* Parser::parser::classDeclaration() {
-    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
-    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
     Vector<ContextFreeGrammar::Functions*> methods;
     Vector<ContextFreeGrammar::Statement*> fields;
+    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    ContextFreeGrammar::Expr* superclass = nullptr;
+    if (match(TokenType::LESS)) {
+      consume(TokenType::IDENTIFIER, "Expect superclass name.");
+      superclass = new ContextFreeGrammar::Variable(previous());
+    }
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
     while (!check(RIGHT_BRACE) && !isAtEnd()) {
         if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) { 
             auto vector = classFields();
@@ -364,7 +375,7 @@ ContextFreeGrammar::Statement* Parser::parser::classDeclaration() {
         methods.back()->types.push_back(tokens_.at(current - 1)); // get the property types here
     }
     consume(RIGHT_BRACE, "Expect '}' after class body.");
-    return new ContextFreeGrammar::Class(name, methods);
+    return new ContextFreeGrammar::Class(name, superclass, methods);
 }
 Vector<ContextFreeGrammar::Statement*> Parser::parser::classFields() {
     Vector<ContextFreeGrammar::Statement*> stmt;

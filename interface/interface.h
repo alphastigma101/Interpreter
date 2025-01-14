@@ -72,6 +72,8 @@ class Visitor {
         inline auto visitReturnStmt(T* stmt) { return static_cast<Derived*>(this)->visitReturnStmt(stmt); };
         template<typename T>
         inline auto visitClassStmt(T* expr) { return static_cast<Derived*>(this)->visitClassStmt(expr); };
+        template<typename T>
+        inline auto visitSuperExpr(T* expr) { return static_cast<Derived*>(this)->visitSuperExpr(expr); }; 
     protected:
         template<typename T>
         inline auto accept(T* stmt) { return static_cast<Derived*>(this)->visit(stmt); };

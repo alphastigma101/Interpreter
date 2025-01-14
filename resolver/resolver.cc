@@ -1,6 +1,7 @@
 //#include <interpreter.h>
 #include <context_free_grammar.h>
 #include <tactical_nuke.h>
+#include "resolver.h"
 //Stack::stack* Resolver::resolver::scopes = new Stack::stack();
 
 /** ------------------------------------------
@@ -23,7 +24,7 @@ Resolver::resolver::resolver(Interpreter::interpreter *interp) noexcept { this->
  * 
  * -------------------------------------------------------------------
 */
-void Resolver::resolver::resolve(Vector<ContextFreeGrammar::Statement*>& statements) {
+void Resolver::resolver::resolve(Vector<ContextFreeGrammar::Statement*> statements) {
     for (auto statement : statements) {
       resolve(statement);
     }
@@ -164,6 +165,18 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     currentClass = ClassType::CLASS;
     declare(stmt->op);
     define(stmt->op);
+    if (stmt->superclass != nullptr &&
+        stmt->op.getLexeme() == stmt->superclass->op.getLexeme()) {
+       NuclearLang::Nuke::error(stmt->superclass->op.getLine(), "A class can't inherit from itself.");
+    }
+    if (stmt->superclass != nullptr) {
+        currentClass = ClassType::SUBCLASS;
+        resolve(stmt->superclass);
+    }
+    if (stmt->superclass != nullptr) {
+        beginScope();
+        scopes->peek().insert_or_assign("super", true);
+    }
     beginScope();
     scopes->peek().insert_or_assign("this", true);
     int j = 0;
@@ -178,7 +191,8 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
         j++;
       }  
     }
-    for (int i = j; i < stmt->fields.size(); i++) this->resolve(stmt->fields.at(i)); 
+    for (int i = j; i < stmt->fields.size(); i++) this->resolve(stmt->fields.at(i));
+    if (stmt->superclass != nullptr) endScope(); 
     currentClass = enclosingClass;
     endScope();
     return nullptr;
@@ -304,6 +318,15 @@ Any Resolver::resolver::visitSetExpr(ContextFreeGrammar::Set *expr) {
     return nullptr;
 }
 
+Any Resolver::resolver::visitSuperExpr(ContextFreeGrammar::Super *expr) {
+    if (currentClass == ClassType::EMPTY) {
+      NuclearLang::Nuke::error(expr->op.getLine(), "Can't use 'super' outside of a class.");
+    } else if (currentClass != ClassType::SUBCLASS) {
+       NuclearLang::Nuke::error(expr->op.getLine(), "Can't use 'super' in a class with no superclass.");
+    }
+    resolveLocal(expr, expr->op);
+    return nullptr;
+}
 Any Resolver::resolver::visitThisExpr(ContextFreeGrammar::This *expr) {
     if (currentClass == ClassType::EMPTY) {
         NuclearLang::Nuke::error(expr->op.getLine(), "Can't use 'this' outside of a class.");
