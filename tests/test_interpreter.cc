@@ -617,7 +617,7 @@ TEST_F(InterpreterTest, InterpreterTest_MultipleClassMethods) {
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
 }
-/*TEST_F(InterpreterTest, InterpreterTest_SuperClassesAndSubclasses) {
+TEST_F(InterpreterTest, InterpreterTest_SuperClassesAndSubclasses) {
    Scanner scanner(R"(
         containment Doughnut {
             string cook() {
@@ -670,7 +670,7 @@ TEST_F(InterpreterTest, InterpreterTest_Super) {
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
     EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
-}*/
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
