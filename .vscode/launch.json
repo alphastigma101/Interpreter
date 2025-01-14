@@ -16,7 +16,7 @@
             "externalConsole": false,
             "cwd": "/home/fingerlickinggoodness12/Interpreter",
             // NOTE: Replace 'exec_debug_parser' with the actual executable that you want to debug 
-            "program": "/home/fingerlickinggoodness12/Interpreter/debugging/exec_debug_interpreter",
+            "program": "/home/fingerlickinggoodness12/Interpreter/debugging/exec_interpreter",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
             "setupCommands": [

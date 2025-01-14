@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <system_error>
 #include <fstream>
+#include "tactical_nuke.h"
 void* NuclearLang::NukeFunction::declaration = nullptr;
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
@@ -28,9 +29,9 @@ void NuclearLang::Nuke::run(const char* source) {
   resolver->resolve(stmt);
   interpreter interp(stmt);
   auto env = interp.getEnv()->getMap();
-  for (const auto& it: env) {
-      std::cout << std::any_cast<String>(it.second) << std::endl;
-  } 
+  //for (const auto& it: env) {
+    //std::cout << std::any_cast<String>(it.second) << std::endl;
+  //} 
   /*if (build.joinable()) {
       build.join();
   }*/
@@ -89,10 +90,44 @@ void NuclearLang::Nuke::error(int line, const char* message) {
  * @param filePath The file that was fed into the program
  * -------------------------------------------------------------------------
 */
-void NuclearLang::Nuke::runFile(const char* filePath) {
+void NuclearLang::Nuke::runFile(const char* Path) {
+  if (std::filesystem::directory_entry(String(Path)).is_directory()) {
+    try {
+      auto temp = std::filesystem::directory_entry(String(Path));
+      multipleFiles(&temp);
+      return;
+    }
+    catch(...) {
+      std::cout << "Directory must contain either files or another dictionary that contains files!" << std::endl;
+      runPrompt();
+    }
+  }
+  else {
+    try {
+      singleFiles(Path);
+      return;
+    }
+    catch(...) {
+      std::cout << "Must pass in a existing filename." << std::endl;
+      runPrompt();
+    }
+  }
+}
+void NuclearLang::Nuke::multipleFiles(void *dir) {
   String source,line;
-  if (std::filesystem::exists(filePath)) {
-    std::ifstream file (std::filesystem::path(filePath).stem());
+  auto files = reinterpret_cast<std::filesystem::directory_entry*>(dir);
+  for (auto const& dir_entry : std::filesystem::directory_iterator{*files}) { 
+    if (std::filesystem::is_regular_file(dir_entry))
+      std::cout << " is a regular file\n";
+    if (std::filesystem::is_directory(dir_entry))
+      std::cout << " is a directory\n";
+  }
+}
+
+void NuclearLang::Nuke::singleFiles(const char* data) {
+  String source,line;
+  try {
+    std::ifstream file(String(data).c_str());
     if (file.is_open()) { 
       while (std::getline(file, line)) 
         source.append(line);
@@ -102,11 +137,13 @@ void NuclearLang::Nuke::runFile(const char* filePath) {
       if (hadError) exit(1);
     }
   }
-  else {
-    std::cout << "Not a valid file" << std::endl;
-    runPrompt();
+  catch(...) {
+    std::cout << "Not a real file!" << std::endl;
+    throw;
   }
+  return;
 }
+
 NuclearLang::NukeFunction::NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue){
   this->closure = std::move(closure);
   this->declaration = reinterpret_cast<ContextFreeGrammar::Functions*>(std::move(declaration));

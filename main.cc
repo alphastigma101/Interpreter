@@ -5,6 +5,7 @@
 // This is the driver code
 int main(int argc, char **argv) {
     NuclearLang::Nuke nuke;
+    nuke.runFile("class.nuke");
     if (argc > 2) {
         std::cerr << "Usage: [script]";
         exit(1); 

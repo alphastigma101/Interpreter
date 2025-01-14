@@ -29,7 +29,10 @@ namespace NuclearLang {
       static void runPrompt();
       static void report(int line, const char* where, const char* message);
       static void error(int line, const char* message);
-      static void runFile(const char* filePath);
+      static void runFile(const char* Path);
+    private:
+      static void multipleFiles(void* dir);
+      static void singleFiles(const char* data);
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:
