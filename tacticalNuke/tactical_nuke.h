@@ -23,6 +23,7 @@ namespace NuclearLang {
   class Nuke {
     inline static bool hadError = false;
     public:
+      friend class tacticalNukeTest;
       Nuke() noexcept = default;
       ~Nuke() noexcept = default;
       static void run(const char* source);
