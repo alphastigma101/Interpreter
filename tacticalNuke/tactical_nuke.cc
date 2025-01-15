@@ -6,12 +6,6 @@
 #include <filesystem>
 #include <system_error>
 #include <fstream>
-#include "tactical_nuke.h"
-void* NuclearLang::NukeFunction::declaration = nullptr;
-//void* NuclearLang::NukeClass::methods = nullptr;
-//void* NuclearLang::NukeClass::fieldProperties = nullptr;
-//void* NuclearLang::NukeClass::superclass = nullptr;
-
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
  * 
@@ -147,12 +141,6 @@ void NuclearLang::Nuke::singleFiles(const char* data) {
   }
   return;
 }
-
-NuclearLang::NukeFunction::NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue){
-  this->closure = std::move(closure);
-  this->declaration = reinterpret_cast<ContextFreeGrammar::Functions*>(std::move(declaration));
-  this->value = std::move(returnValue->value);
-}
 /** ---------------------------------------------------------------
  * @brief ... 
  * 
@@ -170,15 +158,17 @@ Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vect
   } 
   catch (NuclearLang::NukeReturn* returnValue) {
     if (isInitializer) return closure->getAt(0, "this");
-    environment->assign(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->op, new NukeFunction(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration), closure, returnValue));
-    closure = std::move(environment);
     return returnValue->value;
   }
   if (isInitializer) return closure->getAt(0, "this");
   return nullptr;
 }
-int NuclearLang::NukeFunction::arity(int argc) { 
-  return reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)->params.size(); 
+int NuclearLang::NukeFunction::arity(int argc) {
+  auto* func = dynamic_cast<ContextFreeGrammar::Functions*>(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration));
+  if (!func) {
+    throw std::runtime_error("Invalid function declaration");
+  }
+  return func->params.size();
 }
 /** ---------------------------------------------------------------
  * @brief ... 
@@ -190,7 +180,7 @@ int NuclearLang::NukeFunction::arity(int argc) {
 NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instance) {
   Environment::environment* environment = new Environment::environment(*closure);
   environment->define("this", instance);
-  return new NuclearLang::NukeFunction(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration), environment, isInitializer);
+  return new NuclearLang::NukeFunction(std::move(reinterpret_cast<ContextFreeGrammar::Functions*>(declaration)), environment, isInitializer);
 }
 /** ---------------------------------------------------------------
  * @brief Whenever this method is called, it will create a new instance  
@@ -200,7 +190,7 @@ NuclearLang::NukeFunction* NuclearLang::NukeFunction::bind(NukeInstance *instanc
  * 
  * @return returns the allocated instance of the user defined class 
 */
-Any NuclearLang::NukeClass::call(Interpreter::interpreter* interp, const Vector<Any>& arguments) {
+Any NuclearLang::NukeClass::call(Interpreter::interpreter* interp, const Vector<Any> arguments) {
   NuclearLang::NukeInstance* instance = new NuclearLang::NukeInstance(this);
   NuclearLang::NukeFunction* initializer = findMethod(new String("init"));
   if (initializer != nullptr) {
@@ -272,8 +262,7 @@ NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   if (superclass != nullptr) {
     auto& super = *reinterpret_cast<Any*>(superclass);
     if (super.type() == typeid(NuclearLang::NukeClass*)) {
-      const auto& method = std::any_cast<NuclearLang::NukeClass*>(std::move(super))->findMethod(name);
-      return method;
+      return std::any_cast<NuclearLang::NukeClass*>(std::move(super))->findMethod(name);
     }
   }
   return nullptr;

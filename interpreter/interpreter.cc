@@ -143,7 +143,7 @@ Any Interpreter::interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) 
 }
 
 Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
-    auto callee = evaluate(expr->callee);
+    Any callee = evaluate(expr->callee);
     Vector<Any> arguments;
     for (auto it : expr->arguments) {
         try {
@@ -154,22 +154,22 @@ Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
         }
     }
     if (callee.type() == typeid(NuclearLang::NukeFunction*)) {
-        auto function = std::any_cast<NuclearLang::NukeFunction*>(callee);
-        if (arguments.size() != function->arity()) {
+        NuclearLang::NukeFunction& function = *std::any_cast<NuclearLang::NukeFunction*>(callee);
+        if (arguments.size() != function.arity()) {
         throw runtimeerror<Interpreter::interpreter>(expr->paren, String("Expected " +
-            std::to_string(function->arity()) + " arguments but got " +
+            std::to_string(function.arity()) + " arguments but got " +
             std::to_string(arguments.size()) + ".").c_str());
         }
-        return function->call(this, arguments);
+        return function.call(this, arguments);
     }
     else if (callee.type() == typeid(NuclearLang::NukeClass*)) {
-        auto function = std::any_cast<NuclearLang::NukeClass*>(callee);
-        if (arguments.size() != function->arity()) {
+        auto& function = *std::any_cast<NuclearLang::NukeClass*>(callee);
+        if (arguments.size() != function.arity()) {
             throw runtimeerror<interpreter>(expr->paren, String("Expected " +
-            std::to_string(function->arity()) + " arguments but got " +
+            std::to_string(function.arity()) + " arguments but got " +
             std::to_string(arguments.size()) + ".").c_str());
         }
-        return function->call(this, arguments); 
+        return function.call(this, arguments); 
     }
     String error = String(" [Line Error ") + std::to_string(expr->op.getLine()) + String( "]:") + String(" Can only call functions and classes."); 
     throw runtimeerror<Interpreter::interpreter>(expr->paren, error.c_str());
@@ -233,8 +233,6 @@ Any Interpreter::interpreter::visitBlockStmt(ContextFreeGrammar::Block *stmt) {
  */
 Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     Map<String, NuclearLang::NukeFunction> methods;
-    Map<String, NuclearLang::NukeProperties> fieldProperties;
-    NuclearLang::NukeProperties* propertyFields;
     Any superclass;
     if (stmt->superclass != nullptr) {
         superclass = evaluate(stmt->superclass);
@@ -257,39 +255,13 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
             environment, 
             temp
         );
-        if (i < stmt->fields.size() && !stmt->fields.empty()) {
-            propertyFields = new NuclearLang::NukeProperties(
-                &(stmt->fields.at(i)->types.at(0)),
-                &(stmt->fields.at(i)->op),
-                &(stmt->methods.at(i)->types.at(0))
-            );
-            fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
-            j++;
-        }
-        else {
-            // There are more properties than fields
-            propertyFields = new NuclearLang::NukeProperties(
-                nullptr,
-                nullptr,
-                &(stmt->methods.at(i)->types.at(0))
-            );
-            fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
-        }  
-      methods.insert_or_assign(stmt->methods.at(i)->op.getLexeme(), std::move(*function));
+        methods.insert_or_assign(stmt->methods.at(i)->op.getLexeme(), std::move(*function));
     }
-    for (int i = j; i < stmt->fields.size(); i++) {
-        propertyFields = new NuclearLang::NukeProperties(
-            stmt->fields.at(i)->types.at(0),
-            stmt->fields.at(i),
-            nullptr
-        );
-        fieldProperties.insert_or_assign(stmt->op.getLexeme(), std::move(*propertyFields));
-    }
-    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, superclass, propertyFields);
+    NuclearLang::NukeClass* klass = new NuclearLang::NukeClass(stmt->op.getLexeme(), methods, superclass, nullptr);
     if (!(superclass.has_value())) {
       environment = environment->enclosing;
     }
-    environment->assign(stmt->op, std::move(klass));
+    environment->assign(stmt->op, klass);
     className = stmt->op;
     return nullptr;
 }
@@ -300,36 +272,7 @@ Any Interpreter::interpreter::visitExpressionStmt(ContextFreeGrammar::Expression
 }
 Any Interpreter::interpreter::visitFunctionStmt(ContextFreeGrammar::Functions* stmt) {
     NuclearLang::NukeFunction* function = new NuclearLang::NukeFunction(stmt, environment, false);
-    /*if (&className != nullptr) {
-        NuclearLang::NukeClass* property;
-        Map<String, String> stmtFields;
-        if (auto search = globals->getMap().find(className.getLexeme()); search != globals->getMap().end())
-            property = std::any_cast<NuclearLang::NukeClass*>(search->second);
-        else 
-            throw;
-        auto map = reinterpret_cast<Map<String, NuclearLang::NukeProperties>*>(property->fieldProperties);
-        for (int i = 0; i < stmt->body->fields.size(); i++) {
-            // Find the property name that has the statement fields
-            if (auto search = map->find(stmt->op.getLexeme()); search != map->end()) {
-                if (search->second.stmtFields == nullptr)
-                    search->second.stmtFields = new Map<String, String>();
-                auto tmp = reinterpret_cast<Map<String, String>*>(search->second.stmtFields);
-                stmtFields = *tmp;
-                stmtFields[std::any_cast<String>(Fields.at(i))] = stmt->body->fields.at(i)->op.getLexeme();
-            }
-        }
-        if (auto search = map->find(stmt->op.getLexeme()); search != map->end())
-            if (!stmtFields.empty())
-                search->second.stmtFields = std::move(&stmtFields); 
-
-    }*/
-    environment->define(stmt->op.getLexeme(), std::move(function));
-    /*try {
-        // Get the type globably 
-        globalType = stmt->properties.at(globals->count(stmt->op.getLexeme()))->op.getLexeme();
-        std::cout << globalType << std::endl;
-    }
-    catch(...) {}*/
+    environment->define(stmt->op.getLexeme(), function);
     return nullptr;
 }
 /** ---------------------------------------------------------------------------
@@ -359,7 +302,6 @@ Any Interpreter::interpreter::visitReturnStmt(ContextFreeGrammar::Return* stmt) 
     Any value = nullptr;
     if (stmt->value != nullptr) { 
         value = evaluate(stmt->value);
-        //environment->define(std::move(*((String*)functionName)), value);
     }
     throw new NuclearLang::NukeReturn(value);
 }
@@ -392,7 +334,7 @@ Any Interpreter::interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
         void* tmp = std::any_cast<void*>(value);
         auto nukeFunction = reinterpret_cast<NuclearLang::NukeFunction*>(tmp);
         if (nukeFunction != nullptr)
-            globals->define(stmt->op.getLexeme(), std::move(nukeFunction));
+            globals->define(stmt->op.getLexeme(), nukeFunction);
         else {
             auto nukeClass = reinterpret_cast<NuclearLang::NukeClass*>(tmp);
             globals->define(stmt->op.getLexeme(), std::move(nukeClass));
@@ -461,16 +403,16 @@ Any Interpreter::interpreter::visitSuperExpr(ContextFreeGrammar::Super *expr) {
             distance = nullptr;
     } catch(...) {}
     if (distance != nullptr) {
-        NuclearLang::NukeClass* superclass = std::any_cast<NuclearLang::NukeClass*>(environment->getAt(
+        NuclearLang::NukeClass& superclass = *std::any_cast<NuclearLang::NukeClass*>(environment->getAt(
         *distance, String("super")));
-        NuclearLang::NukeInstance* object = std::any_cast<NuclearLang::NukeInstance*>(environment->getAt(
+        NuclearLang::NukeInstance& object = *std::any_cast<NuclearLang::NukeInstance*>(environment->getAt(
         *distance - 1, String("this")));
         auto name = expr->method.getLexeme();
-        NuclearLang::NukeFunction* method = superclass->findMethod(&name);
+        NuclearLang::NukeFunction* method = superclass.findMethod(&name);
         if (method == nullptr) {
             throw runtimeerror<Interpreter::interpreter>(expr->method,  String("Undefined property '" + expr->method.getLexeme() + String("'.")).c_str());
         }
-        return method->bind(object);
+        return method->bind(&object);
     }
     return nullptr;
 }

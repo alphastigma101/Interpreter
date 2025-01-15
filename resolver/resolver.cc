@@ -179,19 +179,13 @@ Any Resolver::resolver::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     }
     beginScope();
     scopes->peek().insert_or_assign("this", true);
-    int j = 0;
     for (int i = 0; i < stmt->methods.size(); i++) {
       FunctionType declaration = FunctionType::METHOD;
       if (stmt->methods.at(i)->op.getLexeme() == String("init")) {
         declaration = FunctionType::INITIALIZER;
       }
       resolveFunction(stmt->methods.at(i), declaration);
-      if (i < stmt->fields.size() && !stmt->fields.empty()) { 
-        this->resolve(stmt->fields.at(i));
-        j++;
-      }  
     }
-    for (int i = j; i < stmt->fields.size(); i++) this->resolve(stmt->fields.at(i));
     if (stmt->superclass != nullptr) endScope(); 
     currentClass = enclosingClass;
     endScope();

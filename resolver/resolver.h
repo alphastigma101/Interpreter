@@ -49,13 +49,13 @@ namespace Resolver {
             inline static Interpreter::interpreter* interp = nullptr;
             void resolve(ContextFreeGrammar::Statement* stmt);
             void resolve(ContextFreeGrammar::Expr* expr);
-            static void beginScope();
-            static void endScope();
-            static void declare(Token name);
-            static void define(Token name);
+            void beginScope();
+            void endScope();
+            void declare(Token name);
+            void define(Token name);
             void resolveFunction(ContextFreeGrammar::Functions* function, FunctionType type);
             void resolveProperties(ContextFreeGrammar::Statement* stmt);
-            static void resolveLocal(ContextFreeGrammar::Expr* expr, Token name);
+            void resolveLocal(ContextFreeGrammar::Expr* expr, Token name);
             inline static Stack::stack* scopes = new Stack::stack();
             inline static FunctionType currentFunction = FunctionType::NONE;
             inline static ClassType currentClass = ClassType::EMPTY;

@@ -306,22 +306,6 @@ ContextFreeGrammar::Statement* Parser::parser::expressionStatement() {
 Vector<ContextFreeGrammar::Statement*> Parser::parser::block() {
     Vector<ContextFreeGrammar::Statement*> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-        // Check to see if there is any fields declared inside of the function
-        // TODO: The code should work or might need some modifications, but it does what it is supposed to do
-        // TODO: It needs to be placed somewhere else to handle cases when the class property contains statement fields 
-        /*if (tokens_.at(current + 2).getType() == TokenType::SEMICOLON) { 
-            auto vector = classFields();
-            for (int i = 0; i < vector.size(); i++) {
-                if (!statements.empty())
-                    statements.back()->fields.push_back(vector.at(i));
-                else {
-                    statements.push_back(vector.at(i));
-                    statements.back()->fields.push_back(vector.at(i));
-                } 
-
-            }
-            //fields.insert(properties.size(), classFields().begin(), classFields().end());
-        }*/
         auto expr = declarations();
         statements.push_back(std::move(expr));
     }
@@ -369,10 +353,8 @@ ContextFreeGrammar::Statement* Parser::parser::classDeclaration() {
             for (int i = 0; i < vector.size(); i++) {
                 fields.push_back(vector.at(i));
             }
-            //fields.insert(properties.size(), classFields().begin(), classFields().end());
         }
         methods.push_back(dynamic_cast<ContextFreeGrammar::Functions*>(function("method")));
-        methods.back()->types.push_back(tokens_.at(current - 1)); // get the property types here
     }
     consume(RIGHT_BRACE, "Expect '}' after class body.");
     return new ContextFreeGrammar::Class(name, superclass, methods);
@@ -386,12 +368,12 @@ Vector<ContextFreeGrammar::Statement*> Parser::parser::classFields() {
                 if (isOneOf(tokens_.at(i).getType(), TokenType::VOID, TokenType::INT, TokenType::BOOL, 
                  TokenType::STRING, TokenType::DOUBLE, TokenType::CHAR, TokenType::USER_TYPE)) {
                     auto tmp = fieldProperties;
-                    fieldProperties->fields.push_back(std::move(tmp));
-                    fieldProperties->fields.back()->types.push_back(tokens_.at(i)); // add the field type to the vector called fields        
+                    //fieldProperties->fields.push_back(std::move(tmp));
+                    //fieldProperties->fields.back()->types.push_back(tokens_.at(i)); // add the field type to the vector called fields        
                 }
-                else {
-                    fieldProperties->types.push_back(tokens_.at(i - 1));
-                }
+                //else {
+                    //fieldProperties->types.push_back(tokens_.at(i - 1));
+                //}
                 stmt.push_back(std::move(fieldProperties));
                 i = current;
             }

@@ -108,34 +108,31 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment A {
-            string method() {
-                radiate "A method";
+        containment Thing {
+            Thing getCallback() {
+                Thing localFunction() {
+                    radiate this;
+                }
+                return localFunction;
             }
         }
-        containment B < A {
-            string method() {
-                radiate "B method";
-            }
-            B test() {
-                super.method();
-            }
-        }
-        containment C < B {}
-        C().test();
+        Thing callback = Thing().getCallback();
+        callback();
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    resolver->resolve(res);
-    Interpreter::interpreter interp(res);
-    auto env = interp.getEnv()->getMap();
-    String conv;
-    if (auto it = env.find("radiate"); it != env.end())
-        conv = std::any_cast<String>(it->second);
-    std::cout << conv << std::endl;
+    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
+    //resolver->resolve(res);
+    try {
+        Interpreter::interpreter interp(res);
+    }
+    catch(NuclearLang::NukeReturn* e) {
+        NuclearLang::NukeFunction* conv = reinterpret_cast<NuclearLang::NukeFunction*>(e->value);
+        //EXPECT_TRUE(conv != nullptr);
+        //EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeFunction*));
+    }
     
     //Adding();
     

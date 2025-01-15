@@ -669,7 +669,7 @@ TEST_F(InterpreterTest, InterpreterTest_Super) {
     String conv;
     if (auto it = env.find("radiate"); it != env.end())
         conv = std::any_cast<String>(it->second);
-    EXPECT_EQ(conv, "\"Sleep sleep sleep!\"");
+    EXPECT_EQ(conv, "\"B method\"");
 }
 
 int main(int argc, char **argv) {

@@ -39,10 +39,10 @@ namespace NuclearLang {
     public:
       template<typename T>
       explicit NukeReturn(T value) {
-        this->value = new T(value);
+        this->value = new T(std::move(value));
       };
       ~NukeReturn() noexcept = default;
-      void* value = nullptr; // Turning this into inline static void* value = nullptr; will make the return value the same
+      void* value = nullptr;
       explicit NukeReturn() noexcept = default;
     protected:
       static const void* getType(); 
@@ -71,10 +71,10 @@ namespace NuclearLang {
         this->declaration = std::move(declaration);
         this->isInitializer = isInitializer;
       };
-      static void* declaration;
-      static NukeFunction* bind(NukeInstance* instance);
-      static Any call(Interpreter::interpreter* interp, const Vector<Any> arguments);
-      static int arity(int argc = 0);
+      void* declaration;
+      NukeFunction* bind(NukeInstance* instance);
+      Any call(Interpreter::interpreter* interp, const Vector<Any> arguments);
+      int arity(int argc = 0);
       ~NukeFunction() noexcept = default;
       inline static Environment::environment* getClosure() { return closure; };
     protected:
@@ -94,15 +94,7 @@ namespace NuclearLang {
       //template<typename A, typename B>
       static String fusion(String& lhs, String& rhs);
     private:
-      inline static bool isInitializer = false;
-      // TODO: Parameter needs to be a template type instead of the user type
-      /** -------------------------------------------------------
-       * @brief A constructor that is allocated on the heap dynamically that stores the return value of the function.
-       * --------------------------------------------------------
-       */
-      explicit NukeFunction(ContextFreeGrammar::Functions* declaration, Environment::environment* closure, NukeReturn* returnValue);
-      // TODO: These need to be converted into void* instead of the user type
-      
+      inline static bool isInitializer = false; 
       inline static  Environment::environment* closure = nullptr;  
     };
     class NukeClass: protected NukeFunction, protected runtimeerror<NukeClass> {
@@ -122,7 +114,7 @@ namespace NuclearLang {
           this->fieldProperties = new D(std::move(fieldProperties_));
         };
         ~NukeClass() noexcept = default;
-        Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
+        Any call(Interpreter::interpreter* interp, const Vector<Any> arguments);
         int arity(int argc = 0);
         NukeFunction* findMethod(void* name);
         void* name = nullptr;

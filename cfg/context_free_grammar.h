@@ -303,21 +303,7 @@ namespace ContextFreeGrammar {
              * ---------------------------------------------------------
             */
             Vector<Functions*> methods{};
-            /** --------------------------------------------------------
-             * @brief ....
-             * ---------------------------------------------------------
-            */
-            Vector<Token> types{};
-            /** --------------------------------------------------------
-             * @brief ....
-             * ---------------------------------------------------------
-            */
-            Vector<Statement*> fields{};
-            /** --------------------------------------------------------
-             * @brief A token class instance wrapped in a unique_ptr. 
-             *        It is included with the node that was created
-             * ---------------------------------------------------------
-            */
+            
             Expr* expression = nullptr;
             /** --------------------------------------------------------
              * @brief expression represents the left/right binary nodes.
