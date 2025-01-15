@@ -37,12 +37,9 @@ namespace NuclearLang {
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:
-      template<typename T>
-      explicit NukeReturn(T value) {
-        this->value = new T(std::move(value));
-      };
+      explicit NukeReturn(Any value): value(value) {};
       ~NukeReturn() noexcept = default;
-      void* value = nullptr;
+      Any value;
       explicit NukeReturn() noexcept = default;
     protected:
       static const void* getType(); 

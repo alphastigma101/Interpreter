@@ -329,19 +329,7 @@ Any Interpreter::interpreter::visitVarStmt(ContextFreeGrammar::Var* stmt) {
     if (stmt->initializer != nullptr) {
       value = evaluate(stmt->initializer);
     }
-    if (value.type() == typeid(void*)) {
-        // Could be either NukeClass or NukeFunction
-        void* tmp = std::any_cast<void*>(value);
-        auto nukeFunction = reinterpret_cast<NuclearLang::NukeFunction*>(tmp);
-        if (nukeFunction != nullptr)
-            globals->define(stmt->op.getLexeme(), nukeFunction);
-        else {
-            auto nukeClass = reinterpret_cast<NuclearLang::NukeClass*>(tmp);
-            globals->define(stmt->op.getLexeme(), std::move(nukeClass));
-        }
-    }
-    else 
-        globals->define(stmt->op.getLexeme(), value);
+    globals->define(stmt->op.getLexeme(), value);
     return nullptr;
 }
 Any Interpreter::interpreter::visitWhileStmt(ContextFreeGrammar::While* stmt) {

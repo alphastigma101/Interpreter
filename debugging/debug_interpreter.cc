@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
         Interpreter::interpreter interp(res);
     }
     catch(NuclearLang::NukeReturn* e) {
-        NuclearLang::NukeFunction* conv = reinterpret_cast<NuclearLang::NukeFunction*>(e->value);
+        NuclearLang::NukeFunction* conv = std::any_cast<NuclearLang::NukeFunction*>(e->value);
         //EXPECT_TRUE(conv != nullptr);
         //EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeFunction*));
     }

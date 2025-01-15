@@ -256,7 +256,7 @@ void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto& methodMap = *reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
   auto& nameStr = *reinterpret_cast<String*>(name);
-  if (methodMap.find(nameStr) != methodMap.end()) {
+  if (auto search = methodMap.find(nameStr); search != methodMap.end()) {
     return &methodMap.at(nameStr);
   }
   if (superclass != nullptr) {
