@@ -53,7 +53,9 @@ using Set = std::set<T>;
 */
 extern String user_choice;
 extern String file_name;
-static constexpr bool EnableVisitorPattern = false;
+namespace Test {
+    class OperationsTest;
+};
 /** ---------------------------------------------------------------------------
  * @brief Defined in context_free_grammar.h
  *
@@ -132,6 +134,9 @@ namespace UnaryOperations {
     class unaryOperations;
 };
 namespace BinaryOperations {
+    class binaryOperations;
+};
+namespace TruthyOperations {
     class binaryOperations;
 };
 namespace Environment {

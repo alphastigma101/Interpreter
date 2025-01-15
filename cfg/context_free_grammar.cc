@@ -33,7 +33,11 @@ Any ContextFreeGrammar::Binary::visit(Any visitor) {
             } 
         return nullptr;
     #else 
-        return nullptr;
+        if (visitor.type() == typeid(ContextFreeGrammar::Binary*)) {
+            auto& expr = *std::any_cast<ContextFreeGrammar::Binary*>(visitor);
+            return parenthesize(expr.op.getLexeme(), expr.left, expr.right);
+        }
+        throw;
     #endif 
 }
 
@@ -68,7 +72,11 @@ Any ContextFreeGrammar::Unary::visit(Any visitor) {
             }
         return nullptr;
     #else 
-        return nullptr;
+        if (visitor.type() == typeid(ContextFreeGrammar::Unary*)) {
+            auto& expr = *std::any_cast<ContextFreeGrammar::Unary*>(visitor);
+            return parenthesize(expr.op.getLexeme(), &expr);
+        }
+        throw;
     #endif  
 }
 
@@ -96,7 +104,11 @@ Any ContextFreeGrammar::Grouping::visit(Any visitor) {
             }
         return nullptr;
     #else 
-        return nullptr;
+        if (visitor.type() == typeid(ContextFreeGrammar::Grouping*)) {
+            auto& expr = *std::any_cast<ContextFreeGrammar::Grouping*>(visitor);
+            return parenthesize(expr.op.getLexeme(), expr.expression);
+        }
+        throw;
     #endif 
 }
 
@@ -123,7 +135,11 @@ Any ContextFreeGrammar::Literal::visit(Any visitor) {
             }
         return nullptr;  
     #else 
-        return nullptr;
+        if (visitor.type() == typeid(ContextFreeGrammar::Literal*)) {
+            auto& expr = *std::any_cast<ContextFreeGrammar::Literal*>(visitor);
+            //return parenthesize(expr.op.getLexeme(), &expr);
+        }
+        throw;
     #endif
 }
 

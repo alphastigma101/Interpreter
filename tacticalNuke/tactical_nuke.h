@@ -74,6 +74,7 @@ namespace NuclearLang {
       int arity(int argc = 0);
       ~NukeFunction() noexcept = default;
       inline static Environment::environment* getClosure() { return closure; };
+      NukeReturn* returnValue = new NukeReturn();
     protected:
       explicit NukeFunction()  noexcept = default;
       static void moveCursor(int x, int y);

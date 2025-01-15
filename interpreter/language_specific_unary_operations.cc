@@ -46,24 +46,6 @@ bool unaryOperations::isNumeric(const void* value) {
     return false;    
 }
 /** ---------------------------------------------------------------
- * @brief A complex method that will check the generic type T is a type that Tatical Nuke Suppports
- *
- * @param value Is an Any container that will always hold a stirng
- *
- * @details .....
- * @return Returns true if the generic type T is supported. 
- *         Otherwise, throw an exception and return false. 
- * ----------------------------------------------------------------
-*/
-template<typename T>
-bool unaryOperations::isOther(const void* value) {
-    /*if (auto search = any_visitor.find(value); search != any_visitor.end())
-        return true;
-    else
-        return false;*/
-    return false;
-}
-/** ---------------------------------------------------------------
  * @brief A simple method that checks the instance using generics methods inside of it
  *
  * @param object Is an any container that always stores a String value.

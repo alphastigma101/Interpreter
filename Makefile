@@ -13,6 +13,7 @@ INCLUDES := -I types/ -I logging/ -I catch/ -I tokens/ -I interface/ -I ast/ -I 
 ENABLE_LOGGING := -D ENABLE_LOGGING=1
 ENABLE_VISITOR_PATTERN := -D ENABLE_VISITOR_PATTERN=1
 DISABLE_VISITOR_PATTERN := -D ENABLE_VISITOR_PATTERN=0
+ENABLE_COMPILER := -D ENABLE_COMPILER=1
 
 ########
 # Source file definitions
@@ -33,6 +34,7 @@ SRC_FILES_DEBUG_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parse
 
 
 SRC_FILES_TEST_TOKENS := tokens/token.cc tests/test_token.cc
+SRC_FILES_TEST_RUNTIME := tests/test_runtime.cc
 SRC_FILES_TEST_SCANNER := tokens/token.cc scanner/scanner.cc tests/test_scanner.cc
 SRC_FILES_TEST_AST :=  tokens/token.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_abstraction_tree_syntax.cc
 SRC_FILES_TEST_PARSER := tokens/token.cc scanner/scanner.cc parser/parser.cc tests/test_parser.cc
@@ -44,7 +46,7 @@ SRC_FILES_TEST_TACTICALNUKE :=  tokens/token.cc cfg/context_free_grammar.cc pars
 			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
 				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
 			       interpreter/language_specific_truthy_operations.cc interpreter/interpreter.cc tests/test_tacticalNuke.cc
-SRC_FILES_TEST_STACK := stack/user_stack.cc tests/test_user_stack.cc
+SRC_FILES_TEST_STACK := tokens/token.cc stack/user_stack.cc tests/test_user_stack.cc
 SRC_FILES_TEST_RESOLVER := tokens/token.cc cfg/context_free_grammar.cc parser/parser.cc scanner/scanner.cc \
 			       interpreter/language_specific_unary_operations.cc interpreter/language_specific_binary_operations.cc \
 				   environment/environment.cc tacticalNuke/tactical_nuke.cc stack/user_stack.cc resolver/resolver.cc \
@@ -76,6 +78,7 @@ OBJ_FILES_DEBUG_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_INTERPRETER
 
 
 OBJ_FILES_TEST_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TOKENS))
+OBJ_FILES_TEST_RUNTIME := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_RUNTIME))
 OBJ_FILES_TEST_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_SCANNER))
 OBJ_FILES_TEST_AST := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_AST))
 OBJ_FILES_TEST_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_PARSER))
@@ -94,7 +97,7 @@ OBJ_FILES_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
 BINARIES := exec_debug_tokens exec_debug_scanner exec_debug_ast \
             exec_debug_parser exec_debug_interpreter \
 			exec_debug_stack exec_debug_resolver \
-			exec_test_tokens exec_test_scanner exec_test_ast exec_test_parser \
+			exec_test_tokens exec_test_runtime exec_test_scanner exec_test_ast exec_test_parser \
 			exec_test_binaryOperations exec_test_unaryOperations exec_test_truthyOperations \
 			exec_test_tacticalnuke exec_test_stack exec_test_resolver \
 			exec_test_interpreter exec_interpreter
@@ -136,6 +139,9 @@ debugging/debug_interpreter.o: debugging/debug_interpreter.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 tests/test_token.o: tests/test_token.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+
+tests/test_runtime.o: tests/test_runtime.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
 
 tests/test_scanner.o: tests/test_scanner.cc
@@ -206,6 +212,9 @@ exec_debug_interpreter: $(OBJ_FILES_DEBUG_INTERPRETER)
 exec_test_tokens: $(OBJ_FILES_TEST_TOKENS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
+exec_test_runtime: $(OBJ_FILES_TEST_RUNTIME)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
 exec_test_scanner: $(OBJ_FILES_TEST_SCANNER)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -222,7 +231,7 @@ exec_test_unaryOperations: $(OBJ_FILES_TEST_UNARY)
 	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
 
 exec_test_truthyOperations: $(OBJ_FILES_TEST_TRUTHY)
-	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) cfg/test_context_free_grammar.o  $^ -o $@ $(LDFLAGS)
 
 #exec_test_environment: $(OBJ_FILES_TEST_ENV)
 
@@ -244,5 +253,5 @@ exec_interpreter: $(OBJ_FILES_INTERPRETER)
 
 clean:
 	rm -f $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
-	rm -f *.o debugging/*.o ast/*.o cfg/*.o tests/*.o main.o $(BINARIES)
+	rm -f *.o debugging/*.o ast/*.o cfg/*.o tests/*.o parser/*.o tokens/*.o scanner/*.o environment/*.o main.o $(BINARIES)
 

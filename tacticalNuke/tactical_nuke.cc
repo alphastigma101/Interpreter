@@ -115,10 +115,19 @@ void NuclearLang::Nuke::multipleFiles(void *dir) {
   String source,line;
   auto files = reinterpret_cast<std::filesystem::directory_entry*>(dir);
   for (auto const& dir_entry : std::filesystem::directory_iterator{*files}) { 
-    if (std::filesystem::is_regular_file(dir_entry))
-      std::cout << " is a regular file\n";
+    if (std::filesystem::is_regular_file(dir_entry)) {
+      std::ifstream file(String(std::filesystem::path(dir_entry).filename()).c_str());
+        if (file.is_open()) { 
+          while (std::getline(file, line)) 
+            source.append(line);
+          file.close();
+          run(source.c_str());
+          // Indicate an error in the exit code.
+          if (hadError) exit(1);
+        }
+    }
     if (std::filesystem::is_directory(dir_entry))
-      std::cout << " is a directory\n";
+      NuclearLang::Nuke::error(0, "Can't parse nested dictionaries that may or may not contain files!");
   }
 }
 
@@ -158,6 +167,7 @@ Any NuclearLang::NukeFunction::call(Interpreter::interpreter *interp, const Vect
   } 
   catch (NuclearLang::NukeReturn* returnValue) {
     if (isInitializer) return closure->getAt(0, "this");
+    this->returnValue = returnValue;
     return returnValue->value;
   }
   if (isInitializer) return closure->getAt(0, "this");

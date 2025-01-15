@@ -1,48 +1,46 @@
 #include <gtest/gtest.h>
 #include <tactical_nuke.h>
+namespace fs = std::filesystem;
 class tacticalNukeTest : public ::testing::Test {
+    public: 
+        inline static bool parseAndValidateFilePath(const std::string& filePath) {
+            try {
+                fs::path path(filePath);
+
+                // Check if the path exists and is a regular file
+                return fs::exists(path) && fs::is_regular_file(path);
+            } catch (const fs::filesystem_error& e) {
+                return false;
+            }
+        };
     protected:
         void SetUp() override {
             // Setup code if needed
         }   
 };
-TEST_F(tacticalNukeTest, RootFiles) {
-    /*NuclearLang::Nuke nuke;
-    nuke.runFile("class.nuke");
-    if (argc > 2) {
-        std::cerr << "Usage: [script]";
-        exit(1); 
-    }
-    else if (argc == 2) nuke.runFile(argv[1]);
-    else { nuke.runPrompt(); }*/
-    
+TEST(tacticalNukeTest, ValidFilePath) {
+    const std::string filePath = "../Code-Analysis/TaticalNuke/Classes/class.nuke";
+    EXPECT_TRUE(tacticalNukeTest::parseAndValidateFilePath(filePath)) << "File path should be valid and exist.";
 }
 
-TEST_F(tacticalNukeTest, OddPath) {
-    // TODO: There is an issue going on with the code such that if passing a file like this: ../path/to/file/file.nuke
-    // It won't parse it for some reason.
-    /*NuclearLang::Nuke nuke;
-    nuke.runFile("../Code-Analysis/TaticalNuke/Classes/class.nuke");
-    if (argc > 2) {
-        std::cerr << "Usage: [script]";
-        exit(1); 
-    }
-    else if (argc == 2) nuke.runFile(argv[1]);
-    else { nuke.runPrompt(); }*/
-    
+TEST(tacticalNukeTest, InvalidFilePath) {
+    const std::string invalidPath = "../invalid/path/to/file.nuke";
+    EXPECT_FALSE(tacticalNukeTest::parseAndValidateFilePath(invalidPath)) << "File path should be invalid or not exist.";
 }
 
-TEST_F(tacticalNukeTest, MultiplePaths) {
-    // TODO: Need to pass in a dictionary and not a file 
-    /*NuclearLang::Nuke nuke;
-    nuke.runFile("../Code-Analysis/TaticalNuke/Classes/class.nuke");
-    if (argc > 2) {
-        std::cerr << "Usage: [script]";
-        exit(1); 
-    }
-    else if (argc == 2) nuke.runFile(argv[1]);
-    else { nuke.runPrompt(); }*/
-    
+TEST(tacticalNukeTest, EmptyFilePath) {
+    const std::string emptyPath = "";
+    EXPECT_FALSE(tacticalNukeTest::parseAndValidateFilePath(emptyPath)) << "Empty file path should be invalid.";
+}
+
+TEST(tacticalNukeTest, RelativeFilePath) {
+    const std::string relativePath = "../Code-Analysis/TaticalNuke/Classes/class.nuke";
+    EXPECT_TRUE(tacticalNukeTest::parseAndValidateFilePath(relativePath)) << "Relative file path should be valid if it exists.";
+}
+
+TEST(tacticalNukeTest, AbsoluteFilePath) {
+    const std::string absolutePath = "/absolute/path/to/class.nuke";
+    EXPECT_FALSE(tacticalNukeTest::parseAndValidateFilePath(absolutePath)) << "Absolute file path should be tested based on your system.";
 }
 
 TEST_F(tacticalNukeTest, TestNuke) {

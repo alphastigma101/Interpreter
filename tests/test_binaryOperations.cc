@@ -1,22 +1,95 @@
 #include <gtest/gtest.h>
-#include <scanner.h>
-#include <parser.h>
 #include <language_specific_truthy_operations.h>
-class BinaryOperationsTest : public ::testing::Test {
-    protected:
-        void SetUp() override {
-            // Setup code if needed
-        }   
+namespace Test {
+    class OperationsTest : public ::testing::Test, public BinaryOperations::binaryOperations {
+        public:
+            template<typename T>
+            inline static void runBinaryTest(const char* testName, const Any value, bool expectedResult) {
+                bool result = isOther<T>(&value);
+                EXPECT_EQ(result, expectedResult);
+            };
+            template<typename T>
+            inline static void runNumericTest(const char* testName, const Any value, bool expectedResult) {
+                bool result = isOther<T>(&value);
+                EXPECT_EQ(result, expectedResult);
+            };
+            template<typename T>
+            inline static void runOtherTest(const char* testName, const Any value, bool expectedResult) {
+                bool result = isOther<T>(&value);
+                EXPECT_EQ(result, expectedResult);
+            };
+        protected:
+            void SetUp() override {
+                // Setup code if needed
+            }   
+    };
 };
-TEST_F(BinaryOperationsTest, IDs) {
-    Scanner scanner("int d = (34.000000 + 15.000000);");
-    Vector<Token> tokens = scanner.ScanTokens();
-    Parser::parser p(tokens);
-    auto res = p.parse();
-    String conv;
-    //if (auto it = env.find("d"); it != env.end())
-        //conv = std::any_cast<String>(it->second);
-    //EXPECT_EQ(conv, "49.000000");
+using namespace Test;
+TEST_F(OperationsTest, BinaryIDs) {
+    {
+        Vector<int> vec;
+        Any value(vec);
+        runBinaryTest<int>("Vector<int> test", value, true);
+    }
+
+    // Test Case 2: Pointer test
+    {
+        int* ptr = nullptr;
+        Any value(ptr);
+        runBinaryTest<int>("int* pointer test", value, true);
+    }
+
+    // Test Case 3: NukeInstance test
+    {
+        NuclearLang::NukeInstance* instance = nullptr;
+        Any value(instance);
+        runBinaryTest<int>("NukeInstance test", value, true);
+    }
+    
+}
+TEST_F(OperationsTest, ToNumeric) {
+    {
+        Vector<int> vec;
+        Any value(vec);
+        runNumericTest<int>("Vector<int> test", value, true);
+    }
+
+    // Test Case 2: Pointer test
+    {
+        int* ptr = nullptr;
+        Any value(ptr);
+        runNumericTest<int>("int* pointer test", value, true);
+    }
+
+    // Test Case 3: NukeInstance test
+    {
+        NuclearLang::NukeInstance* instance = nullptr;
+        Any value(instance);
+        runNumericTest<int>("NukeInstance test", value, true);
+    }
+    
+}
+// Must convert a string into a vector 
+TEST_F(OperationsTest, ToOther) {
+    {
+        Vector<int> vec;
+        Any value(vec);
+        runOtherTest<int>("Vector<int> test", value, true);
+    }
+
+    // Test Case 2: Pointer test
+    {
+        int* ptr = nullptr;
+        Any value(ptr);
+        runOtherTest<int>("int* pointer test", value, true);
+    }
+
+    // Test Case 3: NukeInstance test
+    {
+        NuclearLang::NukeInstance* instance = nullptr;
+        Any value(instance);
+        runOtherTest<int>("NukeInstance test", value, true);
+    }
     
 }
 int main(int argc, char **argv) {

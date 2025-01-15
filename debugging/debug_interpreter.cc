@@ -107,32 +107,20 @@ int main(int argc, char **argv) {
         "}\n"
             "radiate a;"
     );*/
-    Scanner scanner(R"(
-        containment Thing {
-            Thing getCallback() {
-                Thing localFunction() {
-                    radiate this;
-                }
-                return localFunction;
-            }
-        }
-        Thing callback = Thing().getCallback();
-        callback();
-        )"
-    );
+     Scanner scanner("string bar(string a) { return a; } bar('hello!'); int foo(int a) {return a;} foo(100);");
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    //Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
-    //resolver->resolve(res);
-    try {
-        Interpreter::interpreter interp(res);
+    String conv;
+
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    if (auto search = env.find("bar"); search != env.end()) {
+        auto nuke = std::any_cast<NuclearLang::NukeFunction*>(search->second);
+        conv = std::any_cast<String>(nuke->returnValue->value); 
     }
-    catch(NuclearLang::NukeReturn* e) {
-        NuclearLang::NukeFunction* conv = std::any_cast<NuclearLang::NukeFunction*>(e->value);
-        //EXPECT_TRUE(conv != nullptr);
-        //EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeFunction*));
-    }
+    std::cout << conv << std::endl;
+   
     
     //Adding();
     

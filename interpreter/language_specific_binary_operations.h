@@ -7,6 +7,7 @@ namespace BinaryOperations {
     class binaryOperations: public Check<binaryOperations>, public Conv<binaryOperations> {
         public:
             friend class Interpreter::interpreter;
+            friend class ::Test::OperationsTest;
             // Default constructor
             binaryOperations() = default;
             ~binaryOperations() noexcept {};
@@ -61,20 +62,20 @@ namespace BinaryOperations {
                 if (temp.type() == typeid(T*)) {
                     return true;
                 }
-                if (temp.type() == typeid(std::reference_wrapper<T>)) {
-                    return true;
-                }
-                if (temp.type() == typeid(NuclearLang::NukeFunction*)) {
-                    return true;
-                }
+                #if ENABLE_COMPILER
+                    if (temp.type() == typeid(std::reference_wrapper<T>)) {
+                        return true;
+                    }
+                    if (temp.type() == typeid(NuclearLang::NukeFunction*)) {
+                        return true;
+                    }
+                #endif
                 if (temp.type() == typeid(NuclearLang::NukeInstance*)) {
                     return true;
                 }
                 if (temp.type() == typeid(NuclearLang::NukeClass*)) {
                     return true;
                 }
-                
-                
                 return false;
             };
             static bool bothEqual(const Any a, const Any b);

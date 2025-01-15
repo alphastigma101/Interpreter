@@ -310,24 +310,28 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionInt) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    try {
-        Interpreter::interpreter interp(res);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto search = env.find("foo"); search != env.end()) {
+        auto nuke = std::any_cast<NuclearLang::NukeFunction*>(search->second);
+        conv = std::any_cast<String>(nuke->returnValue->value); 
     }
-    catch(NuclearLang::NukeReturn* e) {
-        //EXPECT_EQ(e.value, "60");
-    }
+    EXPECT_EQ(conv, "60");
 }
 TEST_F(InterpreterTest, InterpreterTest_FunctionString) {
     Scanner scanner("string bar(string a) { return a; } bar('hello!');");
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    try {
-        Interpreter::interpreter interp(res);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    if (auto search = env.find("bar"); search != env.end()) {
+            auto nuke = std::any_cast<NuclearLang::NukeFunction*>(search->second);
+            conv = std::any_cast<String>(nuke->returnValue->value); 
     }
-    catch(NuclearLang::NukeReturn& e) {
-        //EXPECT_EQ(e.value, "'hello!'");
-    }
+    EXPECT_EQ(conv, "'hello!'");
     
 }
 TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
@@ -335,13 +339,23 @@ TEST_F(InterpreterTest, InterpreterTest_FunctionMultiple) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
-    try {
-        Interpreter::interpreter interp(res);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    String conv;
+    {
+        if (auto search = env.find("bar"); search != env.end()) {
+            auto nuke = std::any_cast<NuclearLang::NukeFunction*>(search->second);
+            conv = std::any_cast<String>(nuke->returnValue->value); 
+        }
+        EXPECT_EQ(conv, "'hello!'");
     }
-    catch(NuclearLang::NukeReturn& e) {
-        //EXPECT_EQ(e.value, "'hello!'");
+    {
+        if (auto search = env.find("foo"); search != env.end()) {
+            auto nuke = std::any_cast<NuclearLang::NukeFunction*>(search->second);
+            conv = std::any_cast<String>(nuke->returnValue->value); 
+        }
+        EXPECT_EQ(conv, "100");
     }
-    
 }
 TEST_F(InterpreterTest, InterpreterTest_ClassInstances) {
     Scanner scanner(R"(
@@ -497,16 +511,16 @@ TEST_F(InterpreterTest, InterpreterTest_ClassCallBackMethod) {
     Vector<Token> tokens = scanner.ScanTokens();
     Parser::parser p(tokens);
     auto res = p.parse();
+    NuclearLang::NukeFunction* conv;
     Resolver::resolver* resolver = new Resolver::resolver(new Interpreter::interpreter());
     resolver->resolve(res);
-    try {
-        Interpreter::interpreter interp(res);
-    }
-    catch(NuclearLang::NukeReturn* e) {
-        NuclearLang::NukeFunction* conv = std::any_cast<NuclearLang::NukeFunction*>(e->value);
-        EXPECT_TRUE(conv != nullptr);
+    Interpreter::interpreter interp(res);
+    auto env = interp.getEnv()->getMap();
+    if (auto search = env.find(String("callback")); search != env.end()) {
+        NuclearLang::NukeFunction* conv = std::any_cast<NuclearLang::NukeFunction*>(search->second);
         EXPECT_EQ(typeid(conv), typeid(NuclearLang::NukeFunction*));
     }
+    EXPECT_TRUE(conv != nullptr);
     
 }
 TEST_F(InterpreterTest, InterpreterTest_ClassThis) {
