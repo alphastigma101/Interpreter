@@ -108,13 +108,21 @@ int main(int argc, char **argv) {
             "radiate a;"
     );*/
     Scanner scanner(R"(
-        containment Doughnut {
-            string cook() {
-                radiate "Fry until golden brown.";
+        containment A {
+            string method() {
+                radiate "A method";
             }
         }
-        containment BostonCream < Doughnut {}
-        BostonCream().cook();
+        containment B < A {
+            string method() {
+                radiate "B method";
+            }
+            B test() {
+                super.method();
+            }
+        }
+        containment C < B {}
+        C().test();
         )"
     );
     Vector<Token> tokens = scanner.ScanTokens();

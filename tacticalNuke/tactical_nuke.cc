@@ -8,6 +8,10 @@
 #include <fstream>
 #include "tactical_nuke.h"
 void* NuclearLang::NukeFunction::declaration = nullptr;
+//void* NuclearLang::NukeClass::methods = nullptr;
+//void* NuclearLang::NukeClass::fieldProperties = nullptr;
+//void* NuclearLang::NukeClass::superclass = nullptr;
+
 /** -------------------------------------------------------------------------
  * @brief Is a standalone static void function that runs the user input 
  * 
@@ -266,8 +270,11 @@ NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
     return &methodMap.at(nameStr);
   }
   if (superclass != nullptr) {
-    if (reinterpret_cast<Any*>(superclass)->type() == typeid(NuclearLang::NukeClass*))
-      return std::any_cast<NuclearLang::NukeClass*>(*reinterpret_cast<Any*>(superclass))->findMethod(name);
+    auto& super = *reinterpret_cast<Any*>(superclass);
+    if (super.type() == typeid(NuclearLang::NukeClass*)) {
+      const auto& method = std::any_cast<NuclearLang::NukeClass*>(std::move(super))->findMethod(name);
+      return method;
+    }
   }
   return nullptr;
 }

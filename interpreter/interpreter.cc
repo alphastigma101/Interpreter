@@ -235,7 +235,7 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     Map<String, NuclearLang::NukeFunction> methods;
     Map<String, NuclearLang::NukeProperties> fieldProperties;
     NuclearLang::NukeProperties* propertyFields;
-    Any superclass = nullptr;
+    Any superclass;
     if (stmt->superclass != nullptr) {
         superclass = evaluate(stmt->superclass);
         if (!(superclass.type() == typeid(NuclearLang::NukeClass*))) {

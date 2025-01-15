@@ -116,19 +116,19 @@ namespace NuclearLang {
         /// @param properties Is a map with a string and value being NukeProperties
         template<typename A, typename B, typename C, typename D>
         explicit NukeClass(A name, B methods, C superclass, D fieldProperties_) noexcept {
-          this->name = new A(name);
-          this->methods = new B(methods);
-          this->superclass = new C(superclass);
-          this->fieldProperties = new D(fieldProperties_);
+          this->name = new A(std::move(name));
+          this->methods = new B(std::move(methods));
+          this->superclass = new C(std::move(superclass));
+          this->fieldProperties = new D(std::move(fieldProperties_));
         };
         ~NukeClass() noexcept = default;
         Any call(Interpreter::interpreter* interp, const Vector<Any>& arguments);
-        static int arity(int argc = 0);
-        static NukeFunction* findMethod(void* name);
+        int arity(int argc = 0);
+        NukeFunction* findMethod(void* name);
         void* name = nullptr;
-        inline static void* methods = nullptr;
-        inline static void* fieldProperties = nullptr;
-        inline static void* superclass = nullptr;
+        void* methods;
+        void* fieldProperties;
+        void* superclass;
       protected:
         static const void* getType(); 
         static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeClass>::getMsg()) throw();
@@ -143,11 +143,11 @@ namespace NuclearLang {
         template<typename A, typename B, typename C>
         explicit NukeProperties(A fieldType_, B fieldName_, C propertyType_ = nullptr) noexcept {
           if (&fieldType_ != nullptr && &fieldName_ != nullptr) { 
-            this->fieldType = new A(fieldType_);
-            this->fieldName = new B(fieldName_);
+            this->fieldType = new A(std::move(fieldType_));
+            this->fieldName = new B(std::move(fieldName_));
           }
           if (&propertyType_ != nullptr) 
-            this->propertyType = new C(propertyType_);
+            this->propertyType = new C(std::move(propertyType_));
         };
         ~NukeProperties() noexcept = default;
         inline static void* fieldName = nullptr;
