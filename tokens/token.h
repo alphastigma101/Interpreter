@@ -1,7 +1,7 @@
 #ifndef _TOKEN_H_
 #define _TOKEN_H_
-#include <definitions.h>
 #include <catch.h>
+#include <declarations.h>
 #include <enum_types.h>
 /** --------------------------------------------------------------------------------------
  * @brief This header file holds the declarations of the class called Token which is used a lot throughout this codebase

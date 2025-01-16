@@ -47,12 +47,6 @@ using Atomic = std::atomic<T>;
 using Any = std::any;
 template<typename T>
 using Set = std::set<T>;
-/** --------------------------------------------------------------------------
- * @brief Initialized in main.cc and is copy-initialized in abstraction_syntax_tree.cc
- * ---------------------------------------------------------------------------
-*/
-extern String user_choice;
-extern String file_name;
 namespace Test {
     class OperationsTest;
 };
@@ -158,20 +152,11 @@ namespace NuclearLang {
  *
  * @brief Details that explain the custom data structures and there purpose
  *
- * @details 'astTree' Represents a tree structure with a type T, a pair of type U and Shared<V>
- * @details 'Vertices' Known as nodes which represent the lines/links of a directed/undirected graph
- *                     It will use templates so it can be reused somewhere in the codebase if needed
- * @details 'Vertex' Known as the dot/point in a directed/undirected graph
- *                   It will use templates so it can be reused somewhere else in the codebase if needed
  * ---------------------------------------------------------------------------
 */
 template<typename... Derived>
 using ExprTypes = Shared<Derived...>;
 using ExprVariant = Variant<ContextFreeGrammar::Expr*, Unique<ContextFreeGrammar::Expr>>;
-//template<typename X, typename Y, typename Z>
-//using Vertices =
-//template<typename X, typename Y, typename Z>
-//using Vertex = std::tuple<
 
 namespace Logging {
     template<typename Derived>

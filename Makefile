@@ -4,7 +4,7 @@ CXXFLAGS := -g -std=c++23
 LDFLAGS := -L $(HOME)/Interpreter/tests -lgtest -lgtest_main -pthread
 
 # Include directories
-INCLUDES := -I types/ -I logging/ -I catch/ -I tokens/ -I interface/ -I ast/ -I cfg/ -I declarations/ -I definitions/ -I runtime/ -I interpreter/ -I scanner/ \
+INCLUDES := -I types/ -I logging/ -I catch/ -I tokens/ -I interface/ -I ast/ -I cfg/ -I declarations/ -I runtime/ -I interpreter/ -I scanner/ \
 			-I parser/ -I threading/ -I environment/ -I tacticalNuke/ \
 			-I resolver/ -I stack/
 
@@ -67,31 +67,29 @@ SRC_FILES_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parser/pars
 				   main.cc
 
 # Convert source files to object files
-OBJ_FILES_DEBUG_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_TOKENS))
-OBJ_FILES_DEBUG_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_SCANNER))
-OBJ_FILES_DEBUG_AST := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_AST))
-OBJ_FILES_DEBUG_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_PARSER))
-#OBJ_FILES_DEBUG_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_ENV))
-OBJ_FILES_DEBUG_STACK := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_STACK))
-OBJ_FILES_DEBUG_RESOLVER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_RESOLVER))
-OBJ_FILES_DEBUG_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_DEBUG_INTERPRETER))
+# Convert source files to object files
+OBJ_FILES_DEBUG_TOKENS := $(SRC_FILES_DEBUG_TOKENS:.cc=.o)
+OBJ_FILES_DEBUG_SCANNER := $(SRC_FILES_DEBUG_SCANNER:.cc=.o)
+OBJ_FILES_DEBUG_AST := $(SRC_FILES_DEBUG_AST:.cc=.o)
+OBJ_FILES_DEBUG_PARSER := $(SRC_FILES_DEBUG_PARSER:.cc=.o)
+OBJ_FILES_DEBUG_STACK := $(SRC_FILES_DEBUG_STACK:.cc=.o)
+OBJ_FILES_DEBUG_RESOLVER := $(SRC_FILES_DEBUG_RESOLVER:.cc=.o)
+OBJ_FILES_DEBUG_INTERPRETER := $(SRC_FILES_DEBUG_INTERPRETER:.cc=.o)
 
+OBJ_FILES_TEST_TOKENS := $(SRC_FILES_TEST_TOKENS:.cc=.o)
+OBJ_FILES_TEST_RUNTIME := $(SRC_FILES_TEST_RUNTIME:.cc=.o)
+OBJ_FILES_TEST_SCANNER := $(SRC_FILES_TEST_SCANNER:.cc=.o)
+OBJ_FILES_TEST_AST := $(SRC_FILES_TEST_AST:.cc=.o)
+OBJ_FILES_TEST_PARSER := $(SRC_FILES_TEST_PARSER:.cc=.o)
+OBJ_FILES_TEST_BINARY := $(SRC_FILES_TEST_BINARY:.cc=.o)
+OBJ_FILES_TEST_UNARY := $(SRC_FILES_TEST_UNARY:.cc=.o)
+OBJ_FILES_TEST_TRUTHY := $(SRC_FILES_TEST_TRUTHY:.cc=.o)
+OBJ_FILES_TEST_TACTICALNUKE := $(SRC_FILES_TEST_TACTICALNUKE:.cc=.o)
+OBJ_FILES_TEST_STACK := $(SRC_FILES_TEST_STACK:.cc=.o)
+OBJ_FILES_TEST_RESOLVER := $(SRC_FILES_TEST_RESOLVER:.cc=.o)
+OBJ_FILES_TEST_INTERPRETER := $(SRC_FILES_TEST_INTERPRETER:.cc=.o)
 
-OBJ_FILES_TEST_TOKENS := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TOKENS))
-OBJ_FILES_TEST_RUNTIME := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_RUNTIME))
-OBJ_FILES_TEST_SCANNER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_SCANNER))
-OBJ_FILES_TEST_AST := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_AST))
-OBJ_FILES_TEST_PARSER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_PARSER))
-OBJ_FILES_TEST_BINARY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_BINARY))
-OBJ_FILES_TEST_UNARY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_UNARY))
-OBJ_FILES_TEST_TRUTHY := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TRUTHY))
-#OBJ_FILES_TEST_ENV := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_ENV))
-OBJ_FILES_TEST_TACTICALNUKE := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_TACTICALNUKE))
-OBJ_FILES_TEST_STACK := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_STACK))
-OBJ_FILES_TEST_RESOLVER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_RESOLVER))
-OBJ_FILES_TEST_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_TEST_INTERPRETER))
-
-OBJ_FILES_INTERPRETER := $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
+OBJ_FILES_INTERPRETER := $(SRC_FILES_INTERPRETER:.cc=.o)
 
 # All binaries
 BINARIES := exec_debug_tokens exec_debug_scanner exec_debug_ast \
@@ -108,81 +106,105 @@ all: $(BINARIES)
 
 # Special compilation rules
 cfg/context_free_grammar.o: cfg/context_free_grammar.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 environment/environment.o: environment/environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tacticalNuke/tacticalNuke.o: tacticalNuke/tactical_nuke.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 stack/user_stack.o: stack/user_stack.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 resolver/resolver.o: resolver/resolver.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 interpreter/interpreter.o: interpreter/interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 debugging/debug_abstraction_syntax_tree.o: debugging/debug_abstraction_syntax_tree.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c cfg/context_free_grammar.cc -o cfg/test_context_free_grammar.o 
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c cfg/context_free_grammar.cc -o cfg/test_context_free_grammar.o 
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 debugging/debug_parser.o: debugging/debug_parser.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 debugging/debug_environment.o: debugging/debug_environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 debugging/debug_interpreter.o: debugging/debug_interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 tests/test_token.o: tests/test_token.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_runtime.o: tests/test_runtime.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_scanner.o: tests/test_scanner.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_abstraction_syntax_tree.o: tests/test_abstraction_syntax_tree.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_parser.o: tests/test_parser.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_binaryOperations.o: tests/test_binaryOperations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_unaryOperations.o: tests/test_unaryOperations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_truthyOperations.o: tests/test_truthyOperations.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_environment.o: tests/test_environment.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_tacticalNuke.o: tests/test_tacticalNuke.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_user_stack.o: tests/test_user_stack.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_resolver.o: tests/test_resolver.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 tests/test_interpreter.o: tests/test_interpreter.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(ENABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
 
 main.o: main.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DISABLE_VISITOR_PATTERN) -MMD -MP -c $< -o $@
+
+# Add header dependency tracking
+DEPS := $(OBJ_FILES_DEBUG_TOKENS:.o=.d) \
+        $(OBJ_FILES_DEBUG_SCANNER:.o=.d) \
+        $(OBJ_FILES_DEBUG_AST:.o=.d) \
+        $(OBJ_FILES_DEBUG_PARSER:.o=.d) \
+        $(OBJ_FILES_DEBUG_STACK:.o=.d) \
+        $(OBJ_FILES_DEBUG_RESOLVER:.o=.d) \
+        $(OBJ_FILES_DEBUG_INTERPRETER:.o=.d) \
+        $(OBJ_FILES_TEST_TOKENS:.o=.d) \
+        $(OBJ_FILES_TEST_RUNTIME:.o=.d) \
+        $(OBJ_FILES_TEST_SCANNER:.o=.d) \
+        $(OBJ_FILES_TEST_AST:.o=.d) \
+        $(OBJ_FILES_TEST_PARSER:.o=.d) \
+        $(OBJ_FILES_TEST_BINARY:.o=.d) \
+        $(OBJ_FILES_TEST_UNARY:.o=.d) \
+        $(OBJ_FILES_TEST_TRUTHY:.o=.d) \
+        $(OBJ_FILES_TEST_TACTICALNUKE:.o=.d) \
+        $(OBJ_FILES_TEST_STACK:.o=.d) \
+        $(OBJ_FILES_TEST_RESOLVER:.o=.d) \
+        $(OBJ_FILES_TEST_INTERPRETER:.o=.d) \
+        $(OBJ_FILES_INTERPRETER:.o=.d)
+
+-include $(DEPS)
 
 # Default object compilation
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 # Debug executables
 
@@ -253,5 +275,7 @@ exec_interpreter: $(OBJ_FILES_INTERPRETER)
 
 clean:
 	rm -f $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
-	rm -f *.o debugging/*.o ast/*.o cfg/*.o tests/*.o parser/*.o tokens/*.o scanner/*.o environment/*.o main.o $(BINARIES)
+	rm -f *.o *.d debugging/*.o debugging/*.d ast/*.o ast/*.d cfg/*.o cfg/*.d \
+		tests/*.o tests/*.d parser/*.o parser/*.d tokens/*.o tokens/*.d \
+		scanner/*.o scanner/*.d environment/*.o environment/*.d main.o main.d $(BINARIES)
 
