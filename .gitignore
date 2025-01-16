@@ -31,6 +31,7 @@
 *.out
 *.app
 Notes.md
+Ast.txt
 # Folders to exclude
 logs/
 debugging/logs/
