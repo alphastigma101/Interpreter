@@ -21,13 +21,12 @@
 * Tatical nuke is custom language I developed myself. It uses c++ syntax. It will be a lighter version of c++, and should be used to build `operating systems` 
 * ***Pros***:
     * Tatical Nuke is a language that I implemented myself. It is inspired by low level languages and has a mixture of keywords from modern languages. 
-    * It has a keyword called `radiation` that is connected to a database. The database I will be choosing `ODB` for the flexibility  
+    * It uses JavaScript's callback syntax and also has inheritance.
     * It is less strict than c++ but should offer the same performance.
     * To create classes you type `containment`, and `MUSHROOMCLOUD` to include other code files that end with `.nuke`. 
-    * Basic Keywords it suports `int`, `void`, `double`, `string`, `char`, references `&`, and raw pointers `*`. **Note** that references and pointers will not be supported when interpreting tatical nuke. It will be avialable when compiling it 
+    * Basic Keywords it suports `int`, `void`, `double`, `string`, `char`, references `&`, and raw pointers `*`. **Note** that references and pointers will not be supported when interpreting tatical nuke. It will be avialable when compiling it. The compiler will be on a different repo. 
 * ***Cons***:
-* It will spam out random ASCI characters, and display TATICAL NUKE and delete itself, if the programmer messes up the syntax.
-* Can also display a 2D nuke droping down on a bunch of people and displays `TATICAL NUKE` upon impact. 
+* It will either display a mini nuke or a big nuke and drop on a family of stick figures, if and only if the programmer itself messes up on the syntax. 
 
 ### Project Motivation and Potential Applications
 
