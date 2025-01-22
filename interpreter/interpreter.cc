@@ -25,7 +25,7 @@ Any Interpreter::interpreter::call(Interpreter::interpreter* interpreter, Vector
 }
 
 void Interpreter::interpreter::execute(ContextFreeGrammar::Statement *stmt) {
-    stmt->accept(this);
+    stmt->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
 }
 
 /** -------------------------------------------------
@@ -58,18 +58,30 @@ Interpreter::interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stm
  * 
  */
 Any Interpreter::interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
-    if (auto call = dynamic_cast<ContextFreeGrammar::Call*>(conv)) return conv->accept(this);
-    else if (auto binary = dynamic_cast<ContextFreeGrammar::Binary*>(conv)) return conv->accept(this);
-    else if (auto literal = dynamic_cast<ContextFreeGrammar::Literal*>(conv)) return conv->accept(this);
-    else if (auto unary = dynamic_cast<ContextFreeGrammar::Unary*>(conv)) return conv->accept(this);
-    else if (auto grouping = dynamic_cast<ContextFreeGrammar::Grouping*>(conv)) return conv->accept(this);
-    else if (auto assign = dynamic_cast<ContextFreeGrammar::Assign*>(conv)) return conv->accept(this);
-    else if (auto logic = dynamic_cast<ContextFreeGrammar::Logical*>(conv)) return conv->accept(this);
-    else if (auto var = dynamic_cast<ContextFreeGrammar::Variable*>(conv)) return conv->accept(this);
-    else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) return conv->accept(this);
-    else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) return conv->accept(this);
-    else if (auto this_ = dynamic_cast<ContextFreeGrammar::This*>(conv)) return conv->accept(this);
-    else if (auto super = dynamic_cast<ContextFreeGrammar::Super*>(conv)) return conv->accept(this);
+    if (auto call = dynamic_cast<ContextFreeGrammar::Call*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto binary = dynamic_cast<ContextFreeGrammar::Binary*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto literal = dynamic_cast<ContextFreeGrammar::Literal*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto unary = dynamic_cast<ContextFreeGrammar::Unary*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto grouping = dynamic_cast<ContextFreeGrammar::Grouping*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto assign = dynamic_cast<ContextFreeGrammar::Assign*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto logic = dynamic_cast<ContextFreeGrammar::Logical*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto var = dynamic_cast<ContextFreeGrammar::Variable*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto get = dynamic_cast<ContextFreeGrammar::Get*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto set = dynamic_cast<ContextFreeGrammar::Set*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto this_ = dynamic_cast<ContextFreeGrammar::This*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
+    else if (auto super = dynamic_cast<ContextFreeGrammar::Super*>(conv)) 
+        return conv->accept(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get());
     throw catcher<interpreter>("Unexpected type in evaluate function");
 }
 /** ---------------------------------------------------------------------------
@@ -160,7 +172,7 @@ Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             std::to_string(function.arity()) + " arguments but got " +
             std::to_string(arguments.size()) + ".").c_str());
         }
-        return function.call(this, arguments);
+        return function.call(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get(), arguments);
     }
     else if (callee.type() == typeid(NuclearLang::NukeClass*)) {
         auto& function = *std::any_cast<NuclearLang::NukeClass*>(callee);
@@ -169,7 +181,7 @@ Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             std::to_string(function.arity()) + " arguments but got " +
             std::to_string(arguments.size()) + ".").c_str());
         }
-        return function.call(this, arguments); 
+        return function.call(Unique<Interpreter::interpreter>(new Interpreter::interpreter()).get(), arguments); 
     }
     String error = String(" [Line Error ") + std::to_string(expr->op.getLine()) + String( "]:") + String(" Can only call functions and classes."); 
     throw runtimeerror<Interpreter::interpreter>(expr->paren, error.c_str());
@@ -262,7 +274,6 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
       environment = environment->enclosing;
     }
     environment->assign(stmt->op, klass);
-    className = stmt->op;
     return nullptr;
 }
 Any Interpreter::interpreter::visitExpressionStmt(ContextFreeGrammar::Expression *stmt) {

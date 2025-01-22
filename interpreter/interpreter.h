@@ -14,34 +14,34 @@ namespace Interpreter {
             */
             explicit interpreter(Vector<ContextFreeGrammar::Statement*> stmt);
             ~interpreter() noexcept = default;
-            Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
-            Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
-            Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
-            Any visitGroupingExpr(ContextFreeGrammar::Grouping* expr);
-            Any visitBlockStmt(ContextFreeGrammar::Block* stmt);
-            Any visitClassStmt(ContextFreeGrammar::Class* stmt);
-            Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
-            Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
-            Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
-            Any lookUpVariable(Token name, ContextFreeGrammar::Expr* expr);
-            Any visitVarStmt(ContextFreeGrammar::Var* stmt);
-            Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
-            Any visitIfStmt(ContextFreeGrammar::If* stmt);
-            Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
-            Any visitSetExpr(ContextFreeGrammar::Set* expr);
-            Any visitSuperExpr(ContextFreeGrammar::Super* expr);
-            Any visitThisExpr(ContextFreeGrammar::This* expr);
-            Any visitWhileStmt(ContextFreeGrammar::While* stmt);
-            Any visitCallExpr(ContextFreeGrammar::Call* expr);
-            Any visitGetExpr(ContextFreeGrammar::Get* expr);
-            Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
-            Any visitReturnStmt(ContextFreeGrammar::Return* stmt);
+            static Any visitBinaryExpr(ContextFreeGrammar::Binary* expr);
+            static Any visitUnaryExpr(ContextFreeGrammar::Unary* expr);
+            static Any visitLiteralExpr(ContextFreeGrammar::Literal* expr);
+            static Any visitGroupingExpr(ContextFreeGrammar::Grouping* expr);
+            static Any visitBlockStmt(ContextFreeGrammar::Block* stmt);
+            static Any visitClassStmt(ContextFreeGrammar::Class* stmt);
+            static Any visitExpressionStmt(ContextFreeGrammar::Expression* stmt);
+            static Any visitPrintStmt(ContextFreeGrammar::Print* stmt);
+            static Any visitVariableExpr(ContextFreeGrammar::Variable* expr);
+            static Any lookUpVariable(Token name, ContextFreeGrammar::Expr* expr);
+            static Any visitVarStmt(ContextFreeGrammar::Var* stmt);
+            static Any visitAssignExpr(ContextFreeGrammar::Assign* expr);
+            static Any visitIfStmt(ContextFreeGrammar::If* stmt);
+            static Any visitLogicalExpr(ContextFreeGrammar::Logical* expr);
+            static Any visitSetExpr(ContextFreeGrammar::Set* expr);
+            static Any visitSuperExpr(ContextFreeGrammar::Super* expr);
+            static Any visitThisExpr(ContextFreeGrammar::This* expr);
+            static Any visitWhileStmt(ContextFreeGrammar::While* stmt);
+            static Any visitCallExpr(ContextFreeGrammar::Call* expr);
+            static Any visitGetExpr(ContextFreeGrammar::Get* expr);
+            static Any visitFunctionStmt(ContextFreeGrammar::Functions* expr);
+            static Any visitReturnStmt(ContextFreeGrammar::Return* stmt);
             inline static void resolve(ContextFreeGrammar::Expr* expr, int depth) {
                 locals.insert_or_assign(expr, depth);
             };
-            inline void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
-                Environment::environment* previous = this->globals;
-                this->globals = environment;
+            inline static void executeBlock(Vector<ContextFreeGrammar::Statement*> statements, Environment::environment* environment) {
+                Environment::environment* previous = globals;
+                *globals = *environment;
                 try {
                     for (const auto statement : statements) {
                         if (statement != nullptr) 
@@ -49,7 +49,7 @@ namespace Interpreter {
                         else 
                             throw catcher<interpreter>("Inside of executeBlock() interpreter, a nullptr was detected!");
                     }
-                    this->globals = previous;
+                    *globals = *previous;
                 }
                 catch(catcher<interpreter>& e) {
                     std::cout << e.what() << std::endl;
@@ -61,13 +61,13 @@ namespace Interpreter {
             static Any call(Interpreter::interpreter* interpreter, Vector<Any> arguments);
         private:
             Vector<Any> Fields;
-            TruthyOperations::truthyOperations* tO = new TruthyOperations::truthyOperations();
+            inline static TruthyOperations::truthyOperations* tO = new TruthyOperations::truthyOperations();
             inline static BinaryOperations::binaryOperations* bO = new BinaryOperations::binaryOperations();
-            UnaryOperations::unaryOperations* uO = new UnaryOperations::unaryOperations();
+            inline static UnaryOperations::unaryOperations* uO = new UnaryOperations::unaryOperations();
             String globalType;
             String localType;
             Token className;
-            void execute(ContextFreeGrammar::Statement* stmt);
+            static void execute(ContextFreeGrammar::Statement* stmt);
             inline static Map<String, Vector<String>> logs_{};
             static Environment::environment* globals;
             inline static Environment::environment* environment = globals;
@@ -75,7 +75,7 @@ namespace Interpreter {
             template<typename T>
             static bool instanceof(const Any object);
         protected:
-            Any evaluate(ContextFreeGrammar::Expr* conv);
+            static Any evaluate(ContextFreeGrammar::Expr* conv);
             inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
             /** --------------------------------------
              * @brief A method that is overloaded by this class 

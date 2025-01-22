@@ -276,6 +276,6 @@ exec_interpreter: $(OBJ_FILES_INTERPRETER)
 clean:
 	rm -f $(patsubst %.cc,%.o,$(SRC_FILES_INTERPRETER))
 	rm -f *.o *.d debugging/*.o debugging/*.d ast/*.o ast/*.d cfg/*.o cfg/*.d \
-		tests/*.o tests/*.d parser/*.o parser/*.d tokens/*.o tokens/*.d \
-		scanner/*.o scanner/*.d environment/*.o environment/*.d main.o main.d $(BINARIES)
+		tests/*.o tests/*.d parser/*.o parser/*.d tokens/*.o tokens/*.d stack/*.d \
+		scanner/*.o scanner/*.d environment/*.o environment/*.d interpreter/*.d resolver/*.d main.o main.d $(BINARIES)
 
