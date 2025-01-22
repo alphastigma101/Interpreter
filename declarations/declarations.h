@@ -154,9 +154,12 @@ namespace NuclearLang {
  *
  * ---------------------------------------------------------------------------
 */
-template<typename... Derived>
-using ExprTypes = Shared<Derived...>;
-using ExprVariant = Variant<ContextFreeGrammar::Expr*, Unique<ContextFreeGrammar::Expr>>;
+//template<typename... Derived>
+//using ExprTypes = Variant<Unique<Derived>...>;
+//extern ExprTypes<Unique<ContextFreeGrammar::Binary>, 
+        //Unique<ContextFreeGrammar::Unary>, Unique<ContextFreeGrammar::Grouping>,
+        //Unique<ContextFreeGrammar::Literal>>  ExprVariant;
+
 
 namespace Logging {
     template<typename Derived>
