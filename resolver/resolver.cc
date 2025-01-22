@@ -1,4 +1,3 @@
-//#include <interpreter.h>
 #include <context_free_grammar.h>
 #include <tactical_nuke.h>
 #include "resolver.h"
@@ -11,7 +10,7 @@
  * 
  * --------------------------------------------
 */
-Resolver::resolver::resolver(Interpreter::interpreter *interp) noexcept { this->interp = std::move(interp); }
+Resolver::resolver::resolver(Interpreter::interpreter *interp) noexcept { this->interp = interp; }
 /** -----------------------------------------------------------------
  * @brief Resolves a list of statements by iterating through each statement
  *        and invoking the resolve method recursively. 
@@ -44,7 +43,7 @@ void Resolver::resolver::resolve(Vector<ContextFreeGrammar::Statement*> statemen
  * 
  * --------------------------------------------------------------------
  */
-void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) { stmt->accept(this); }
+void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) { stmt->accept(Unique<Resolver::resolver>( new Resolver::resolver()).get()); }
 /** -------------------------------------------------------------------
  * @brief Resolves a single expression in the context-free grammar.
  * 
@@ -56,7 +55,7 @@ void Resolver::resolver::resolve(ContextFreeGrammar::Statement* stmt) { stmt->ac
  * 
  * --------------------------------------------------------------------
 */
-void Resolver::resolver::resolve(ContextFreeGrammar::Expr *expr) { expr->accept(this); }
+void Resolver::resolver::resolve(ContextFreeGrammar::Expr *expr) { expr->accept(Unique<Resolver::resolver>( new Resolver::resolver()).get()); }
 void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function, FunctionType type) {
     FunctionType enclosingFunction = currentFunction;
     currentFunction = type;
@@ -65,7 +64,7 @@ void Resolver::resolver::resolveFunction(ContextFreeGrammar::Functions *function
       declare(param);
       define(param);
     }
-    for (auto body : function->statements) this->resolve(body);
+    for (auto body : function->statements) resolve(body);
     endScope();
     currentFunction = enclosingFunction;
 }
@@ -74,7 +73,7 @@ void Resolver::resolver::resolveProperties(ContextFreeGrammar::Statement *stmt) 
     beginScope();
     declare(stmt->op);
     define(stmt->op);
-    this->resolve(stmt);
+    Resolver::resolver::resolve(stmt);
     endScope();
 }
 /** ---------------------------------------------------------------------------------
@@ -147,7 +146,7 @@ void Resolver::resolver::resolveLocal(ContextFreeGrammar::Expr *expr, Token name
  */
 Any Resolver::resolver::visitBlockStmt(ContextFreeGrammar::Block* stmt) {
     beginScope();
-    resolve(stmt->statements);
+    Resolver::resolver::resolve(stmt->statements);
     endScope();
     return nullptr;
 }
