@@ -29,7 +29,7 @@ const char *StringPropertyError::what() throw() {
             char* result = new char[error.size() + 1];
             std::strcpy(result, error.c_str());
             return result;
-        } catch (...) { throw "Invalid type"; }
+        } catch (...) { std::cout << "Invalid type"; exit(0); }
     }
     return "";
 }

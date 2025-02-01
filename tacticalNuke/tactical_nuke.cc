@@ -262,6 +262,7 @@ void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
     return &(reinterpret_cast<NuclearLang::NukeProperties&>(search->second));
   }
   //throw runtimeerror<NuclearLang::NukeClass>();
+  return nullptr;
 }
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto& methodMap = *reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
@@ -435,7 +436,7 @@ const char* NuclearLang::NukeClass::what() throw() {
         char* result = new char[error.size() + 1];
         std::strcpy(result, error.c_str());
         return result;
-      } catch (...) { throw "Invalid type"; }
+      } catch (...) { std::cout << "Invalid type"; exit(0);}
   }
   return "";
 }
@@ -456,7 +457,7 @@ const char* NuclearLang::NukeReturn::what() throw() {
         char* result = new char[error.size() + 1];
         std::strcpy(result, error.c_str());
         return result;
-      } catch (...) { throw "Invalid type"; }
+      } catch (...) { std::cout << "Invalid type"; exit(0); }
   }
   return "";
 }

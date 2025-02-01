@@ -96,6 +96,8 @@ Any Interpreter::interpreter::evaluate(ContextFreeGrammar::Expr* conv) {
 Any Interpreter::interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) {
     Any left = evaluate(expr->left);
     Any right = evaluate(expr->right);
+    auto tmp = expr->op.getType();
+    runtimeerror<Interpreter::interpreter>::literal == "TokenType";
     switch (expr->op.getType()) {
         case TokenType::GREATER:
             bO->checkNumberOperands(expr->op, left, right);
@@ -133,7 +135,7 @@ Any Interpreter::interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) 
             if (instanceof<int>(left) && instanceof<int>(right))
                 return std::to_string(std::any_cast<int>(bO->toNumeric(left)) + std::any_cast<int>(bO->toNumeric(right)));
             return std::any_cast<String>(left) + std::any_cast<String>(right);
-            //throw runtimeerror<Interpreter::interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
+            throw runtimeerror<Interpreter::interpreter>(&tmp, "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
             bO->checkNumberOperands(expr->op, left, right);
@@ -484,7 +486,10 @@ const char *Interpreter::interpreter::what() throw() {
             char* result = new char[error.size() + 1];
             std::strcpy(result, error.c_str());
             return result;
-        } catch (...) { throw "Invalid type"; }
+        } catch (...) { 
+            std::cout << " Inside of interpreter.cc, Invalid type was detected!";
+            exit(0); 
+        }
     }
     return output.c_str();
 }
