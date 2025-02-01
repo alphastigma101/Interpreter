@@ -243,7 +243,7 @@ Any NuclearLang::NukeInstance::get(Token name) {
   }
   NuclearLang::NukeFunction* method = klass->findMethod(new String(name.getLexeme()));
   if (method != nullptr) return method->bind(this);
-  throw runtimeerror<NuclearLang::NukeClass>(name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
+  throw runtimeerror<NuclearLang::NukeClass>(&name, String("Undefined property '" + name.getLexeme() + "'.").c_str());
 }
 /** -------------------------------------
  * @brief search the class instance to aquire the field and properties types 
@@ -261,7 +261,7 @@ void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
   if (auto search = properties->find(temp->getLexeme()); search != properties->end()) {
     return &(reinterpret_cast<NuclearLang::NukeProperties&>(search->second));
   }
-  throw runtimeerror<NuclearLang::NukeClass>();
+  //throw runtimeerror<NuclearLang::NukeClass>();
 }
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
   auto& methodMap = *reinterpret_cast<Map<String, NuclearLang::NukeFunction>*>(methods);
@@ -419,21 +419,44 @@ void NuclearLang::NukeFunction::launch() {
   return;
 }
 
-const void *NuclearLang::NukeClass::getType() {
-  return reinterpret_cast<Token*>(runtimeerror<NuclearLang::NukeClass>::type);
+const char* NuclearLang::NukeClass::what() throw() {
+  if (runtimeerror<NuclearLang::NukeClass>::type == nullptr) return runtimeerror<NuclearLang::NukeClass>::message_;
+  if (runtimeerror<NuclearLang::NukeClass>::literal == "Token") {
+    auto token = dynamic_cast<Token*>(static_cast<Token*>(runtimeerror<NuclearLang::NukeClass>::type));
+    String error = token->getLexeme() + " " + runtimeerror<NuclearLang::NukeClass>::message_;
+    char* result = new char[error.size() + 1];
+    std::strcpy(result, error.c_str());
+    return result;
+  }
+  else if (runtimeerror<NuclearLang::NukeClass>::literal == "TokenType") {
+      try {
+        auto& value = *reinterpret_cast<TokenType*>(runtimeerror<NuclearLang::NukeClass>::type);
+        String error = tokenTypeStrings.at(value) + " " + runtimeerror<NuclearLang::NukeClass>::message_;
+        char* result = new char[error.size() + 1];
+        std::strcpy(result, error.c_str());
+        return result;
+      } catch (...) { throw "Invalid type"; }
+  }
+  return "";
 }
 
-const char *NuclearLang::NukeClass::what(const void *type, const char *msg) throw() {
-  auto& temp = *reinterpret_cast<const Token*>(type);
-  Token op = std::move(temp);
-  return String("Error in NukeReturn. Failed to interpret: " + op.getLexeme() + String(msg)).c_str();
-}
-
-const void *NuclearLang::NukeReturn::getType() {
-  return reinterpret_cast<Token*>(runtimeerror<NuclearLang::NukeReturn>::type);
-}
-const char *NuclearLang::NukeReturn::what(const void *type, const char *msg) throw() {
-  auto& temp = *reinterpret_cast<const Token*>(type);
-  Token op = std::move(temp);
-  return String("Error in NukeReturn. Failed to interpret: " + op.getLexeme() + String(msg)).c_str();
+const char* NuclearLang::NukeReturn::what() throw() {
+  if (runtimeerror<NuclearLang::NukeReturn>::type == nullptr) return runtimeerror<NuclearLang::NukeReturn>::message_;
+  if (runtimeerror<NuclearLang::NukeReturn>::literal == "Token") {
+    auto token = dynamic_cast<Token*>(static_cast<Token*>(type));
+    String error = token->getLexeme() + " " + runtimeerror<NuclearLang::NukeClass>::message_;
+    char* result = new char[error.size() + 1];
+    std::strcpy(result, error.c_str());
+    return result;
+  }
+  else if (literal == "TokenType") {
+      try {
+        auto& value = *reinterpret_cast<TokenType*>(type);
+        String error = tokenTypeStrings.at(value) + " " + message_;
+        char* result = new char[error.size() + 1];
+        std::strcpy(result, error.c_str());
+        return result;
+      } catch (...) { throw "Invalid type"; }
+  }
+  return "";
 }

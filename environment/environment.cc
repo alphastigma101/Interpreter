@@ -28,10 +28,10 @@ Any Environment::environment::get(Token name) {
             auto instance = std::any_cast<NuclearLang::NukeInstance*>(search->second);
             return instance->get(name); 
         }
-        throw runtimeerror<Environment::environment>(name.getType(), String("Undefined variable '" + name.getLexeme() + "'.").c_str());
+        throw runtimeerror<Environment::environment>(&name, String("Undefined variable '" + name.getLexeme() + "'.").c_str());
     }
     catch(runtimeerror<Environment::environment>& e) {
-        std::cout << e.getMsg() << std::endl;
+        std::cout << e.what() << std::endl;
         exit(0);
     }
 }
@@ -80,25 +80,37 @@ void Environment::environment::assign(Token name, const Any value) {
             env.insert_or_assign(name.getLexeme(), value);
             return;  
         }
-        //if (newEnv->assign(name.getLexeme(), value, nullptr)) return;
         if (enclosing != nullptr) {
             enclosing->assign(name, value);
             return;
         }
-        throw runtimeerror<Environment::environment>(name.getType(),
+        throw runtimeerror<Environment::environment>(&name,
             String("Undefined variable '" + name.getLexeme() + "'.").c_str());
     }
     catch(runtimeerror<Environment::environment>& e) {
-        std::cout << e.getMsg() << std::endl;
+        literal = "Token";
+        std::cout << e.what() << std::endl;
         exit(0);
     }
 }
 
-const void* Environment::environment::getType() {
-    return reinterpret_cast<TokenType*>(runtimeerror<Environment::environment>::type);
-}
-
-const char* Environment::environment::what(const void *type, const char *msg) throw() {
-    auto a = reinterpret_cast<const TokenType*>(type);
-    return String("Error: " + std::move(tokenTypeStrings.at(*a)) + String(msg)).c_str();
+const char* Environment::environment::what() throw() {
+   if (type == nullptr) return message_;
+   if (literal == "Token") {
+        auto token = dynamic_cast<Token*>(static_cast<Token*>(type));
+        String error = token->getLexeme() + " " + message_;
+        char* result = new char[error.size() + 1];
+        std::strcpy(result, error.c_str());
+        return result;
+    }
+    else if (literal == "TokenType") {
+        try {
+            auto& value = *reinterpret_cast<TokenType*>(type);
+            String error = tokenTypeStrings.at(value) + " " + message_;
+            char* result = new char[error.size() + 1];
+            std::strcpy(result, error.c_str());
+            return result;
+        } catch (...) { throw "Invalid type"; }
+    }
+    return "";
 }

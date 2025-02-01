@@ -12,7 +12,7 @@
  *          interface.h is a package basically and should only be needed if the class that is being declared/defined needs those methods 
  * 
 */
-class Token: public catcher<Token>  {
+class Token  {
     public:
         /** --------------------------------------------------------------------
          * @brief default constructor is needed only for initialization, (Instantiation) of the member vairables
@@ -36,7 +36,6 @@ class Token: public catcher<Token>  {
             if (auto it = tokenTypeStrings.find(type); it != tokenTypeStrings.end()) { return it->second;}
             return "\0";
         };
-        inline static const char* what(const char* msg = std::move(getMsg())) throw() { return msg;};
     private:
         TokenType type;
         String lexeme;

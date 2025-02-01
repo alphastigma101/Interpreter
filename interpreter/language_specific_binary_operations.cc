@@ -13,7 +13,7 @@
 void BinaryOperations::binaryOperations::checkNumberOperands(Token op, Any left, Any right) {
     if (instanceof<double>(&left) && instanceof<double>(&right)) return;
     else if (instanceof<int>(&left) && instanceof<int>(&right)) return;
-    throw runtimeerror<Interpreter::interpreter>(op.getType(), "Operands must be numbers.");
+    throw runtimeerror<Interpreter::interpreter>(&op, "Operands must be numbers.");
 }
 /** -----------------------------------------------------------------------------------------------------------------------------------------------
  * @brief Is a method that checks to see if one object equals the other

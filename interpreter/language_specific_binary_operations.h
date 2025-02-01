@@ -62,14 +62,6 @@ namespace BinaryOperations {
                 if (temp.type() == typeid(T*)) {
                     return true;
                 }
-                #if ENABLE_COMPILER
-                    if (temp.type() == typeid(std::reference_wrapper<T>)) {
-                        return true;
-                    }
-                    if (temp.type() == typeid(NuclearLang::NukeFunction*)) {
-                        return true;
-                    }
-                #endif
                 if (temp.type() == typeid(NuclearLang::NukeInstance*)) {
                     return true;
                 }

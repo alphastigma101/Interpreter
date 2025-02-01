@@ -5,7 +5,7 @@ namespace Interpreter {
     class interpreter: public Visitor<interpreter>, protected NuclearLang::NukeFunction,
                     public logging<interpreter>, protected runtimeerror<interpreter>, public catcher<interpreter>  {
         public:
-            friend class catcher<interpreter>; // Useful for one error
+          
             friend class runtimeerror<interpreter>;
             explicit interpreter(); 
             /** -----------------------------------------------
@@ -76,20 +76,7 @@ namespace Interpreter {
             static bool instanceof(const Any object);
         protected:
             static Any evaluate(ContextFreeGrammar::Expr* conv);
-            inline static const TokenType& getType() { return *static_cast<const TokenType*>(std::move(runtimeerror<interpreter>::type));};
-            /** --------------------------------------
-             * @brief A method that is overloaded by this class 
-             * 
-             * @details It is a method that is defined here which gets called by the definition method inside catcher 
-             * 
-             * @param msg A default argument that calls in a statically inlined method to output the error message
-             * 
-             * @return a string literal. Usually will be ub. Something that you do not want to get
-             * 
-             * ---------------------------------------
-            */
-            inline static const char* what(const char* msg = catcher<interpreter>::getMsg()) throw() { return msg; };
-            static const char* what(const TokenType& type = getType(), const char* msg = runtimeerror<interpreter>::getMsg()) throw();       
+            static const char* what() throw();       
     };
 };
 #endif

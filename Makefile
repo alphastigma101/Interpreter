@@ -34,7 +34,7 @@ SRC_FILES_DEBUG_INTERPRETER := tokens/token.cc cfg/context_free_grammar.cc parse
 
 
 SRC_FILES_TEST_TOKENS := tokens/token.cc tests/test_token.cc
-SRC_FILES_TEST_RUNTIME := tests/test_runtime.cc
+SRC_FILES_TEST_RUNTIME := tokens/token.cc tests/test_runtime.cc
 SRC_FILES_TEST_SCANNER := tokens/token.cc scanner/scanner.cc tests/test_scanner.cc
 SRC_FILES_TEST_AST :=  tokens/token.cc parser/parser.cc ast/abstraction_tree_syntax.cc scanner/scanner.cc tests/test_abstraction_tree_syntax.cc
 SRC_FILES_TEST_PARSER := tokens/token.cc scanner/scanner.cc parser/parser.cc tests/test_parser.cc

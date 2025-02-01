@@ -37,13 +37,13 @@ namespace NuclearLang {
   };
   class NukeReturn: protected runtimeerror<NukeReturn> {
     public:
+      friend class runtimeerror<NuclearLang::NukeReturn>;
       explicit NukeReturn(Any value): value(value) {};
       ~NukeReturn() noexcept = default;
       Any value;
       explicit NukeReturn() noexcept = default;
     protected:
-      static const void* getType(); 
-      static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeReturn>::getMsg()) throw();
+      static const char* what() throw();
 
   };
   class NukeInstance {
@@ -97,6 +97,7 @@ namespace NuclearLang {
     };
     class NukeClass: protected NukeFunction, protected runtimeerror<NukeClass> {
       public:
+        friend class runtimeerror<NuclearLang::NukeClass>;
         /// @brief 
         /// @tparam A 
         /// @tparam B 
@@ -120,8 +121,7 @@ namespace NuclearLang {
         void* fieldProperties;
         void* superclass;
       protected:
-        static const void* getType(); 
-        static const char* what(const void* type = getType(), const char* msg = runtimeerror<NukeClass>::getMsg()) throw();
+        static const char* what() throw();
       private:
           
     };

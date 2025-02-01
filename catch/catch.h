@@ -4,11 +4,10 @@ template<class Type>
 class catcher {
     public:
         explicit catcher() = default;
-        inline static char* getMsg() { return message_; };
         explicit catcher(const char* message) { message_ = const_cast<char*>(message); };
-        inline const char* what(const char* msg = getMsg()) throw() { return msg; };
+        inline static const char* what() { return message_; };
         ~catcher() = default;
-    private:
+    protected:
         static char* message_;
 };
 template<class T>

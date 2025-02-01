@@ -11,7 +11,7 @@
 void unaryOperations::checkNumberOperand(Token op, const Any object) {
     if (instanceof<double>(&object)) return;
     if (instanceof<int>(&object)) return;
-    throw runtimeerror<Interpreter::interpreter>(op, "Operand must be a number.");
+    throw runtimeerror<Interpreter::interpreter>(&op, "Operand must be a number.");
 }
 /** ---------------------------------------------------------------
  * @brief isNumeric Is a helper function for (checkNumberOperands) and (checkNumberOperands)

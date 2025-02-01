@@ -40,14 +40,14 @@ Interpreter::interpreter::interpreter(Vector<ContextFreeGrammar::Statement*> stm
         }
     } 
     catch (runtimeerror<interpreter>& e) {
-        String error = e.what(e.getType<TokenType>(), e.getMsg());
+        //String error = e.what(e.getType<TokenType>(), e.getMsg());
         #if ENABLE_LOGGING
             std::cout << "Logs have been updated!" << std::endl;
             logging<interpreter> logs(error);
             logs.rotate();
             logs_ = logs.getLogs();
         #else
-            std::cout << error << std::endl;
+            //std::cout << error << std::endl;
         #endif
     }                              
 }
@@ -133,7 +133,7 @@ Any Interpreter::interpreter::visitBinaryExpr(ContextFreeGrammar::Binary* expr) 
             if (instanceof<int>(left) && instanceof<int>(right))
                 return std::to_string(std::any_cast<int>(bO->toNumeric(left)) + std::any_cast<int>(bO->toNumeric(right)));
             return std::any_cast<String>(left) + std::any_cast<String>(right);
-            throw runtimeerror<interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
+            //throw runtimeerror<Interpreter::interpreter>(expr->op.getType(), "Operands must be two numbers or two strings.");
             break;
         case TokenType::SLASH:
             bO->checkNumberOperands(expr->op, left, right);
@@ -162,7 +162,8 @@ Any Interpreter::interpreter::visitCallExpr(ContextFreeGrammar::Call* expr) {
             arguments.push_back(evaluate(std::any_cast<ContextFreeGrammar::Expr*>(it)));
         }
         catch(...) {
-            throw runtimeerror<interpreter>(expr->op, "Failed to convert one of the elements in arguments into Expr*");
+            runtimeerror<Interpreter::interpreter>::literal = "Token";
+            throw runtimeerror<interpreter>(&expr->op, "Failed to convert one of the elements in arguments into Expr*");
         }
     }
     if (callee.type() == typeid(NuclearLang::NukeFunction*)) {
@@ -194,7 +195,7 @@ Any Interpreter::interpreter::visitGetExpr(ContextFreeGrammar::Get *expr) {
         return res->get(expr->op);
     }
 
-    throw runtimeerror<Interpreter::interpreter>(expr->op,
+    throw runtimeerror<Interpreter::interpreter>(&expr->op,
         "Only instances have properties.");
 }
 
@@ -249,7 +250,7 @@ Any Interpreter::interpreter::visitClassStmt(ContextFreeGrammar::Class *stmt) {
     if (stmt->superclass != nullptr) {
         superclass = evaluate(stmt->superclass);
         if (!(superclass.type() == typeid(NuclearLang::NukeClass*))) {
-            throw runtimeerror<Interpreter::interpreter>(stmt->superclass->op, "Superclass must be a class.");
+            throw runtimeerror<Interpreter::interpreter>(&stmt->superclass->op, "Superclass must be a class.");
         }
     }
     environment->define(stmt->op.getLexeme(), nullptr);
@@ -386,7 +387,7 @@ Any Interpreter::interpreter::visitSetExpr(ContextFreeGrammar::Set *expr) {
     Any object = evaluate(expr->object);
 
     if (!instanceof<NuclearLang::NukeInstance*>(object))
-        throw  runtimeerror<Interpreter::interpreter>(expr->op, "Only instances have fields.");
+        throw  runtimeerror<Interpreter::interpreter>(&expr->op, "Only instances have fields.");
     Any value = evaluate(expr->value);
     auto res = std::any_cast<NuclearLang::NukeInstance*>(object);
     res->set(expr->op, value);
@@ -409,7 +410,7 @@ Any Interpreter::interpreter::visitSuperExpr(ContextFreeGrammar::Super *expr) {
         auto name = expr->method.getLexeme();
         NuclearLang::NukeFunction* method = superclass.findMethod(&name);
         if (method == nullptr) {
-            throw runtimeerror<Interpreter::interpreter>(expr->method,  String("Undefined property '" + expr->method.getLexeme() + String("'.")).c_str());
+            throw runtimeerror<Interpreter::interpreter>(&expr->method,  String("Undefined property '" + expr->method.getLexeme() + String("'.")).c_str());
         }
         return method->bind(&object);
     }
@@ -460,24 +461,30 @@ bool Interpreter::interpreter::instanceof(const Any object) {
  * 
  * ---------------------------------------
 */
-const char *Interpreter::interpreter::what(const TokenType &type, const char *msg) throw() {
+const char *Interpreter::interpreter::what() throw() {
+    #if ENABLE_LOGGING
+        std::cout << "Logs have been updated!" << std::endl;
+        logging<interpreter> logs(e.what());
+        logs_ = logs.getLogs();
+        logs.rotate();
+    #endif
     static String output;
-    try {
-        if (auto search = tokenTypeStrings.find(type); search != tokenTypeStrings.end()) {
-            output = search->second.c_str() + String(msg);
-            return output.c_str();
-        }
-        else 
-            throw catcher<interpreter>("In interpreter class: Error! conversion has failed!");
+    if (runtimeerror<Interpreter::interpreter>::type == nullptr) return runtimeerror<Interpreter::interpreter>::message_;
+    if (runtimeerror<Interpreter::interpreter>::literal == "Token") {
+        auto token = dynamic_cast<Token*>(static_cast<Token*>(runtimeerror<Interpreter::interpreter>::type));
+        String error = token->getLexeme() + " " + runtimeerror<Interpreter::interpreter>::message_;
+        char* result = new char[error.size() + 1];
+        std::strcpy(result, error.c_str());
+        return result;
     }
-    catch(catcher<interpreter>& e) {
-        #if ENABLE_LOGGING
-            std::cout << "Logs have been updated!" << std::endl;
-            logging<interpreter> logs(e.what());
-            logs_ = logs.getLogs();
-            logs.rotate();
-        #endif
-        std::cout << e.what() << std::endl;
+    else if (runtimeerror<Interpreter::interpreter>::literal == "TokenType") {
+        try {
+            auto& value = *reinterpret_cast<TokenType*>(runtimeerror<Interpreter::interpreter>::type);
+            String error = tokenTypeStrings.at(value) + " " + runtimeerror<Interpreter::interpreter>::message_;
+            char* result = new char[error.size() + 1];
+            std::strcpy(result, error.c_str());
+            return result;
+        } catch (...) { throw "Invalid type"; }
     }
     return output.c_str();
 }

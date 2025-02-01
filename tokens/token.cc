@@ -6,14 +6,9 @@
  * ---------------------------------------------------------------------------
 */
 Token::Token(const TokenType type_, const String lexeme_, const String literal_, const int line_): line(line_) {
-    try {
-        type = type_;
-        lexeme = std::move(lexeme_);
-        literal = std::move(literal_);
-    }
-    catch(...) {
-        throw new catcher<Token>("Undefined Behavior!");
-    }
+    type = type_;
+    lexeme = std::move(lexeme_);
+    literal = std::move(literal_);
 }
 
 /** ---------------------------------------------------------------------------

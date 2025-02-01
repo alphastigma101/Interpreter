@@ -1,7 +1,4 @@
 #include <user_stack.h>
-const void* Stack::stack::getType() {
-    return reinterpret_cast<String*>(runtimeerror<Stack::stack>::type);
-}
 /** --------------------------------------
  * @brief A method that is overloaded here from this class
  *
@@ -15,9 +12,9 @@ const void* Stack::stack::getType() {
  *
  * ---------------------------------------
 */
-const char* Stack::stack::what(const void* type, const char *msg) throw() {
-    auto a = reinterpret_cast<const String*>(type);
-    return String("Error: " + std::move(*a) + String(msg)).c_str();
+const char* Stack::stack::what() throw() {
+    if (runtimeerror<Stack::stack>::type == nullptr) return runtimeerror<Stack::stack>::message_;
+    return "";
 }
 // Function to add an element x to the top of the stack
 void Stack::stack::push(Map<String, bool>* lexical_scope) {
@@ -27,7 +24,11 @@ void Stack::stack::push(Map<String, bool>* lexical_scope) {
 
 // Function to remove the top element from the stack
 void Stack::stack::pop() {
-    if (top < 0) throw runtimeerror<Stack::stack>("Stack is empty!", "There is nothing to pop.");
+    String error = "Stack is empty! There is nothing to pop!";
+    if (top < 0) {
+        runtimeerror<Stack::stack>::literal = "String";
+        throw runtimeerror<Stack::stack>(nullptr, error.c_str());
+    }
     for (int i = 0; i < arr.size(); i++) {
         if (i == top) {
             arr.erase(arr.begin() + i);
@@ -38,13 +39,19 @@ void Stack::stack::pop() {
 }
 // Function to return the top element of the stack
 Map<String, bool>& Stack::stack::peek() {
-    if (top < 0)  throw runtimeerror<Stack::stack>("Stack is empty!", "There is nothing to peek at");
+    String error = "Stack is empty! There is nothing to pop!";
+    if (top < 0)  {
+        runtimeerror<Stack::stack>::literal = "String";
+        throw runtimeerror<Stack::stack>(nullptr, error.c_str());
+    }
     for (int i = 0; i < arr.size(); i++) {
         if (i == top) {
             return arr.at(i);
         }
     }
-    throw runtimeerror<Stack::stack>(String(String("Stack is going out of bounds! top value is: ") + std::to_string(top)).c_str(), " Therefore, Map was not found!");
+    error = "Stack is going out bounds! top value is:" + std::to_string(top) + " Therefore, Map was not found!";
+    runtimeerror<Stack::stack>::literal = "String";
+    throw runtimeerror<Stack::stack>(nullptr, error.c_str());
 }
 
 // Function to check if the stack is empty

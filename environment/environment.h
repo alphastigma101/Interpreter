@@ -25,8 +25,7 @@ namespace Environment {
             inline static Map<String, Any>& getMap() { return env; };
             inline static int count(String key) { return env.count(key); };
         protected:
-            static const void* getType();
-            static const char* what(const void* type = getType(), const char* msg = runtimeerror<environment>::getMsg()) throw();
+            static const char* what() throw();
         private:
             /** --------------------------------------------------------------------------
                 * @brief A map that holds a map and a vector 
