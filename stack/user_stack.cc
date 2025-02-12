@@ -14,6 +14,12 @@
 */
 const char* Stack::stack::what() throw() {
     if (runtimeerror<Stack::stack>::type == nullptr) return runtimeerror<Stack::stack>::message_;
+    else if (literal == "String") {
+        auto str = dynamic_cast<String*>(static_cast<String*>(type));
+        char* result = new char[str->size() + 1];
+        std::strcpy(result, str->c_str());
+        return result;
+    }
     return "";
 }
 // Function to add an element x to the top of the stack
@@ -27,7 +33,7 @@ void Stack::stack::pop() {
     String error = "Stack is empty! There is nothing to pop!";
     if (top < 0) {
         runtimeerror<Stack::stack>::literal = "String";
-        throw runtimeerror<Stack::stack>(nullptr, error.c_str());
+        throw runtimeerror<Stack::stack>(&literal, error.c_str());
     }
     for (int i = 0; i < arr.size(); i++) {
         if (i == top) {
@@ -42,7 +48,7 @@ Map<String, bool>& Stack::stack::peek() {
     String error = "Stack is empty! There is nothing to pop!";
     if (top < 0)  {
         runtimeerror<Stack::stack>::literal = "String";
-        throw runtimeerror<Stack::stack>(nullptr, error.c_str());
+        throw runtimeerror<Stack::stack>(&literal, error.c_str());
     }
     for (int i = 0; i < arr.size(); i++) {
         if (i == top) {
@@ -51,7 +57,7 @@ Map<String, bool>& Stack::stack::peek() {
     }
     error = "Stack is going out bounds! top value is:" + std::to_string(top) + " Therefore, Map was not found!";
     runtimeerror<Stack::stack>::literal = "String";
-    throw runtimeerror<Stack::stack>(nullptr, error.c_str());
+    throw runtimeerror<Stack::stack>(&literal, error.c_str());
 }
 
 // Function to check if the stack is empty

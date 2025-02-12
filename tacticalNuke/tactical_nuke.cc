@@ -261,7 +261,6 @@ void* NuclearLang::NukeInstance::getClassFieldProperties(void *name) {
   if (auto search = properties->find(temp->getLexeme()); search != properties->end()) {
     return &(reinterpret_cast<NuclearLang::NukeProperties&>(search->second));
   }
-  //throw runtimeerror<NuclearLang::NukeClass>();
   return nullptr;
 }
 NuclearLang::NukeFunction* NuclearLang::NukeClass::findMethod(void* name) {
@@ -445,7 +444,7 @@ const char* NuclearLang::NukeReturn::what() throw() {
   if (runtimeerror<NuclearLang::NukeReturn>::type == nullptr) return runtimeerror<NuclearLang::NukeReturn>::message_;
   if (runtimeerror<NuclearLang::NukeReturn>::literal == "Token") {
     auto token = dynamic_cast<Token*>(static_cast<Token*>(type));
-    String error = token->getLexeme() + " " + runtimeerror<NuclearLang::NukeClass>::message_;
+    String error = token->getLexeme() + " " + runtimeerror<NuclearLang::NukeReturn>::message_;
     char* result = new char[error.size() + 1];
     std::strcpy(result, error.c_str());
     return result;

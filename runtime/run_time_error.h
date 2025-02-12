@@ -6,8 +6,6 @@ namespace RunTimeError {
     template<class Type>
     class runtimeerror {
         public:
-            inline static const char* message_{};
-            inline static const char* literal{};
             // Constructor with token and message
             explicit runtimeerror(void* type, const char* message) {
                 message_ = message;
@@ -31,7 +29,8 @@ namespace RunTimeError {
             // Default constructor
             explicit runtimeerror() = default;
             inline static void* type = nullptr;
-            //inline static char* message_{};
+            inline static const char* message_{};
+            inline static const char* literal{};
     };
 };
 using namespace RunTimeError;

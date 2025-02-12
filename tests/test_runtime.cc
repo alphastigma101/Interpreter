@@ -7,8 +7,8 @@
 #include <cstring>
 
 class StringPropertyError : protected runtimeerror<StringPropertyError> {
-    friend class runtimeerror<StringPropertyError>;
     public:
+        friend class runtimeerror<StringPropertyError>;
         explicit StringPropertyError() = default;
         static const char* what() throw();
 };
@@ -34,7 +34,7 @@ const char *StringPropertyError::what() throw() {
     return "";
 }
 
-class RuntimeErrorTest :  public ::testing::Test {
+class RuntimeErrorTest : public StringPropertyError, public ::testing::Test {
     friend class StringPropertyError;
     protected:
         void SetUp() override {}
